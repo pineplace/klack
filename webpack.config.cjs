@@ -6,7 +6,7 @@ module.exports = {
   mode: "production",
   entry: {
     popup: "./ui/popup.jsx",
-    controls: "./ui/controls.jsx"
+    controls: "./ui/controls.jsx",
   },
   output: {
     path: path.join(__dirname, "./public"),

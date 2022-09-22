@@ -7,24 +7,14 @@ import { Button, ButtonGroup } from "@mui/material";
 // https://stackoverflow.com/questions/56592426/inject-js-only-on-specific-tab-on-chrome-extension
 
 const App = () => {
-  const onScreenAndCameraClick = () => {
-    chrome.tabs
-      .query({
-        active: true,
-        currentWindow: true,
-      })
-      .then(([tab]) => {
-        chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          files: ["./public/controls.bundle.mjs"],
-        });
-      });
-  };
-
   return (
     <>
       <ButtonGroup variant='contained'>
-        <Button onClick={onScreenAndCameraClick}>Screen & Camera</Button>
+        <Button
+          onClick={() => chrome.runtime.sendMessage({ mode: "Screen&Camera" })}
+        >
+          Screen & Camera
+        </Button>
       </ButtonGroup>
     </>
   );

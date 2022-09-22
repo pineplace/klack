@@ -6,6 +6,10 @@
   "action": {
     "default_popup": "./public/popup.html"
   },
+  "background": {
+    "service_worker": "./src/background.mjs",
+    "type": "module"
+  },
   "permissions": [
     "scripting",
     "tabs",
