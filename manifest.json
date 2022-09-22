@@ -1,0 +1,14 @@
+{
+  "name": "Rapidrec",
+  "description": "Write me",
+  "version": "0.1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "./public/popup.html"
+  },
+  "permissions": [
+    "scripting",
+    "tabs",
+    "activeTab"
+  ]
+}

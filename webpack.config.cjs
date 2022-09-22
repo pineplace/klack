@@ -3,8 +3,10 @@ const ESLintPlugin = require("eslint-webpack-plugin");
 
 module.exports = {
   devtool: "cheap-module-source-map",
+  mode: "production",
   entry: {
     popup: "./ui/popup.jsx",
+    controls: "./ui/controls.jsx"
   },
   output: {
     path: path.join(__dirname, "./public"),
