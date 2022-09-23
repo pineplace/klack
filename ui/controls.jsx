@@ -5,11 +5,14 @@ import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 // NOTE @imblowfish: https://www.npmjs.com/package/react-draggable
-
 const Controls = () => {
   return (
     <Draggable>
       <Fab
+        sx={{
+          position: "fixed",
+          bottom: "100px",
+        }}
         color='primary'
         aria-label='add'
       >
