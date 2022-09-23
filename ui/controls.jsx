@@ -4,6 +4,8 @@ import Draggable from "react-draggable";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
+import ids from "../islands/ids.mjs";
+
 // NOTE @imblowfish: https://www.npmjs.com/package/react-draggable
 const Controls = () => {
   return (
@@ -22,14 +24,13 @@ const Controls = () => {
   );
 };
 
-const rootId = "rapidrec-controls";
 const body = document.getElementsByTagName("body")[0];
 const div = document.createElement("div");
 
-div.id = rootId;
+div.id = ids.CONTROLS;
 if (body) {
   body.prepend(div);
 }
 
-const root = ReactDOM.createRoot(document.getElementById(rootId));
+const root = ReactDOM.createRoot(document.getElementById(ids.CONTROLS));
 root.render(<Controls />);
