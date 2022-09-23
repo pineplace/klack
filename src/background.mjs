@@ -12,10 +12,7 @@ async function updateMode(mode) {
       // ignore double controls creation
       return;
     }
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
+    const tab = await chrome.tabs.getCurrent();
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
       files: ["./public/controls.bundle.mjs"],
