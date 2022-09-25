@@ -4,7 +4,7 @@ import Draggable from "react-draggable";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-import ids from "../islands/ids.mjs";
+import { Id } from "../islands/enums";
 
 // NOTE @imblowfish: https://www.npmjs.com/package/react-draggable
 const Controls = () => {
@@ -26,11 +26,12 @@ const Controls = () => {
 
 const body = document.getElementsByTagName("body")[0];
 const div = document.createElement("div");
-
-div.id = ids.CONTROLS;
+div.id = Id.CONTROLS;
 if (body) {
   body.prepend(div);
 }
 
-const root = ReactDOM.createRoot(document.getElementById(ids.CONTROLS));
+const root = ReactDOM.createRoot(
+  document.getElementById(div.id) as Element | DocumentFragment
+);
 root.render(<Controls />);
