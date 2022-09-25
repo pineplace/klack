@@ -1,5 +1,5 @@
 {
-  "name": "rapidrec-chrome-xtension",
+  "name": "rapidrec-chrome-extension",
   "version": "0.1.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
