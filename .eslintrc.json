@@ -7,10 +7,15 @@
     },
     "extends": [
         "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "plugin:react/recommended",
         "prettier"
     ],
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
+        "tsconfigRootDir": "./",
+        "project": "./tsconfig.json",
         "ecmaFeatures": {
             "jsx": true
         },
@@ -18,6 +23,7 @@
         "sourceType": "module"
     },
     "plugins": [
+        "@typescript-eslint",
         "react",
         "react-hooks",
         "prettier"
