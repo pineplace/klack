@@ -1,26 +1,39 @@
 import { Mode, Id } from "../islands/enums";
 import { Request } from "../islands/types";
 
-const context = {
+interface Context {
+  mode: Mode;
+  tabId: number;
+}
+
+const context: Context = {
   mode: Mode.NONE,
   tabId: 0,
 };
 
 async function injectControlsOnTab(tabId: number): Promise<void> {
-  await chrome.scripting.executeScript({
-    target: { tabId },
-    files: ["./public/controls.bundle.mjs"],
-  });
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ["./public/controls.bundle.mjs"],
+    });
+  } catch (err) {
+    console.error("injectedControlsOnTab error", err);
+  }
 }
 
 async function removeInjectedControlsOnTab(tabId: number): Promise<void> {
-  await chrome.scripting.executeScript({
-    target: { tabId },
-    func: (id) => {
-      document.getElementById(id)?.remove();
-    },
-    args: [Id.CONTROLS],
-  });
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      func: (id) => {
+        document.getElementById(id)?.remove();
+      },
+      args: [Id.CONTROLS],
+    });
+  } catch (err) {
+    console.error("removeInjectedControlsOnTab error", err);
+  }
 }
 
 async function updateMode(mode: Mode): Promise<void> {
@@ -47,34 +60,25 @@ async function updateMode(mode: Mode): Promise<void> {
 // NOTE @imblowfish: https://developer.chrome.com/docs/extensions/mv3/messaging/
 chrome.runtime.onMessage.addListener((req: Request /*, sender, res */) => {
   if (req?.mode) {
-    updateMode(req.mode).catch((err: DOMException) => {
-      console.error(`Can't update mode ${JSON.stringify(err)}`);
+    updateMode(req.mode).catch((err) => {
+      console.error("Can't update mode", err);
     });
   }
 });
+
+async function updateTab(tabId: number) {
+  await removeInjectedControlsOnTab(context.tabId);
+  await injectControlsOnTab(tabId);
+  context.tabId = tabId;
+}
 
 chrome.tabs.onActivated.addListener((tabInfo: chrome.tabs.TabActiveInfo) => {
   if (context.mode !== Mode.SCREEN_AND_CAMERA) {
     return;
   }
-  removeInjectedControlsOnTab(context.tabId)
-    .then(() => {
-      context.tabId = tabInfo.tabId;
-      injectControlsOnTab(context.tabId).catch((err: DOMException) => {
-        console.error(
-          `Can't inject code into ${context.tabId}, cause ${JSON.stringify(
-            err
-          )}`
-        );
-      });
-    })
-    .catch((err: DOMException) => {
-      console.error(
-        `Can't remove injected code from tab ${
-          context.tabId
-        }, cause ${JSON.stringify(err)}`
-      );
-    });
+  updateTab(tabInfo.tabId).catch((err: DOMException) =>
+    console.error("Can't update tab", err)
+  );
 });
 
 chrome.tabs.onRemoved.addListener(() => {
