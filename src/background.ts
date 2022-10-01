@@ -1,88 +1,117 @@
-import { Mode, Id } from "../islands/enums";
-import { Request } from "../islands/types";
+import { RecordMode, Identifier, RecordState } from "../islands/enums";
+import { Request, Response } from "../islands/types";
 
 interface Context {
-  mode: Mode;
-  tabId: number;
+  tab?: chrome.tabs.Tab;
+  recordMode?: RecordMode;
+  recordState?: RecordState;
+}
+const ctx: Context = {};
+
+async function getCurrentTab(): Promise<chrome.tabs.Tab> {
+  const [tab] = await chrome.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+  return tab;
 }
 
-const context: Context = {
-  mode: Mode.NONE,
-  tabId: 0,
-};
+async function showControls(tab?: chrome.tabs.Tab): Promise<void> {
+  const { id } = tab ?? (await getCurrentTab());
+  await chrome.scripting.executeScript({
+    target: { tabId: id ?? 0 },
+    files: ["./public/controls.bundle.mjs"],
+  });
+}
 
-async function injectControlsOnTab(tabId: number): Promise<void> {
-  try {
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ["./public/controls.bundle.mjs"],
-    });
-  } catch (err) {
-    console.error("injectedControlsOnTab error", err);
+async function hideControls(tab?: chrome.tabs.Tab): Promise<void> {
+  const { id } = tab ?? (await getCurrentTab());
+  await chrome.scripting.executeScript({
+    target: { tabId: id ?? 0 },
+    func: (controlsElementId) => {
+      document.getElementById(controlsElementId)?.remove();
+    },
+    args: [Identifier.Controls],
+  });
+}
+
+
+async function setRecordMode(recordMode: RecordMode): Promise<void> {
+  ctx.recordMode = recordMode;
+  switch (recordMode) {
+    case RecordMode.ScreenAndCam:
+      return showControls(ctx?.tab);
   }
 }
 
-async function removeInjectedControlsOnTab(tabId: number): Promise<void> {
-  try {
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      func: (id) => {
-        document.getElementById(id)?.remove();
-      },
-      args: [Id.CONTROLS],
-    });
-  } catch (err) {
-    console.error("removeInjectedControlsOnTab error", err);
-  }
-}
+async function setRecordState(recordState: RecordState): Promise<void> {
+  ctx.recordState = recordState;
 
-async function updateMode(mode: Mode): Promise<void> {
-  if (mode === Mode.NONE) {
-    // TODO @imblowfish: Implement me
-  } else if (mode === Mode.SCREEN_AND_CAMERA) {
-    if (context.mode === mode) {
-      // ignore double controls creation
-      return;
-    }
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-    context.tabId = tab.id ?? 0;
-    await injectControlsOnTab(context.tabId);
-  } else {
-    console.error(`Unknown mode ${mode as string}`);
-    return;
+  switch (recordState) {
+    case RecordState.Start:
+      // TODO: Implement me
+      return new Promise((resolve) => {
+        console.log("Start record");
+        resolve();
+      });
   }
-  context.mode = mode;
 }
 
 // NOTE @imblowfish: https://developer.chrome.com/docs/extensions/mv3/messaging/
-chrome.runtime.onMessage.addListener((req: Request /*, sender, res */) => {
-  if (req?.mode) {
-    updateMode(req.mode).catch((err) => {
-      console.error("Can't update mode", err);
-    });
+chrome.runtime.onMessage.addListener((req: Request, sender, sendResponse) => {
+  console.log("onMessage", req);
+  if (sender.tab?.active) {
+    ctx.tab = sender.tab;
+    console.log("Set new tab", ctx.tab);
   }
+
+  const promises = [];
+
+  if (req.recordMode) {
+    console.log("Set new record mode", req.recordMode);
+    promises.push(setRecordMode(req.recordMode));
+  }
+  if (req.recordState) {
+    console.log("Set new record state", req.recordState);
+    promises.push(setRecordState(req.recordState));
+  }
+
+  Promise.all(promises)
+    .then((promises) => {
+      for (const promise of promises) {
+        console.log("Successfully done promise", promise);
+      }
+      sendResponse({ success: true } as Response);
+    })
+    .catch((err) => {
+      console.error(err);
+      sendResponse({ success: false } as Response);
+    });
 });
 
-async function updateTab(tabId: number) {
-  await removeInjectedControlsOnTab(context.tabId);
-  await injectControlsOnTab(tabId);
-  context.tabId = tabId;
-}
-
-chrome.tabs.onActivated.addListener((tabInfo: chrome.tabs.TabActiveInfo) => {
-  if (context.mode !== Mode.SCREEN_AND_CAMERA) {
+chrome.tabs.onActivated.addListener((/* tabInfo */) => {
+  if (!ctx.recordMode) {
+    console.warn("Tab activated, current mode is empty");
     return;
   }
-  updateTab(tabInfo.tabId).catch((err: DOMException) =>
-    console.error("Can't update tab", err)
-  );
+  getCurrentTab()
+    .then((tab) => {
+      ctx.tab = tab;
+      hideControls(ctx.tab)
+        .then(() => {
+          showControls().catch((err) =>
+            console.error("Can't show controls on current tab", err)
+          );
+        })
+        .catch((err) =>
+          console.error("Can't hide controls on previous tab", err)
+        );
+    })
+    .catch((err) => console.error("Can't get current tab", err));
 });
 
 chrome.tabs.onRemoved.addListener(() => {
-  updateMode(Mode.NONE).catch((err: DOMException) => {
-    console.error(`Can't update mode to NONE ${JSON.stringify(err)}`);
-  });
+  setRecordMode(RecordMode.Undefined).catch((err) =>
+    console.error("onRemoved error", err)
+  );
 });

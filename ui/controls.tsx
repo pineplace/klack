@@ -10,7 +10,7 @@ import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledR
 import StopCircleRoundedIcon from "@mui/icons-material/StopCircleRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 
-import { Id } from "../islands/enums";
+import { Identifier } from "../islands/enums";
 
 // NOTE @imblowfish: https://www.npmjs.com/package/react-draggable
 const Controls = () => {
@@ -57,7 +57,7 @@ const Controls = () => {
 
 const body = document.getElementsByTagName("body")[0];
 const div = document.createElement("div");
-div.id = Id.CONTROLS;
+div.id = Identifier.Controls;
 if (body) {
   body.prepend(div);
 }

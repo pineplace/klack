@@ -1,7 +1,12 @@
-import { Mode } from "./enums";
+import { RecordMode, RecordState } from "./enums";
 
 interface Request {
-  mode: Mode;
+  recordMode?: RecordMode;
+  recordState?: RecordState;
 }
 
-export { Request };
+interface Response {
+  success: boolean;
+}
+
+export { Request, Response };
