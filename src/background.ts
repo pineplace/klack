@@ -36,6 +36,15 @@ async function hideControls(tabId: number): Promise<void> {
   });
 }
 
+async function startRecord(): Promise<void> { // eslint-disable-line
+  // TODO: Implement me
+  console.log("startRecord");
+}
+
+async function stopRecord(): Promise<void> { // eslint-disable-line
+  // TODOO: Implement me
+  console.log("stopRecord");
+}
 
 async function setRecordMode(recordMode: RecordMode): Promise<void> {
   ctx.recordMode = recordMode;
@@ -43,6 +52,12 @@ async function setRecordMode(recordMode: RecordMode): Promise<void> {
   switch (recordMode) {
     case RecordMode.ScreenAndCam:
       return showControls(ctx.tabId);
+    case RecordMode.ScreenOnly:
+      // TODO: Implement me
+      console.log("Set Screen Only mode");
+      return new Promise((resolve) => resolve);
+    default:
+      throw new Error(`Unknown record mode ${recordMode}`);
   }
 }
 
@@ -51,11 +66,11 @@ async function setRecordState(recordState: RecordState): Promise<void> {
 
   switch (recordState) {
     case RecordState.Start:
-      // TODO: Implement me
-      return new Promise((resolve) => {
-        console.log("Start record");
-        resolve();
-      });
+      return startRecord();
+    case RecordState.Stop:
+      return stopRecord();
+    default:
+      throw new Error(`Unknown recordState ${recordState}`);
   }
 }
 
@@ -97,8 +112,8 @@ chrome.tabs.onActivated.addListener((tabInfo) => {
       return;
     }
 
-    if (!ctx.recordMode) {
-      console.log("recordMode is None, ignore onActivate");
+    if (ctx.recordMode !== RecordMode.ScreenAndCam) {
+      console.log("recordMode is not `Screen & Cam`, ignore onActivate");
       return;
     }
 
