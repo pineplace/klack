@@ -21,6 +21,7 @@ const App = () => {
     >
       <ButtonGroup variant='contained'>
         <Button
+          disabled
           onClick={() => {
             sendRequest({ recordMode: RecordMode.ScreenAndCam })
               .then((resp) => console.log(JSON.stringify(resp)))
