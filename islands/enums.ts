@@ -1,10 +1,15 @@
-enum Mode {
-  NONE = "None",
-  SCREEN_AND_CAMERA = "ScreenAndCamera",
+export enum RecordMode {
+  None,
+  ScreenAndCam,
+  ScreenOnly,
 }
 
-enum Id {
-  CONTROLS = "rapidrec-controls",
+export enum RecordState {
+  None,
+  Start,
+  Stop,
 }
 
-export { Mode, Id };
+export enum Identifier {
+  Controls = "rapidrec-controls",
+}
