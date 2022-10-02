@@ -7,6 +7,7 @@ export enum RecordMode {
 export enum RecordState {
   None,
   Start,
+  Stop,
 }
 
 export enum Identifier {

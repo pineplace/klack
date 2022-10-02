@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import { Button, ButtonGroup, Stack } from "@mui/material";
 
@@ -6,6 +6,8 @@ import { RecordMode, RecordState } from "../islands/enums";
 import { Request, Response } from "../islands/types";
 
 const App = () => {
+  const [recInProgress, setRecInProgress] = useState(false);
+
   const sendRequest = async (req: Request): Promise<Response> => {
     return await chrome.runtime.sendMessage(req);
   };
@@ -39,12 +41,16 @@ const App = () => {
       </ButtonGroup>
       <Button
         onClick={() => {
-          sendRequest({ recordState: RecordState.Start })
-            .then((resp) => console.log(JSON.stringify(resp)))
+          const state = recInProgress ? RecordState.Stop : RecordState.Start;
+          sendRequest({ recordState: state })
+            .then((resp) => {
+              console.log(JSON.stringify(resp));
+              setRecInProgress(state === RecordState.Start);
+            })
             .catch((err) => console.error(err));
         }}
       >
-        Start Record
+        {recInProgress ? "Stop Record" : "Start Record"}
       </Button>
     </Stack>
   );
