@@ -1,10 +1,11 @@
 export enum RecordMode {
-  Undefined,
+  None,
   ScreenAndCam,
   ScreenOnly,
 }
 
 export enum RecordState {
+  None,
   Start,
 }
 

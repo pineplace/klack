@@ -2,32 +2,33 @@ import { RecordMode, Identifier, RecordState } from "../islands/enums";
 import { Request, Response } from "../islands/types";
 
 interface Context {
-  tab?: chrome.tabs.Tab;
+  tabId: number;
   recordMode?: RecordMode;
   recordState?: RecordState;
 }
-const ctx: Context = {};
+const ctx: Context = {
+  tabId: 0,
+};
 
-async function getCurrentTab(): Promise<chrome.tabs.Tab> {
-  const [tab] = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  return tab;
-}
+// NOTE: Maybe useful in the future
+// async function getCurrentTabId(): Promise<number> {
+//   const [tab] = await chrome.tabs.query({
+//     active: true,
+//     currentWindow: true,
+//   });
+//   return tab.id ?? 0;
+// }
 
-async function showControls(tab?: chrome.tabs.Tab): Promise<void> {
-  const { id } = tab ?? (await getCurrentTab());
+async function showControls(tabId: number): Promise<void> {
   await chrome.scripting.executeScript({
-    target: { tabId: id ?? 0 },
+    target: { tabId },
     files: ["./public/controls.bundle.mjs"],
   });
 }
 
-async function hideControls(tab?: chrome.tabs.Tab): Promise<void> {
-  const { id } = tab ?? (await getCurrentTab());
+async function hideControls(tabId: number): Promise<void> {
   await chrome.scripting.executeScript({
-    target: { tabId: id ?? 0 },
+    target: { tabId },
     func: (controlsElementId) => {
       document.getElementById(controlsElementId)?.remove();
     },
@@ -38,9 +39,10 @@ async function hideControls(tab?: chrome.tabs.Tab): Promise<void> {
 
 async function setRecordMode(recordMode: RecordMode): Promise<void> {
   ctx.recordMode = recordMode;
+
   switch (recordMode) {
     case RecordMode.ScreenAndCam:
-      return showControls(ctx?.tab);
+      return showControls(ctx.tabId);
   }
 }
 
@@ -60,10 +62,6 @@ async function setRecordState(recordState: RecordState): Promise<void> {
 // NOTE @imblowfish: https://developer.chrome.com/docs/extensions/mv3/messaging/
 chrome.runtime.onMessage.addListener((req: Request, sender, sendResponse) => {
   console.log("onMessage", req);
-  if (sender.tab?.active) {
-    ctx.tab = sender.tab;
-    console.log("Set new tab", ctx.tab);
-  }
 
   const promises = [];
 
@@ -89,29 +87,41 @@ chrome.runtime.onMessage.addListener((req: Request, sender, sendResponse) => {
     });
 });
 
-chrome.tabs.onActivated.addListener((/* tabInfo */) => {
-  if (!ctx.recordMode) {
-    console.warn("Tab activated, current mode is empty");
-    return;
-  }
-  getCurrentTab()
-    .then((tab) => {
-      ctx.tab = tab;
-      hideControls(ctx.tab)
-        .then(() => {
-          showControls().catch((err) =>
-            console.error("Can't show controls on current tab", err)
-          );
-        })
-        .catch((err) =>
-          console.error("Can't hide controls on previous tab", err)
-        );
-    })
-    .catch((err) => console.error("Can't get current tab", err));
+chrome.tabs.onActivated.addListener((tabInfo) => {
+  const redrawControls = async () => {
+    if (!ctx.tabId) {
+      ctx.tabId = tabInfo.tabId;
+      console.log(
+        `Don't have previous tab id, just set new tabId ${ctx.tabId}`
+      );
+      return;
+    }
+
+    if (!ctx.recordMode) {
+      console.log("recordMode is None, ignore onActivate");
+      return;
+    }
+
+    console.log(`Hide controls from previous tab with id ${ctx.tabId}`);
+    await hideControls(ctx.tabId);
+    ctx.tabId = tabInfo.tabId;
+    console.log(`Show controls on current tab with id ${ctx.tabId}`);
+    await showControls(ctx.tabId);
+  };
+
+  redrawControls().catch((err) =>
+    console.error("Can't redrawControls, error", err)
+  );
 });
 
 chrome.tabs.onRemoved.addListener(() => {
-  setRecordMode(RecordMode.Undefined).catch((err) =>
-    console.error("onRemoved error", err)
-  );
+  console.log("onRemoved");
+  ctx.tabId = 0;
+  console.log("set tabId = 0");
+  setRecordState(RecordState.None)
+    .then(() => console.log("Set recordState to None"))
+    .catch((err) => console.error("onRemoved setRecordState error", err));
+  setRecordMode(RecordMode.None)
+    .then(() => console.log("Set recordMode to None"))
+    .catch((err) => console.error("onRemoved setRecordMode error", err));
 });
