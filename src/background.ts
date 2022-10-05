@@ -3,21 +3,14 @@ import { Request, Response } from "../islands/types";
 
 interface Context {
   tabId: number;
-  recordMode?: RecordMode;
-  recordState?: RecordState;
+  recordMode: RecordMode;
+  recordState: RecordState;
 }
 const ctx: Context = {
   tabId: 0,
+  recordMode: RecordMode.None,
+  recordState: RecordState.None,
 };
-
-// NOTE: Maybe useful in the future
-// async function getCurrentTabId(): Promise<number> {
-//   const [tab] = await chrome.tabs.query({
-//     active: true,
-//     currentWindow: true,
-//   });
-//   return tab.id ?? 0;
-// }
 
 async function showControls(tabId: number): Promise<void> {
   await chrome.scripting.executeScript({
@@ -36,14 +29,23 @@ async function hideControls(tabId: number): Promise<void> {
   });
 }
 
-async function startRecord(): Promise<void> { // eslint-disable-line
-  // TODO: Implement me
+async function startRecord(): Promise<void> {
   console.log("startRecord");
+  if (ctx.recordMode === RecordMode.None) {
+    console.warn("Current record mode is 'None', ignore startRecord");
+    return;
+  }
+
+  await chrome.scripting.executeScript({
+    target: { tabId: ctx.tabId },
+    files: ["./public/screensharing.bundle.mjs"],
+  });
 }
 
-async function stopRecord(): Promise<void> { // eslint-disable-line
-  // TODOO: Implement me
-  console.log("stopRecord");
+async function stopRecord(url: string): Promise<void> {
+  // NOTE: https://developer.chrome.com/docs/extensions/reference/downloads/
+  console.log("stopRecord, download url", url);
+  await chrome.downloads.download({ url });
 }
 
 async function setRecordMode(recordMode: RecordMode): Promise<void> {
@@ -61,16 +63,18 @@ async function setRecordMode(recordMode: RecordMode): Promise<void> {
   }
 }
 
-async function setRecordState(recordState: RecordState): Promise<void> {
-  ctx.recordState = recordState;
+async function setRecordState(req: Request): Promise<void> {
+  ctx.recordState = req.recordState ?? RecordState.None;
 
-  switch (recordState) {
+  switch (req.recordState) {
     case RecordState.Start:
       return startRecord();
     case RecordState.Stop:
-      return stopRecord();
+      return stopRecord(req.url ?? "");
     default:
-      throw new Error(`Unknown recordState ${recordState}`);
+      throw new Error(
+        `Unknown recordState ${req.recordState ?? RecordState.None}`
+      );
   }
 }
 
@@ -86,7 +90,7 @@ chrome.runtime.onMessage.addListener((req: Request, sender, sendResponse) => {
   }
   if (req.recordState) {
     console.log("Set new record state", req.recordState);
-    promises.push(setRecordState(req.recordState));
+    promises.push(setRecordState(req));
   }
 
   Promise.all(promises)
@@ -133,7 +137,7 @@ chrome.tabs.onRemoved.addListener(() => {
   console.log("onRemoved");
   ctx.tabId = 0;
   console.log("set tabId = 0");
-  setRecordState(RecordState.None)
+  setRecordState({ recordState: RecordState.None } as Request)
     .then(() => console.log("Set recordState to None"))
     .catch((err) => console.error("onRemoved setRecordState error", err));
   setRecordMode(RecordMode.None)
