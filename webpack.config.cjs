@@ -10,6 +10,7 @@ module.exports = {
     controls: "./ui/controls.tsx",
     // extension background
     background: "./src/background.ts",
+    screensharing: "./src/screensharing.ts",
   },
   output: {
     path: path.join(__dirname, "./public"),
