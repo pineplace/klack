@@ -48,7 +48,7 @@ export class DeInjector {
       func: (componentId: string) => {
         document.getElementById(componentId)?.remove();
       },
-      args: [camViewAndControlsId], // TODO: Change id
+      args: [camViewAndControlsId],
     });
   }
 }
