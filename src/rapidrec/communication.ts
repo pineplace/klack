@@ -65,7 +65,7 @@ export type Message =
   | BrowserTabClosing;
 export type MessageResponse = Success | Failure;
 
-/** `UI<->background` channel communication */
+/** `UI<->background` communication channel */
 export async function sendMessage(message: Message): Promise<MessageResponse> {
   return await chrome.runtime.sendMessage(message);
 }
