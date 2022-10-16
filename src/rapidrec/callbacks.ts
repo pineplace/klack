@@ -1,6 +1,7 @@
 import {
   BrowserTabChange,
   BrowserTabClosing,
+  Success,
   Failure,
   Message,
   MessageResponse,
@@ -20,6 +21,25 @@ class UnknownMethodError extends Error {
     super(message);
     this.name = "UnknownMethodError";
   }
+}
+
+/** `background<->background` communication channel */
+async function pushMessage(message: Message): Promise<MessageResponse> {
+  return new Promise((resolve, reject) => {
+    onMessage(message, {} as Sender, (response) => {
+      if (response?.result === MethodResult.Failed) {
+        reject(response);
+      } else {
+        resolve(response ?? ({ result: MethodResult.Success } as Success));
+      }
+    }).catch((err) =>
+      reject({
+        errCode: ErrorCode.Some,
+        message: (err as Error).message,
+        result: MethodResult.Failed,
+      } as Failure)
+    );
+  });
 }
 
 export async function onMessage(
@@ -65,18 +85,10 @@ export async function onMessage(
 export async function onTabChange(newTabInfo: ActiveTabInfo): Promise<void> {
   console.log(`callbacks onTabChange ${JSON.stringify(newTabInfo)}`);
   try {
-    await onMessage(
-      {
-        method: Method.BrowserTabChange,
-        params: { tabId: newTabInfo.tabId },
-      } as BrowserTabChange,
-      {} as Sender,
-      (response) => {
-        console.log(
-          `callback onTabChange response ${JSON.stringify(response)}`
-        );
-      }
-    );
+    await pushMessage({
+      method: Method.BrowserTabChange,
+      params: { tabId: newTabInfo.tabId },
+    } as BrowserTabChange);
   } catch (err) {
     console.error(`callbacks onTabChange error ${(err as Error).message}`);
   }
@@ -88,17 +100,10 @@ export async function onTabClosing(
 ): Promise<void> {
   console.log(`callbacks onTabClosing ${closedTabId}`);
   try {
-    await onMessage(
-      {
-        method: Method.BrowserTabClosing,
-        params: { tabId: closedTabId },
-      } as BrowserTabClosing,
-      {} as Sender,
-      (response) =>
-        console.log(
-          `callbacks onTabClosing response ${JSON.stringify(response)}`
-        )
-    );
+    await pushMessage({
+      method: Method.BrowserTabClosing,
+      params: { tabId: closedTabId },
+    } as BrowserTabClosing);
   } catch (err) {
     console.log(`callbacks onTabClosing error ${(err as Error).message}`);
   }
