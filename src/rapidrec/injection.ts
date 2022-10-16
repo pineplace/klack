@@ -1,8 +1,8 @@
 import { camViewAndControlsId } from "../config";
 
 enum Injection {
-  ScreenCapture = "./public/screen_capture.bundle.mjs",
-  CamViewAndControls = "./public/cam_view_and_controls.mjs",
+  ScreenCapture = "./public/screenCapture.bundle.mjs",
+  CamViewAndControls = "./public/camViewAndControls.mjs",
 }
 
 export class Injector {
