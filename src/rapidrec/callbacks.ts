@@ -67,7 +67,7 @@ export async function onMessage(
     console.log(
       `callbacks onMessage, sendResponse ${JSON.stringify(response)}`
     );
-    sendResponse(await methods.get(message.method)?.(message));
+    sendResponse(response);
   } catch (err) {
     console.error((err as Error).message);
     const response = {
