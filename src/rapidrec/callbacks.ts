@@ -28,6 +28,8 @@ export async function onMessage(
   _sender: Sender,
   sendResponse: ResponseCallback
 ): Promise<void> {
+  console.log(`callbacks onMessage ${JSON.stringify(message)}`);
+
   const methods = new Map([
     [Method.RecSetMode, RapidRec.setMode],
     [Method.RecStart, RapidRec.startRecording],
@@ -42,18 +44,27 @@ export async function onMessage(
         `Invalid message with unknown method ${JSON.stringify(message)}`
       );
     }
+    const response = await methods.get(message.method)?.(message);
+    console.log(
+      `callbacks onMessage, sendResponse ${JSON.stringify(response)}`
+    );
     sendResponse(await methods.get(message.method)?.(message));
   } catch (err) {
     console.error((err as Error).message);
-    sendResponse({
+    const response = {
       result: MethodResult.Failed,
       errCode: ErrorCode.Some,
       message: (err as Error).message,
-    } as Failure);
+    } as Failure;
+    console.log(
+      `callbacks onMessage, sendResponse as error ${JSON.stringify(response)}`
+    );
+    sendResponse(response);
   }
 }
 
 export async function onTabChange(newTabInfo: ActiveTabInfo): Promise<void> {
+  console.log(`callbacks onTabChange ${JSON.stringify(newTabInfo)}`);
   try {
     const response = await pushMessage({
       method: Method.BrowserTabChange,
@@ -61,7 +72,7 @@ export async function onTabChange(newTabInfo: ActiveTabInfo): Promise<void> {
     } as BrowserTabChange);
     console.log(JSON.stringify(response));
   } catch (err) {
-    console.error((err as Error).message);
+    console.error(`callbacks onTabChange error ${(err as Error).message}`);
   }
 }
 
@@ -69,6 +80,7 @@ export async function onTabClosing(
   closedTabId: number,
   _removeInfo: RemoveInfo
 ): Promise<void> {
+  console.log(`callbacks onTabClosing ${closedTabId}`);
   try {
     const response = await pushMessage({
       method: Method.BrowserTabClosing,
@@ -76,6 +88,6 @@ export async function onTabClosing(
     } as BrowserTabClosing);
     console.log(JSON.stringify(response));
   } catch (err) {
-    console.error((err as Error).message);
+    console.log(`callbacks onTabClosing error ${(err as Error).message}`);
   }
 }
