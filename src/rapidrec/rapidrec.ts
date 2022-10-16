@@ -33,6 +33,7 @@ export class RapidRec {
 
   /* Public events */
   static async setMode(message: Message): Promise<MessageResponse> {
+    console.log(`RapidRec setMode ${JSON.stringify(message)}`);
     message = message as RecSetMode;
 
     switch (message.params.mode) {
@@ -49,7 +50,8 @@ export class RapidRec {
     return { result: MethodResult.Success } as Success;
   }
 
-  static async startRecording(_message: Message): Promise<MessageResponse> {
+  static async startRecording(message: Message): Promise<MessageResponse> {
+    console.log(`RapidRec startRecording ${JSON.stringify(message)}`);
     if (!RapidRec.ctx.mode) {
       throw new Error("Current mode is `null`, can't start recording");
     }
@@ -58,6 +60,7 @@ export class RapidRec {
   }
 
   static async stopRecording(message: Message): Promise<MessageResponse> {
+    console.log(`RapidRec stopRecording ${JSON.stringify(message)}`);
     message = message as RecStop;
 
     await chrome.downloads.download({
@@ -68,6 +71,7 @@ export class RapidRec {
 
   /* Internal events */
   static async handleTabChange(message: Message): Promise<MessageResponse> {
+    console.log(`RapidRec handleTabChange ${JSON.stringify(message)}`);
     message = message as BrowserTabChange;
 
     if (RapidRec.ctx.mode === RecMode.ScreenAndCam) {
@@ -79,6 +83,7 @@ export class RapidRec {
   }
 
   static async handleTabClosing(message: Message): Promise<MessageResponse> {
+    console.log(`RapidRec handleTabClosing ${JSON.stringify(message)}`);
     message as BrowserTabClosing;
 
     RapidRec.ctx.currentTab = 0;
