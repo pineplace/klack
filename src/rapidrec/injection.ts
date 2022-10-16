@@ -5,18 +5,9 @@ enum Injection {
   CamViewAndControls = "./public/cam_view_and_controls.mjs",
 }
 
-const injectionOriginalFile = new Map([
-  [Injection.ScreenCapture, "./src/injections/screen_capture.ts"],
-  [Injection.CamViewAndControls, "./src/injections/cam_view_and_controls.mjs"],
-]);
-
 export class Injector {
   static async screenCapture(tabId: number): Promise<void> {
-    console.log(
-      `Trying to inject ${
-        injectionOriginalFile.get(Injection.ScreenCapture) ?? ""
-      }`
-    );
+    console.log(`Trying to inject ${Injection.ScreenCapture ?? ""}`);
     await chrome.scripting.executeScript({
       target: { tabId },
       files: [Injection.ScreenCapture],
@@ -24,11 +15,7 @@ export class Injector {
   }
 
   static async camViewAndControls(tabId: number): Promise<void> {
-    console.log(
-      `Trying to inject ${
-        injectionOriginalFile.get(Injection.CamViewAndControls) ?? ""
-      }`
-    );
+    console.log(`Trying to inject ${Injection.CamViewAndControls ?? ""}`);
     await chrome.scripting.executeScript({
       target: { tabId },
       files: [Injection.CamViewAndControls],
@@ -39,9 +26,7 @@ export class Injector {
 export class DeInjector {
   static async camViewAndControls(tabId: number): Promise<void> {
     console.log(
-      `Trying to remove injection ${
-        injectionOriginalFile.get(Injection.CamViewAndControls) ?? ""
-      }`
+      `Trying to remove injection ${Injection.CamViewAndControls ?? ""}`
     );
     await chrome.scripting.executeScript({
       target: { tabId },
