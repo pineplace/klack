@@ -6,7 +6,6 @@ import {
   MessageResponse,
   Method,
   MethodResult,
-  pushMessage,
 } from "./communication";
 import { ErrorCode } from "./enums";
 import { RapidRec } from "./rapidrec";
@@ -66,11 +65,18 @@ export async function onMessage(
 export async function onTabChange(newTabInfo: ActiveTabInfo): Promise<void> {
   console.log(`callbacks onTabChange ${JSON.stringify(newTabInfo)}`);
   try {
-    const response = await pushMessage({
-      method: Method.BrowserTabChange,
-      params: { tabId: newTabInfo.tabId },
-    } as BrowserTabChange);
-    console.log(JSON.stringify(response));
+    await onMessage(
+      {
+        method: Method.BrowserTabChange,
+        params: { tabId: newTabInfo.tabId },
+      } as BrowserTabChange,
+      {} as Sender,
+      (response) => {
+        console.log(
+          `callback onTabChange response ${JSON.stringify(response)}`
+        );
+      }
+    );
   } catch (err) {
     console.error(`callbacks onTabChange error ${(err as Error).message}`);
   }
@@ -82,11 +88,17 @@ export async function onTabClosing(
 ): Promise<void> {
   console.log(`callbacks onTabClosing ${closedTabId}`);
   try {
-    const response = await pushMessage({
-      method: Method.BrowserTabClosing,
-      params: { tabId: closedTabId },
-    } as BrowserTabClosing);
-    console.log(JSON.stringify(response));
+    await onMessage(
+      {
+        method: Method.BrowserTabClosing,
+        params: { tabId: closedTabId },
+      } as BrowserTabClosing,
+      {} as Sender,
+      (response) =>
+        console.log(
+          `callbacks onTabClosing response ${JSON.stringify(response)}`
+        )
+    );
   } catch (err) {
     console.log(`callbacks onTabClosing error ${(err as Error).message}`);
   }

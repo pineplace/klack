@@ -69,8 +69,3 @@ export type MessageResponse = Success | Failure;
 export async function sendMessage(message: Message): Promise<MessageResponse> {
   return await chrome.runtime.sendMessage(message);
 }
-
-/** `sendMessage` alias for `background<->background` communication */
-export function pushMessage(message: Message): Promise<MessageResponse> {
-  return sendMessage(message);
-}
