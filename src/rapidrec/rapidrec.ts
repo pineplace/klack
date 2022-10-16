@@ -75,7 +75,9 @@ export class RapidRec {
     message = message as BrowserTabChange;
 
     if (RapidRec.ctx.mode === RecMode.ScreenAndCam) {
-      await DeInjector.camViewAndControls(RapidRec.ctx.currentTab);
+      if (RapidRec.ctx.currentTab) {
+        await DeInjector.camViewAndControls(RapidRec.ctx.currentTab);
+      }
       await Injector.camViewAndControls(message.params.tabId);
     }
     RapidRec.ctx.currentTab = message.params.tabId;
