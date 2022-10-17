@@ -3,6 +3,8 @@
  * and the UI/tabs via a specific list of methods that the extension
  * supports
  */
+import { ErrorCode } from "./errors";
+import { RecMode } from "./modes";
 
 export enum Method {
   RecSetMode = "RecSetMode",

@@ -12,7 +12,7 @@ import {
   Method,
   MethodResult,
 } from "./communication";
-import { ErrorCode } from "./enums";
+import { ErrorCode } from "./errors";
 import { RapidRec } from "./rapidrec";
 
 /* Short aliases for Chrome extension types */
