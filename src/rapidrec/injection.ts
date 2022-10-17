@@ -2,6 +2,7 @@
  * Implements the `Injector` and `DeInjector` abstractions
  * which can inject or remove already injected code from the tab
  */
+import { camViewAndControlsId } from "./identifiers";
 
 // NOTE: Injection refers to bundled files in `public` not original files
 enum Injection {

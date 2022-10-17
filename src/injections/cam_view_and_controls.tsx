@@ -14,7 +14,7 @@ import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledR
 import StopCircleRoundedIcon from "@mui/icons-material/StopCircleRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 
-import { camViewAndControlsId } from "../config";
+import { camViewAndControlsId } from "../rapidrec/identifiers";
 
 // NOTE @imblowfish: https://www.npmjs.com/package/react-draggable
 const Controls = () => {

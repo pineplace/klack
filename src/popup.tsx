@@ -7,8 +7,8 @@ import {
   RecSetMode,
   RecStart,
   sendMessage,
-} from "../rapidrec/communication";
-import { RecMode } from "../rapidrec/enums";
+} from "./rapidrec/communication";
+import { RecMode } from "./rapidrec/modes";
 
 const App = () => {
   return (

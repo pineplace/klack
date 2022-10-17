@@ -6,7 +6,7 @@ module.exports = {
   mode: "production",
   entry: {
     background: "./src/background.ts",
-    popup: "./src/ui/popup.tsx",
+    popup: "./src/popup.tsx",
     camViewAndControls: "./src/injections/cam_view_and_controls.tsx",
     screenCapture: "./src/injections/screen_capture.ts",
   },
