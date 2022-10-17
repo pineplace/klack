@@ -1,3 +1,7 @@
+/**
+ * This code implements the creation on the current tab of the component
+ * to display the camera view and controls
+ */
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import Draggable from "react-draggable";

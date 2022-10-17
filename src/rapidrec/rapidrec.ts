@@ -1,4 +1,7 @@
-import { RecMode } from "./enums";
+/**
+ * Implements high-level extension functions that are
+ * called from a `callbacks.ts` file
+ */
 import {
   BrowserTabChange,
   BrowserTabClosing,

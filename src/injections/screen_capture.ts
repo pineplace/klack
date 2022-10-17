@@ -1,9 +1,10 @@
+/**
+ * This code implements the selection of the device to capture,
+ * the screen capture itself, and the generation of the URL of the
+ * result
+ */
 import { Method, RecStop, sendMessage } from "../rapidrec/communication";
 
-/**
- * NOTE: This code is injected by `background` script
- *       and executed in the browser
- */
 async function startCapture(): Promise<void> {
   // NOTE: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
   const mediaStream = await navigator.mediaDevices.getDisplayMedia({

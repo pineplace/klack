@@ -1,3 +1,7 @@
+/**
+ * This module implements the extension event handler via async/await
+ * that are passed from the `background.ts` script
+ */
 import {
   BrowserTabChange,
   BrowserTabClosing,
@@ -11,6 +15,7 @@ import {
 import { ErrorCode } from "./enums";
 import { RapidRec } from "./rapidrec";
 
+/* Short aliases for Chrome extension types */
 export type Sender = chrome.runtime.MessageSender;
 export type ResponseCallback = (response?: MessageResponse) => void;
 export type ActiveTabInfo = chrome.tabs.TabActiveInfo;

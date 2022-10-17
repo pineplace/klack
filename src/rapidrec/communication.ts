@@ -1,4 +1,8 @@
-import { ErrorCode, RecMode } from "./enums";
+/**
+ * This module implements the interaction between the extension
+ * and the UI/tabs via a specific list of methods that the extension
+ * supports
+ */
 
 export enum Method {
   RecSetMode = "RecSetMode",
