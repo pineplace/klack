@@ -1,3 +1,7 @@
+/**
+ * This code implements the creation on the current tab of the component
+ * to display the camera view and controls
+ */
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import Draggable from "react-draggable";
@@ -10,7 +14,7 @@ import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledR
 import StopCircleRoundedIcon from "@mui/icons-material/StopCircleRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 
-import { Identifier } from "../islands/enums";
+import { camViewAndControlsId } from "../rapidrec/identifiers";
 
 // NOTE @imblowfish: https://www.npmjs.com/package/react-draggable
 const Controls = () => {
@@ -57,7 +61,7 @@ const Controls = () => {
 
 const body = document.getElementsByTagName("body")[0];
 const div = document.createElement("div");
-div.id = Identifier.Controls;
+div.id = camViewAndControlsId;
 if (body) {
   body.prepend(div);
 }

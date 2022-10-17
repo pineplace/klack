@@ -1,10 +1,10 @@
-import { RecordState } from "../islands/enums";
-import { Request } from "../islands/types";
-
 /**
- * NOTE: This code is injected by `background` script
- *       and executed in the browser
+ * This code implements the selection of the device to capture,
+ * the screen capture itself, and the generation of the URL of the
+ * result
  */
+import { Method, RecStop, sendMessage } from "../rapidrec/communication";
+
 async function startCapture(): Promise<void> {
   // NOTE: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
   const mediaStream = await navigator.mediaDevices.getDisplayMedia({
@@ -40,11 +40,12 @@ async function startCapture(): Promise<void> {
     // NOTE: https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
     const url = URL.createObjectURL(blob);
     console.log("File url", url);
-    chrome.runtime
-      .sendMessage({
-        recordState: RecordState.Stop,
-        url,
-      } as Request)
+    sendMessage({
+      method: Method.RecStop,
+      params: {
+        downloadUrl: url,
+      },
+    } as RecStop)
       .then((response) => {
         console.log("Downloaded", response);
       })

@@ -1,5 +1,6 @@
 {
   "name": "rapidrec-chrome-extension",
+  "description": "Instant screen recording browser extension with floating camera view",
   "version": "0.1.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -7,7 +8,18 @@
     "lint": "eslint --ext .ts --ext .tsx .",
     "fmt": "prettier --write ."
   },
-  "author": "Yury Getman <imblowfish@duck.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imblowfish/rapidrec-chrome-extension"
+  },
+  "author": {
+    "name": "Yury Getman",
+    "email": "imblowfish@duck.com",
+    "url": "https://github.com/imblowfish"
+  },
+  "bugs": {
+    "url": "https://github.com/imblowfish/rapidrec-chrome-extension/issues"
+  },
   "license": "ISC",
   "dependencies": {
     "@babel/core": "^7.19.1",
