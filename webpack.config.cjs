@@ -7,7 +7,7 @@ module.exports = {
   entry: {
     background: "./src/background.ts",
     popup: "./src/popup.tsx",
-    camViewAndControls: "./src/injections/cam_view_and_controls.tsx",
+    cameraBubble: "./src/injections/camera_bubble.tsx",
     screenCapture: "./src/injections/screen_capture.ts",
   },
   output: {

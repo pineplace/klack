@@ -2,12 +2,12 @@
  * Implements the `Injector` and `DeInjector` abstractions
  * which can inject or remove already injected code from the tab
  */
-import { camViewAndControlsId } from "./identifiers";
+import { cameraBubbleId } from "./identifiers";
 
 // NOTE: Injection refers to bundled files in `public` not original files
 enum Injection {
   ScreenCapture = "./public/screenCapture.bundle.mjs",
-  CamViewAndControls = "./public/camViewAndControls.bundle.mjs",
+  CameraBubble = "./public/cameraBubble.bundle.mjs",
 }
 
 export class Injector {
@@ -19,26 +19,24 @@ export class Injector {
     });
   }
 
-  static async camViewAndControls(tabId: number): Promise<void> {
-    console.log(`Trying to inject ${Injection.CamViewAndControls ?? ""}`);
+  static async cameraBubble(tabId: number): Promise<void> {
+    console.log(`Trying to inject ${Injection.CameraBubble ?? ""}`);
     await chrome.scripting.executeScript({
       target: { tabId },
-      files: [Injection.CamViewAndControls],
+      files: [Injection.CameraBubble],
     });
   }
 }
 
 export class DeInjector {
-  static async camViewAndControls(tabId: number): Promise<void> {
-    console.log(
-      `Trying to remove injection ${Injection.CamViewAndControls ?? ""}`
-    );
+  static async cameraBubble(tabId: number): Promise<void> {
+    console.log(`Trying to remove injection ${Injection.CameraBubble ?? ""}`);
     await chrome.scripting.executeScript({
       target: { tabId },
       func: (componentId: string) => {
         document.getElementById(componentId)?.remove();
       },
-      args: [camViewAndControlsId],
+      args: [cameraBubbleId],
     });
   }
 }
