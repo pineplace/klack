@@ -9,7 +9,7 @@ import {
 } from "../rapidrec/communication";
 import { RecMode } from "../rapidrec/modes";
 
-export const Menu = () => {
+export const PopupMenu = () => {
   return (
     <Stack
       direction='column'

@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import { Menu } from "./components/menu";
+import { PopupMenu } from "./components/popup_menu";
 
 const App = () => {
-  return <Menu />;
+  return <PopupMenu />;
 };
 
 const root = ReactDOM.createRoot(
