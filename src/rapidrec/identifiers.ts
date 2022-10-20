@@ -1,1 +1,1 @@
-export const camViewAndControlsId = "rapidrec-cam-views-and-controls";
+export const cameraBubbleId = "rapidrec-camera-bubble";

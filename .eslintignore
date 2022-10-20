@@ -1,6 +1,7 @@
-node_modules/
+.storybook/
 .vscode/
 
+node_modules/
 public/
 
 webpack.config.cjs

@@ -45,7 +45,7 @@ export class RapidRec {
         // Do nothing
         break;
       case RecMode.ScreenAndCam:
-        await Injector.camViewAndControls(RapidRec.ctx.currentTab);
+        await Injector.cameraBubble(RapidRec.ctx.currentTab);
         break;
       default:
         throw new Error(`Unknown record mode ${message.params.mode as string}`);
@@ -80,9 +80,9 @@ export class RapidRec {
 
     if (RapidRec.ctx.mode === RecMode.ScreenAndCam) {
       if (RapidRec.ctx.currentTab) {
-        await DeInjector.camViewAndControls(RapidRec.ctx.currentTab);
+        await DeInjector.cameraBubble(RapidRec.ctx.currentTab);
       }
-      await Injector.camViewAndControls(message.params.tabId);
+      await Injector.cameraBubble(message.params.tabId);
     }
     RapidRec.ctx.currentTab = message.params.tabId;
     return { result: MethodResult.Success } as Success;
