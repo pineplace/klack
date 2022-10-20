@@ -19,7 +19,7 @@ export const PopupMenu = () => {
     >
       <ButtonGroup variant='contained'>
         <Button
-          // disabled
+          disabled
           onClick={() => {
             sendMessage({
               method: Method.RecSetMode,
