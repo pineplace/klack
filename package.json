@@ -6,7 +6,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --progress",
     "lint": "eslint --ext .ts --ext .tsx .",
-    "fmt": "prettier --write ."
+    "fmt": "prettier --write .",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "repository": {
     "type": "git",
@@ -58,7 +60,9 @@
     "@storybook/testing-library": "^0.0.13",
     "@types/chrome": "^0.0.199",
     "@types/react-dom": "^18.0.6",
-    "@typescript-eslint/eslint-plugin": "^5.38.0",
-    "@typescript-eslint/parser": "^5.38.0"
+    "@typescript-eslint/eslint-plugin": "^5.40.1",
+    "@typescript-eslint/parser": "^5.40.1",
+    "eslint-plugin-storybook": "^0.6.6",
+    "storybook": "^6.5.12"
   }
 }
