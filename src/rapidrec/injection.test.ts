@@ -1,6 +1,12 @@
 import { cameraBubbleId } from "./identifiers";
 import { Injector, DeInjector, Injection } from "./injection";
 
+beforeEach(() => {
+  console.log = jest.fn();
+  console.warn = jest.fn();
+  console.error = () => jest.fn();
+});
+
 describe("Injector", () => {
   test("screenCapture", async () => {
     globalThis.chrome = {

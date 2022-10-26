@@ -24,6 +24,12 @@ import { RecMode } from "./modes";
 
 jest.mock("./rapidrec");
 
+beforeEach(() => {
+  console.log = jest.fn();
+  console.warn = jest.fn();
+  console.error = () => jest.fn();
+});
+
 describe("onMessage", () => {
   describe("Methods", () => {
     test("RecSetMode", async () => {
