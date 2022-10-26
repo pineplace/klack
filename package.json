@@ -3,7 +3,9 @@
   "description": "Instant screen recording browser extension with floating camera view",
   "version": "0.1.0",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
     "build": "webpack --progress",
     "lint": "eslint --ext .ts --ext .tsx .",
     "fmt": "prettier --write .",
@@ -60,10 +62,13 @@
     "@storybook/react": "^6.5.12",
     "@storybook/testing-library": "^0.0.13",
     "@types/chrome": "^0.0.199",
+    "@types/jest": "^29.2.0",
     "@types/react-dom": "^18.0.6",
     "@typescript-eslint/eslint-plugin": "^5.40.1",
     "@typescript-eslint/parser": "^5.40.1",
     "eslint-plugin-storybook": "^0.6.6",
-    "storybook": "^6.5.12"
+    "jest": "^29.2.2",
+    "storybook": "^6.5.12",
+    "ts-jest": "^29.0.3"
   }
 }
