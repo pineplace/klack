@@ -1,6 +1,8 @@
 node_modules/
+coverage/
 
 package-lock.json
 
 public/*
 !public/*.html
+.jest-test-results.json

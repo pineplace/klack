@@ -15,7 +15,7 @@ import {
 } from "./communication";
 import { Injector, DeInjector } from "./injection";
 
-enum State {
+export enum State {
   Idle,
   Recording,
 }
@@ -92,8 +92,9 @@ export class RapidRec {
     console.log(`RapidRec handleTabClosing ${JSON.stringify(message)}`);
     message as BrowserTabClosing;
 
-    RapidRec.ctx.currentTab = 0;
+    RapidRec.ctx.mode = null;
     RapidRec.ctx.state = State.Idle;
+    RapidRec.ctx.currentTab = 0;
 
     // NOTE @imblowfish: Just a hint for compatibility with other functions
     return new Promise((resolve) =>

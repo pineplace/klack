@@ -1,7 +1,9 @@
 .storybook/
 .vscode/
+coverage/
 
 node_modules/
 public/
 
+jest.config.js
 webpack.config.cjs

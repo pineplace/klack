@@ -25,3 +25,9 @@ export default {
 const Template: ComponentStory<typeof CameraBubble> = () => <CameraBubble />;
 
 export const Default = Template.bind({});
+Default.args = {
+  text: "Jest results in Storybook",
+};
+Default.parameters = {
+  jest: "camera_bubble.test.tsx",
+};
