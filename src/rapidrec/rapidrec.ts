@@ -88,7 +88,7 @@ export class RapidRec {
     return { result: MethodResult.Success } as Success;
   }
 
-  static async handleTabClosing(message: Message): Promise<MessageResponse> {
+  static handleTabClosing(message: Message): Promise<MessageResponse> {
     console.log(`RapidRec handleTabClosing ${JSON.stringify(message)}`);
     message as BrowserTabClosing;
 
