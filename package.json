@@ -1,7 +1,7 @@
 {
   "name": "rapidrec-chrome-extension",
   "description": "Instant screen recording browser extension with floating camera view",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "scripts": {
     "test": "jest",
     "test:coverage": "jest --coverage",
