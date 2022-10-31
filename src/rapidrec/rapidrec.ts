@@ -2,13 +2,13 @@
  * Implements high-level extension functions that are
  * called from a `callbacks.ts` file
  */
-import { RecMode } from "./modes";
 import {
   BrowserTabChange,
   BrowserTabClosing,
   Message,
   MessageResponse,
   MethodResult,
+  RecMode,
   RecSetMode,
   RecStop,
   Success,

@@ -4,7 +4,6 @@
  * supports
  */
 import { ErrorCode } from "./errors";
-import { RecMode } from "./modes";
 
 export enum Method {
   RecSetMode = "RecSetMode",
@@ -30,6 +29,11 @@ export interface Failure {
 }
 
 /* Methods */
+export enum RecMode {
+  ScreenOnly = "ScreenOnly",
+  ScreenAndCam = "ScreenAndCam",
+}
+
 export interface RecSetMode {
   method: Method.RecSetMode;
   params: {

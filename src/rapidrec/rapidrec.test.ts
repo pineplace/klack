@@ -3,13 +3,13 @@ import {
   BrowserTabClosing,
   Method,
   MethodResult,
+  RecMode,
   RecSetMode,
   RecStart,
   RecStop,
   Success,
 } from "./communication";
 import { DeInjector, Injector } from "./injection";
-import { RecMode } from "./modes";
 import { RapidRec, State } from "./rapidrec";
 
 jest.mock("./injection");

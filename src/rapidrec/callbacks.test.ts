@@ -14,13 +14,13 @@ import {
   MessageResponse,
   Method,
   MethodResult,
+  RecMode,
   RecSetMode,
   RecStart,
   RecStop,
   Success,
 } from "./communication";
 import { ErrorCode } from "./errors";
-import { RecMode } from "./modes";
 
 jest.mock("./rapidrec");
 
