@@ -158,7 +158,7 @@ describe("onMessage", () => {
   describe("Invalid messages", () => {
     const unknownMethodResult = {
       result: MethodResult.Failed,
-      errCode: ErrorCode.Some,
+      errCode: ErrorCode.CallbackOnMessage,
     };
 
     test("{} message", async () => {
