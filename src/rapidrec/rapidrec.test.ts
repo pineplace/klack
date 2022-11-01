@@ -1,6 +1,7 @@
 import {
   BrowserTabChange,
   BrowserTabClosing,
+  Failure,
   Method,
   MethodResult,
   RecMode,
@@ -9,6 +10,7 @@ import {
   RecStop,
   Success,
 } from "./communication";
+import { ErrorCode } from "./errors";
 import { DeInjector, Injector } from "./injection";
 import { RapidRec, State } from "./rapidrec";
 
@@ -55,14 +57,18 @@ describe("setMode", () => {
   });
 
   test("Unknown mode", async () => {
-    await expect(
-      RapidRec.setMode({
-        method: Method.RecSetMode,
-        params: {
-          mode: "ABCD" as RecMode,
-        },
-      } as RecSetMode)
-    ).rejects.toThrow("Unknown record mode ABCD");
+    const response = await RapidRec.setMode({
+      method: Method.RecSetMode,
+      params: {
+        mode: "ABCD" as RecMode,
+      },
+    } as RecSetMode);
+
+    expect(response).toEqual({
+      errCode: ErrorCode.Some,
+      message: "RapidRec setMode: Unknown record mode ABCD",
+      result: MethodResult.Failed,
+    } as Failure);
   });
 });
 
@@ -71,12 +77,16 @@ describe("startRecording", () => {
     RapidRec.ctx.mode = null;
     Injector.screenCapture = jest.fn();
 
-    await expect(
-      RapidRec.startRecording({
-        method: Method.RecStart,
-      } as RecStart)
-    ).rejects.toThrow("Current mode is `null`, can't start recording");
+    const response = await RapidRec.startRecording({
+      method: Method.RecStart,
+    } as RecStart);
 
+    expect(response).toEqual({
+      errCode: ErrorCode.Some,
+      message:
+        "RapidRec startRecording: Current mode is `null`, can't start recording",
+      result: MethodResult.Failed,
+    } as Failure);
     expect(Injector.screenCapture).not.toBeCalled();
   });
 
@@ -85,10 +95,13 @@ describe("startRecording", () => {
     RapidRec.ctx.currentTab = 777;
     Injector.screenCapture = jest.fn();
 
-    await RapidRec.startRecording({
+    const response = await RapidRec.startRecording({
       method: Method.RecStart,
     } as RecStart);
 
+    expect(response).toEqual({
+      result: MethodResult.Success,
+    } as Success);
     expect(Injector.screenCapture).toHaveBeenCalledTimes(1);
     expect(Injector.screenCapture).toHaveBeenCalledWith(
       RapidRec.ctx.currentTab
@@ -96,25 +109,57 @@ describe("startRecording", () => {
   });
 });
 
-test("stopRecording", async () => {
-  globalThis.chrome = {
-    // @ts-expect-error Chrome global object doesn't implemented in jest context, but TS waiting for it
-    downloads: {
-      download: jest.fn(),
-    },
-  };
-  const msg = {
-    method: Method.RecStop,
-    params: {
-      downloadUrl: "http://some.com",
-    },
-  } as RecStop;
+describe("stopRecording", () => {
+  test("Successful download", async () => {
+    globalThis.chrome = {
+      // @ts-expect-error Chrome global object doesn't implemented in jest context, but TS waiting for it
+      downloads: {
+        download: jest.fn(),
+      },
+    };
+    const msg = {
+      method: Method.RecStop,
+      params: {
+        downloadUrl: "http://some.com",
+      },
+    } as RecStop;
 
-  await RapidRec.stopRecording(msg);
+    const response = await RapidRec.stopRecording(msg);
 
-  expect(chrome.downloads.download).toHaveBeenCalledTimes(1);
-  expect(chrome.downloads.download).toHaveBeenCalledWith({
-    url: msg.params.downloadUrl,
+    expect(response).toEqual({
+      result: MethodResult.Success,
+    } as Success);
+    expect(chrome.downloads.download).toHaveBeenCalledTimes(1);
+    expect(chrome.downloads.download).toHaveBeenCalledWith({
+      url: msg.params.downloadUrl,
+    });
+  });
+
+  test("Download failed", async () => {
+    globalThis.chrome = {
+      // @ts-expect-error Chrome global object doesn't implemented in jest context, but TS waiting for it
+      downloads: {
+        download: jest.fn().mockRejectedValue(new Error("Some download error")),
+      },
+    };
+    const msg = {
+      method: Method.RecStop,
+      params: {
+        downloadUrl: "http://some.com",
+      },
+    } as RecStop;
+
+    const response = await RapidRec.stopRecording(msg);
+
+    expect(response).toEqual({
+      errCode: ErrorCode.Some,
+      message: "RapidRec stopRecording: Some download error",
+      result: MethodResult.Failed,
+    } as Failure);
+    expect(chrome.downloads.download).toHaveBeenCalledTimes(1);
+    expect(chrome.downloads.download).toHaveBeenCalledWith({
+      url: msg.params.downloadUrl,
+    });
   });
 });
 
@@ -125,13 +170,16 @@ describe("handleTabChange", () => {
     Injector.cameraBubble = jest.fn();
     DeInjector.cameraBubble = jest.fn();
 
-    await RapidRec.handleTabChange({
+    const response = await RapidRec.handleTabChange({
       method: Method.BrowserTabChange,
       params: {
         tabId: 12,
       },
     } as BrowserTabChange);
 
+    expect(response).toEqual({
+      result: MethodResult.Success,
+    } as Success);
     expect(RapidRec.ctx.currentTab).toEqual(12);
     expect(Injector.cameraBubble).not.toBeCalled();
     expect(DeInjector.cameraBubble).not.toBeCalled();
@@ -143,13 +191,16 @@ describe("handleTabChange", () => {
     Injector.cameraBubble = jest.fn();
     DeInjector.cameraBubble = jest.fn();
 
-    await RapidRec.handleTabChange({
+    const response = await RapidRec.handleTabChange({
       method: Method.BrowserTabChange,
       params: {
         tabId: 13,
       },
     } as BrowserTabChange);
 
+    expect(response).toEqual({
+      result: MethodResult.Success,
+    } as Success);
     expect(RapidRec.ctx.currentTab).toEqual(13);
     expect(Injector.cameraBubble).not.toBeCalled();
     expect(DeInjector.cameraBubble).not.toBeCalled();
@@ -161,13 +212,16 @@ describe("handleTabChange", () => {
     Injector.cameraBubble = jest.fn();
     DeInjector.cameraBubble = jest.fn();
 
-    await RapidRec.handleTabChange({
+    const response = await RapidRec.handleTabChange({
       method: Method.BrowserTabChange,
       params: {
         tabId: 14,
       },
     } as BrowserTabChange);
 
+    expect(response).toEqual({
+      result: MethodResult.Success,
+    } as Success);
     expect(RapidRec.ctx.currentTab).toEqual(14);
     expect(Injector.cameraBubble).toBeCalledTimes(1);
     expect(Injector.cameraBubble).toHaveBeenLastCalledWith(14);
@@ -180,31 +234,107 @@ describe("handleTabChange", () => {
     Injector.cameraBubble = jest.fn();
     DeInjector.cameraBubble = jest.fn();
 
-    await RapidRec.handleTabChange({
+    const response = await RapidRec.handleTabChange({
       method: Method.BrowserTabChange,
       params: {
         tabId: 16,
       },
     } as BrowserTabChange);
 
+    expect(response).toEqual({
+      result: MethodResult.Success,
+    } as Success);
     expect(RapidRec.ctx.currentTab).toEqual(16);
     expect(Injector.cameraBubble).toBeCalledTimes(1);
     expect(Injector.cameraBubble).toHaveBeenLastCalledWith(16);
     expect(DeInjector.cameraBubble).toBeCalledTimes(1);
     expect(DeInjector.cameraBubble).toHaveBeenLastCalledWith(15);
   });
+
+  test("Injector error", async () => {
+    RapidRec.ctx.mode = RecMode.ScreenAndCam;
+    RapidRec.ctx.currentTab = 0;
+    Injector.cameraBubble = jest
+      .fn()
+      .mockRejectedValue(new Error("Some Injector error"));
+    DeInjector.cameraBubble = jest.fn();
+
+    const response = await RapidRec.handleTabChange({
+      method: Method.BrowserTabChange,
+      params: {
+        tabId: 123,
+      },
+    } as BrowserTabChange);
+
+    expect(response).toEqual({
+      errCode: ErrorCode.Some,
+      message: "RapidRec handleTabChange: Some Injector error",
+      result: MethodResult.Failed,
+    } as Failure);
+    expect(RapidRec.ctx.currentTab).not.toEqual(123);
+    expect(Injector.cameraBubble).toBeCalledTimes(1);
+    expect(Injector.cameraBubble).toHaveBeenLastCalledWith(123);
+    expect(DeInjector.cameraBubble).not.toBeCalled();
+  });
+
+  test("DeInjector error", async () => {
+    RapidRec.ctx.mode = RecMode.ScreenAndCam;
+    RapidRec.ctx.currentTab = 1;
+    Injector.cameraBubble = jest.fn();
+    DeInjector.cameraBubble = jest
+      .fn()
+      .mockRejectedValue(new Error("Some DeInjector error"));
+
+    const response = await RapidRec.handleTabChange({
+      method: Method.BrowserTabChange,
+      params: {
+        tabId: 321,
+      },
+    } as BrowserTabChange);
+
+    expect(response).toEqual({
+      errCode: ErrorCode.Some,
+      message: "RapidRec handleTabChange: Some DeInjector error",
+      result: MethodResult.Failed,
+    } as Failure);
+    expect(RapidRec.ctx.currentTab).not.toEqual(321);
+    expect(DeInjector.cameraBubble).toHaveBeenCalledTimes(1);
+    expect(DeInjector.cameraBubble).toHaveBeenLastCalledWith(1);
+    expect(Injector.cameraBubble).not.toBeCalled();
+  });
 });
 
-test("handleTabClosing", async () => {
-  RapidRec.ctx.mode = RecMode.ScreenAndCam;
-  RapidRec.ctx.state = State.Recording;
-  RapidRec.ctx.currentTab = 111;
+describe("handleTabClosing", () => {
+  test("Correct context", async () => {
+    RapidRec.ctx.mode = RecMode.ScreenAndCam;
+    RapidRec.ctx.state = State.Recording;
+    RapidRec.ctx.currentTab = 111;
 
-  await RapidRec.handleTabClosing({
-    method: Method.BrowserTabClosing,
-  } as BrowserTabClosing);
+    const response = await RapidRec.handleTabClosing({
+      method: Method.BrowserTabClosing,
+    } as BrowserTabClosing);
 
-  expect(RapidRec.ctx.mode).toEqual(null);
-  expect(RapidRec.ctx.state).toEqual(State.Idle);
-  expect(RapidRec.ctx.currentTab).toEqual(0);
+    expect(response).toEqual({
+      result: MethodResult.Success,
+    } as Success);
+    expect(RapidRec.ctx.mode).toEqual(null);
+    expect(RapidRec.ctx.state).toEqual(State.Idle);
+    expect(RapidRec.ctx.currentTab).toEqual(0);
+  });
+
+  test("Context is undefined", async () => {
+    // @ts-expect-error: Here the meaning of the test is that the context is incorrect
+    RapidRec.ctx = undefined;
+
+    const response = await RapidRec.handleTabClosing({
+      method: Method.BrowserTabClosing,
+    } as BrowserTabClosing);
+
+    expect(response).toEqual({
+      errCode: ErrorCode.Some,
+      result: MethodResult.Failed,
+      message:
+        "RapidRec setMode: Cannot set properties of undefined (setting 'mode')",
+    } as Failure);
+  });
 });
