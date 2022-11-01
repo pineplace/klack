@@ -39,7 +39,7 @@ async function pushMessage(message: Message): Promise<MessageResponse> {
       }
     }).catch((err) =>
       reject({
-        errCode: ErrorCode.Some,
+        errCode: ErrorCode.CallbackPushMessage,
         message: (err as Error).message,
         result: MethodResult.Failed,
       } as Failure)
@@ -76,7 +76,7 @@ export async function onMessage(
   } catch (err) {
     const response = {
       result: MethodResult.Failed,
-      errCode: ErrorCode.Some,
+      errCode: ErrorCode.CallbackOnMessage,
       message: (err as Error).message,
     } as Failure;
 

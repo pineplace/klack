@@ -58,7 +58,7 @@ export class RapidRec {
     } catch (err) {
       return {
         result: MethodResult.Failed,
-        errCode: ErrorCode.Some,
+        errCode: ErrorCode.RapidRecMethodExecution,
         message: `RapidRec setMode: ${(err as Error).message}`,
       } as Failure;
     }
@@ -76,7 +76,7 @@ export class RapidRec {
     } catch (err) {
       return {
         result: MethodResult.Failed,
-        errCode: ErrorCode.Some,
+        errCode: ErrorCode.RapidRecMethodExecution,
         message: `RapidRec startRecording: ${(err as Error).message}`,
       } as Failure;
     }
@@ -94,7 +94,7 @@ export class RapidRec {
     } catch (err) {
       return {
         result: MethodResult.Failed,
-        errCode: ErrorCode.Some,
+        errCode: ErrorCode.RapidRecMethodExecution,
         message: `RapidRec stopRecording: ${(err as Error).message}`,
       } as Failure;
     }
@@ -117,7 +117,7 @@ export class RapidRec {
     } catch (err) {
       return {
         result: MethodResult.Failed,
-        errCode: ErrorCode.Some,
+        errCode: ErrorCode.RapidRecMethodExecution,
         message: `RapidRec handleTabChange: ${(err as Error).message}`,
       } as Failure;
     }
@@ -137,7 +137,7 @@ export class RapidRec {
       } catch (err) {
         resolve({
           result: MethodResult.Failed,
-          errCode: ErrorCode.Some,
+          errCode: ErrorCode.RapidRecMethodExecution,
           message: `RapidRec setMode: ${(err as Error).message}`,
         } as Failure);
       }

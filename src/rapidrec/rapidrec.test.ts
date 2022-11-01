@@ -65,7 +65,7 @@ describe("setMode", () => {
     } as RecSetMode);
 
     expect(response).toEqual({
-      errCode: ErrorCode.Some,
+      errCode: ErrorCode.RapidRecMethodExecution,
       message: "RapidRec setMode: Unknown record mode ABCD",
       result: MethodResult.Failed,
     } as Failure);
@@ -82,7 +82,7 @@ describe("startRecording", () => {
     } as RecStart);
 
     expect(response).toEqual({
-      errCode: ErrorCode.Some,
+      errCode: ErrorCode.RapidRecMethodExecution,
       message:
         "RapidRec startRecording: Current mode is `null`, can't start recording",
       result: MethodResult.Failed,
@@ -152,7 +152,7 @@ describe("stopRecording", () => {
     const response = await RapidRec.stopRecording(msg);
 
     expect(response).toEqual({
-      errCode: ErrorCode.Some,
+      errCode: ErrorCode.RapidRecMethodExecution,
       message: "RapidRec stopRecording: Some download error",
       result: MethodResult.Failed,
     } as Failure);
@@ -267,7 +267,7 @@ describe("handleTabChange", () => {
     } as BrowserTabChange);
 
     expect(response).toEqual({
-      errCode: ErrorCode.Some,
+      errCode: ErrorCode.RapidRecMethodExecution,
       message: "RapidRec handleTabChange: Some Injector error",
       result: MethodResult.Failed,
     } as Failure);
@@ -293,7 +293,7 @@ describe("handleTabChange", () => {
     } as BrowserTabChange);
 
     expect(response).toEqual({
-      errCode: ErrorCode.Some,
+      errCode: ErrorCode.RapidRecMethodExecution,
       message: "RapidRec handleTabChange: Some DeInjector error",
       result: MethodResult.Failed,
     } as Failure);
@@ -331,7 +331,7 @@ describe("handleTabClosing", () => {
     } as BrowserTabClosing);
 
     expect(response).toEqual({
-      errCode: ErrorCode.Some,
+      errCode: ErrorCode.RapidRecMethodExecution,
       result: MethodResult.Failed,
       message:
         "RapidRec setMode: Cannot set properties of undefined (setting 'mode')",
