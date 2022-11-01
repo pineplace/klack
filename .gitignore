@@ -3,6 +3,7 @@ coverage/
 
 package-lock.json
 
-public/*
-!public/*.html
+ext/*
+!ext/*.html
+!ext/manifest.json
 .jest-test-results.json

@@ -2,8 +2,6 @@ const path = require("path");
 const ESLintPlugin = require("eslint-webpack-plugin");
 
 module.exports = {
-  devtool: "cheap-module-source-map",
-  mode: "production",
   entry: {
     background: "./src/background.ts",
     popup: "./src/popup.tsx",
@@ -11,7 +9,7 @@ module.exports = {
     screenCapture: "./src/injections/screen_capture.ts",
   },
   output: {
-    path: path.join(__dirname, "./public"),
+    path: path.join(__dirname, "./ext"),
     filename: "[name].bundle.mjs",
     hashFunction: "xxhash64",
   },
@@ -26,7 +24,7 @@ module.exports = {
   },
   plugins: [
     new ESLintPlugin({
-      extensions: [".js", ".jsx"],
+      // extensions: [".js", ".jsx"],
       useEslintrc: true,
     }),
   ],
