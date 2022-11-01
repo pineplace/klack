@@ -9,7 +9,7 @@ module.exports = {
     screenCapture: "./src/injections/screen_capture.ts",
   },
   output: {
-    path: path.join(__dirname, "./public"),
+    path: path.join(__dirname, "./ext"),
     filename: "[name].bundle.mjs",
     hashFunction: "xxhash64",
   },
