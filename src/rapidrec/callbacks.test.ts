@@ -164,16 +164,18 @@ describe("onMessage", () => {
     test("{} message", async () => {
       let response: MessageResponse = {} as MessageResponse;
 
-      await onMessage({} as Message, {}, (msgResponse?) => {
-        response = msgResponse ?? ({} as MessageResponse);
-      });
-
-      expect(JSON.stringify(response)).toEqual(
-        JSON.stringify({
-          ...unknownMethodResult,
-          message: "Invalid message with unknown method {}",
+      await expect(
+        onMessage({} as Message, {}, (msgResponse?) => {
+          response = msgResponse ?? ({} as MessageResponse);
         })
-      );
+      ).rejects.toEqual({
+        ...unknownMethodResult,
+        message: "Invalid message with unknown method {}",
+      } as Failure);
+      expect(response).toEqual({
+        ...unknownMethodResult,
+        message: "Invalid message with unknown method {}",
+      } as Failure);
     });
 
     test("Unknown message", async () => {
@@ -185,18 +187,22 @@ describe("onMessage", () => {
       };
       let response: MessageResponse = {} as MessageResponse;
 
-      await onMessage(unknownMessage as Message, {}, (msgResponse?) => {
-        response = msgResponse ?? ({} as MessageResponse);
-      });
-
-      expect(JSON.stringify(response)).toEqual(
-        JSON.stringify({
-          ...unknownMethodResult,
-          message: `Invalid message with unknown method ${JSON.stringify(
-            unknownMessage
-          )}`,
+      await expect(
+        onMessage(unknownMessage as Message, {}, (msgResponse?) => {
+          response = msgResponse ?? ({} as MessageResponse);
         })
-      );
+      ).rejects.toEqual({
+        ...unknownMethodResult,
+        message: `Invalid message with unknown method ${JSON.stringify(
+          unknownMessage
+        )}`,
+      } as Failure);
+      expect(response).toEqual({
+        ...unknownMethodResult,
+        message: `Invalid message with unknown method ${JSON.stringify(
+          unknownMessage
+        )}`,
+      } as Failure);
     });
 
     test("Method throws error", async () => {
@@ -210,18 +216,21 @@ describe("onMessage", () => {
       };
 
       let response: MessageResponse = {} as MessageResponse;
-      await onMessage(msg, {}, (msgResponse?) => {
-        response = msgResponse ?? ({} as MessageResponse);
-      });
 
+      await expect(
+        onMessage(msg, {}, (msgResponse?) => {
+          response = msgResponse ?? ({} as MessageResponse);
+        })
+      ).rejects.toEqual({
+        ...unknownMethodResult,
+        message: "Some error from correct method",
+      } as Failure);
+      expect(response).toEqual({
+        ...unknownMethodResult,
+        message: "Some error from correct method",
+      } as Failure);
       expect(mockedStartRecording).toHaveBeenCalledTimes(1);
       expect(mockedStartRecording).toHaveBeenCalledWith(msg);
-      expect(JSON.stringify(response)).toEqual(
-        JSON.stringify({
-          ...unknownMethodResult,
-          message: "Some error from correct method",
-        } as Failure)
-      );
     });
   });
 });

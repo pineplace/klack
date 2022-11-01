@@ -74,16 +74,17 @@ export async function onMessage(
     );
     sendResponse(response);
   } catch (err) {
-    console.error((err as Error).message);
     const response = {
       result: MethodResult.Failed,
       errCode: ErrorCode.Some,
       message: (err as Error).message,
     } as Failure;
-    console.log(
+
+    console.error(
       `callbacks onMessage, sendResponse as error ${JSON.stringify(response)}`
     );
     sendResponse(response);
+    return Promise.reject(response);
   }
 }
 
@@ -96,6 +97,7 @@ export async function onTabChange(newTabInfo: ActiveTabInfo): Promise<void> {
     } as BrowserTabChange);
   } catch (err) {
     console.error(`callbacks onTabChange error ${(err as Error).message}`);
+    throw err;
   }
 }
 
@@ -111,5 +113,6 @@ export async function onTabClosing(
     } as BrowserTabClosing);
   } catch (err) {
     console.log(`callbacks onTabClosing error ${(err as Error).message}`);
+    throw err;
   }
 }

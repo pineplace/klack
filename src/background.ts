@@ -27,7 +27,9 @@ chrome.runtime.onMessage.addListener(
     );
     onMessage(message, sender, sendResponse)
       .then(() => console.log("Message processed successfully"))
-      .catch((_err) => console.error("Message processed with error"));
+      .catch((err) =>
+        console.error(`Message processed with error: ${(err as Error).message}`)
+      );
   }
 );
 
@@ -42,7 +44,11 @@ chrome.tabs.onActivated.addListener((activeTabInfo: ActiveTabInfo) => {
   );
   onTabChange(activeTabInfo)
     .then(() => console.log("Tab changing processed successfully"))
-    .catch((_err) => console.error("Tab changing processed with error"));
+    .catch((err) =>
+      console.error(
+        `Tab changing processed with error: ${(err as Error).message}`
+      )
+    );
 });
 
 chrome.tabs.onRemoved.addListener((tabId: number, removeInfo: RemoveInfo) => {
@@ -54,5 +60,9 @@ chrome.tabs.onRemoved.addListener((tabId: number, removeInfo: RemoveInfo) => {
   );
   onTabClosing(tabId, removeInfo)
     .then(() => console.log("Tab closing processed successfully"))
-    .catch((_err) => console.error("Tab closing processed with error"));
+    .catch((err) =>
+      console.error(
+        `Tab closing processed with error: ${(err as Error).message}`
+      )
+    );
 });
