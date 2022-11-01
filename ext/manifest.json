@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "manifest_version": 3,
   "action": {
-    "default_popup": "./public/popup.html"
+    "default_popup": "./popup.html"
   },
   "background": {
-    "service_worker": "./public/background.bundle.mjs",
+    "service_worker": "./background.bundle.mjs",
     "type": "module"
   },
   "permissions": [

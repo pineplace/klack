@@ -5,4 +5,5 @@ package-lock.json
 
 ext/*
 !ext/*.html
+!ext/manifest.json
 .jest-test-results.json

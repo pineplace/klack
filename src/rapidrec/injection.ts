@@ -6,8 +6,8 @@ import { cameraBubbleId } from "./identifiers";
 
 // NOTE: Injection refers to bundled files in `ext` not original files
 export enum Injection {
-  ScreenCapture = "./ext/screenCapture.bundle.mjs",
-  CameraBubble = "./ext/cameraBubble.bundle.mjs",
+  ScreenCapture = "./screenCapture.bundle.mjs",
+  CameraBubble = "./cameraBubble.bundle.mjs",
 }
 
 export class Injector {
