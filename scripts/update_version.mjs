@@ -5,20 +5,16 @@ import { program } from "commander";
 
 program
   .description("This script updates extension's version")
-  .option("-nv, --new-version <string>");
+  .argument("<version x.y.z>")
+  .parse();
 
-program.parse();
-
-const opts = program.opts();
-
-if (JSON.stringify(opts) === "{}") {
-  program.help();
-}
+const [version] = program.args;
+const _opts = program.opts();
 
 try {
   const data = await fs.readFile("./ext/manifest.json");
   const manifest = JSON.parse(data); // eslint-disable-line
-  manifest.version = opts.newVersion; // eslint-disable-line
+  manifest.version = version; // eslint-disable-line
   await fs.writeFile(
     "./ext/manifest.json",
     JSON.stringify(manifest, null, 2) + "\n"
@@ -30,7 +26,7 @@ try {
 try {
   const data = await fs.readFile("./package.json");
   const manifest = JSON.parse(data); // eslint-disable-line
-  manifest.version = opts.newVersion; // eslint-disable-line
+  manifest.version = version; // eslint-disable-line
   await fs.writeFile(
     "./package.json",
     JSON.stringify(manifest, null, 2) + "\n"
