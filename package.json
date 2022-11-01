@@ -8,7 +8,7 @@
     "test:watch": "jest --watch",
     "test:generate-output": "jest --json --outputFile='.jest-test-results.json'",
     "build": "webpack --progress --config webpack.prod.cjs",
-    "build:dev": "webpack --progress --watch --config webpack.dev.cjs",
+    "dev": "webpack --progress --watch --config webpack.dev.cjs",
     "lint": "eslint --ext .ts --ext .tsx .",
     "fmt": "prettier --write .",
     "storybook": "start-storybook -p 6006",
