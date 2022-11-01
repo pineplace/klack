@@ -2,8 +2,6 @@ const path = require("path");
 const ESLintPlugin = require("eslint-webpack-plugin");
 
 module.exports = {
-  devtool: "cheap-module-source-map",
-  mode: "production",
   entry: {
     background: "./src/background.ts",
     popup: "./src/popup.tsx",
@@ -26,7 +24,7 @@ module.exports = {
   },
   plugins: [
     new ESLintPlugin({
-      extensions: [".js", ".jsx"],
+      // extensions: [".js", ".jsx"],
       useEslintrc: true,
     }),
   ],
