@@ -6,11 +6,14 @@ import {
   RecMode,
   RecSetMode,
   RecStart,
+  RecStop,
   sendMessage,
 } from "../rapidrec/communication";
 
 export const PopupMenu = () => {
   const [mode, setMode] = useState(RecMode.ScreenOnly);
+  const [inProgress, setInProgress] = useState(false);
+
   return (
     <Stack
       direction='column'
@@ -54,13 +57,16 @@ export const PopupMenu = () => {
       <Button
         onClick={() => {
           sendMessage({
-            method: Method.RecStart,
-          } as RecStart)
-            .then((resp) => console.log(JSON.stringify(resp)))
+            method: inProgress ? Method.RecStop : Method.RecStart,
+          } as RecStart | RecStop)
+            .then((response) => {
+              console.log(JSON.stringify(response));
+              setInProgress((prevValue) => !prevValue);
+            })
             .catch((err) => console.error(err));
         }}
       >
-        Start Record
+        {inProgress ? "Stop" : "Start"}
       </Button>
     </Stack>
   );
