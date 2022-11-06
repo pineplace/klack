@@ -1,5 +1,5 @@
-import React from "react";
-import { Button, ButtonGroup, Stack } from "@mui/material";
+import React, { useState } from "react";
+import { Button, Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
 
 import {
   Method,
@@ -10,6 +10,7 @@ import {
 } from "../rapidrec/communication";
 
 export const PopupMenu = () => {
+  const [mode, setMode] = useState(RecMode.ScreenOnly);
   return (
     <Stack
       direction='column'
@@ -17,37 +18,39 @@ export const PopupMenu = () => {
       justifyContent='center'
       spacing={1}
     >
-      <ButtonGroup variant='contained'>
-        <Button
-          disabled
+      <ToggleButtonGroup
+        color='primary'
+        value={mode}
+        onChange={(_event, newMode: RecMode) => setMode(newMode)}
+        exclusive
+      >
+        <ToggleButton
+          value={RecMode.ScreenAndCam}
           onClick={() => {
             sendMessage({
               method: Method.RecSetMode,
-              params: {
-                mode: RecMode.ScreenAndCam,
-              },
+              params: { mode: RecMode.ScreenAndCam },
             } as RecSetMode)
-              .then((resp) => console.log(JSON.stringify(resp)))
+              .then((response) => console.log(JSON.stringify(response)))
               .catch((err) => console.error(err));
           }}
         >
           Screen & Cam
-        </Button>
-        <Button
+        </ToggleButton>
+        <ToggleButton
+          value={RecMode.ScreenOnly}
           onClick={() => {
             sendMessage({
               method: Method.RecSetMode,
-              params: {
-                mode: RecMode.ScreenOnly,
-              },
+              params: { mode: RecMode.ScreenOnly },
             } as RecSetMode)
-              .then((resp) => console.log(JSON.stringify(resp)))
+              .then((response) => console.log(JSON.stringify(response)))
               .catch((err) => console.error(err));
           }}
         >
           Screen Only
-        </Button>
-      </ButtonGroup>
+        </ToggleButton>
+      </ToggleButtonGroup>
       <Button
         onClick={() => {
           sendMessage({
