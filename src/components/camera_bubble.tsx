@@ -9,9 +9,17 @@ import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledR
 import StopCircleRoundedIcon from "@mui/icons-material/StopCircleRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 
+import {
+  Method,
+  RecStart,
+  RecStop,
+  sendMessage,
+} from "../rapidrec/communication";
+
 // NOTE @imblowfish: https://www.npmjs.com/package/react-draggable
 export const CameraBubble = () => {
-  const [isPlay, setIsPlay] = useState(false);
+  // TODO: Show recording icon
+  const [inProgress, setInProgress] = useState(false);
 
   return (
     <Draggable>
@@ -28,22 +36,45 @@ export const CameraBubble = () => {
       >
         <IconButton>
           <CloseRoundedIcon fontSize='large' />
+          {/* TODO: Remove injection and stop recording on close click */}
         </IconButton>
         <Avatar sx={{ width: 200, height: 200 }}>
           <CameraRoundedIcon fontSize='large' />
         </Avatar>
         <ButtonGroup>
-          <IconButton disabled={!isPlay}>
+          <IconButton disabled={!inProgress}>
+            {/* // TODO: Handle delete recording button */}
             <DeleteRoundedIcon fontSize='large' />
           </IconButton>
-          <IconButton onClick={() => setIsPlay((value) => !value)}>
-            {isPlay ? (
+          <IconButton
+            onClick={() => {
+              if (!inProgress) {
+                sendMessage({
+                  method: Method.RecStart,
+                } as RecStart)
+                  .then((response) => console.log(response))
+                  .catch((err) => console.error(err));
+              }
+              setInProgress((value) => !value);
+            }}
+          >
+            {inProgress ? (
+              // TODO: Handle pause button
               <PauseCircleFilledRoundedIcon fontSize='large' />
             ) : (
               <PlayCircleFilledRoundedIcon fontSize='large' />
             )}
           </IconButton>
-          <IconButton disabled={!isPlay}>
+          <IconButton
+            disabled={!inProgress}
+            onClick={() => {
+              sendMessage({
+                method: Method.RecStop,
+              } as RecStop)
+                .then((response) => console.log(response))
+                .catch((err) => console.error(err));
+            }}
+          >
             <StopCircleRoundedIcon fontSize='large' />
           </IconButton>
         </ButtonGroup>
