@@ -22,7 +22,6 @@ beforeEach(() => {
 
 test("Default mode is `Screen Only`", () => {
   const component = render(<PopupMenu />);
-  // const toggleButtonGroup = component.children(":first-child");
   const toggleButtonGroup = component.children(":first-child");
 
   const screenAndCamBtn = toggleButtonGroup.children(":first-child");
