@@ -1,7 +1,7 @@
 import { cameraBubbleId } from "./identifiers";
 import { Injector, DeInjector, Injection } from "./injection";
 
-beforeEach(() => {
+beforeAll(() => {
   console.log = jest.fn();
   console.warn = jest.fn();
   console.error = () => jest.fn();

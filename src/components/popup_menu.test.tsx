@@ -14,7 +14,7 @@ import {
 } from "../rapidrec/communication";
 import { PopupMenu } from "./popup_menu";
 
-beforeEach(() => {
+beforeAll(() => {
   console.log = jest.fn();
   console.warn = jest.fn();
   console.error = () => jest.fn();

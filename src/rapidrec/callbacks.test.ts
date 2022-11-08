@@ -24,7 +24,7 @@ import { ErrorCode } from "./errors";
 
 jest.mock("./rapidrec");
 
-beforeEach(() => {
+beforeAll(() => {
   console.log = jest.fn();
   console.warn = jest.fn();
   console.error = () => jest.fn();
