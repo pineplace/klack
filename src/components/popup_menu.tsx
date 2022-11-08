@@ -11,6 +11,7 @@ import {
 } from "../rapidrec/communication";
 
 export const PopupMenu = () => {
+  // TODO: Add delete recording button
   const [mode, setMode] = useState(RecMode.ScreenOnly);
   const [inProgress, setInProgress] = useState(false);
 
@@ -66,6 +67,7 @@ export const PopupMenu = () => {
             .catch((err) => console.error(err));
         }}
       >
+        {/* TODO: Change button based on current recording status (if it was launched from camera bubble, for example) */}
         {inProgress ? "Stop" : "Start"}
       </Button>
     </Stack>
