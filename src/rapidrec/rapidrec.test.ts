@@ -16,7 +16,7 @@ import { RapidRec, State } from "./rapidrec";
 
 jest.mock("./injection");
 
-beforeEach(() => {
+beforeAll(() => {
   console.log = jest.fn();
   console.warn = jest.fn();
   console.error = () => jest.fn();

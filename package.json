@@ -4,7 +4,7 @@
   "version": "0.1.2",
   "scripts": {
     "test": "jest",
-    "test:watch": "jest --watchAll",
+    "test:watch": "jest --watch",
     "test:generate-output": "jest --json --outputFile='.jest-test-results.json'",
     "coverage": "jest --coverage",
     "build": "webpack --progress --config webpack.prod.cjs",
