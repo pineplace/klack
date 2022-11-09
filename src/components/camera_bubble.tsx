@@ -18,7 +18,6 @@ import {
 
 // NOTE @imblowfish: https://www.npmjs.com/package/react-draggable
 export const CameraBubble = () => {
-  // TODO: Show recording icon
   const [inProgress, setInProgress] = useState(false);
 
   return (
@@ -36,14 +35,12 @@ export const CameraBubble = () => {
       >
         <IconButton>
           <CloseRoundedIcon fontSize='large' />
-          {/* TODO: Remove injection and stop recording on close click */}
         </IconButton>
         <Avatar sx={{ width: 200, height: 200 }}>
           <CameraRoundedIcon fontSize='large' />
         </Avatar>
         <ButtonGroup>
           <IconButton disabled={!inProgress}>
-            {/* // TODO: Handle delete recording button */}
             <DeleteRoundedIcon fontSize='large' />
           </IconButton>
           <IconButton
@@ -59,7 +56,6 @@ export const CameraBubble = () => {
             }}
           >
             {inProgress ? (
-              // TODO: Handle pause button
               <PauseCircleFilledRoundedIcon fontSize='large' />
             ) : (
               <PlayCircleFilledRoundedIcon fontSize='large' />
