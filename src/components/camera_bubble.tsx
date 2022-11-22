@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Draggable from "react-draggable";
 import { Avatar, ButtonGroup, IconButton } from "@mui/material";
 import { Stack } from "@mui/material";
@@ -16,9 +16,30 @@ import {
   sendMessage,
 } from "../rapidrec/communication";
 
+async function captureTheCamera() {
+  const mediaStream = await navigator.mediaDevices.getUserMedia({
+    // audio: true,
+    video: {
+      facingMode: "environment", // or user for mobile devices
+    },
+  });
+
+  return mediaStream;
+}
+
 // NOTE @imblowfish: https://www.npmjs.com/package/react-draggable
 export const CameraBubble = () => {
+  const [cameraSrc, setCameraSrc] = useState<MediaStream | null>(null);
   const [inProgress, setInProgress] = useState(false);
+
+  useEffect(() => {
+    captureTheCamera()
+      .then((stream) => {
+        console.log("Set camera source", stream);
+        setCameraSrc(stream);
+      })
+      .catch((err) => console.error("Can't capture camera stream", err));
+  }, []);
 
   return (
     <Draggable>
@@ -36,9 +57,20 @@ export const CameraBubble = () => {
         <IconButton>
           <CloseRoundedIcon fontSize='large' />
         </IconButton>
-        <Avatar sx={{ width: 200, height: 200 }}>
-          <CameraRoundedIcon fontSize='large' />
-        </Avatar>
+        {cameraSrc ? (
+          <Avatar
+            sx={{ width: 200, height: 200 }}
+            component='video'
+            ref={(ref: HTMLVideoElement) => {
+              ref.srcObject = cameraSrc;
+              ref.autoplay = true;
+            }}
+          />
+        ) : (
+          <Avatar sx={{ width: 200, height: 200 }}>
+            <CameraRoundedIcon fontSize='large' />
+          </Avatar>
+        )}
         <ButtonGroup>
           <IconButton disabled={!inProgress}>
             <DeleteRoundedIcon fontSize='large' />
