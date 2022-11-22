@@ -16,10 +16,17 @@ import {
   sendMessage,
 } from "../rapidrec/communication";
 
+// FIXME: I don't like it, get rid of it
+const cameraBubbleSize = {
+  width: 200,
+  height: 200,
+};
+
 async function captureTheCamera() {
   const mediaStream = await navigator.mediaDevices.getUserMedia({
     // audio: true,
     video: {
+      ...cameraBubbleSize,
       facingMode: "environment", // or user for mobile devices
     },
   });
@@ -59,7 +66,7 @@ export const CameraBubble = () => {
         </IconButton>
         {cameraSrc ? (
           <Avatar
-            sx={{ width: 200, height: 200 }}
+            sx={cameraBubbleSize}
             component='video'
             ref={(ref: HTMLVideoElement) => {
               ref.srcObject = cameraSrc;
