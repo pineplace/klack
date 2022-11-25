@@ -2,63 +2,67 @@
  * @jest-environment jsdom
  */
 import React from "react";
-import render from "react-test";
+import { fireEvent, render, screen } from "@testing-library/react";
 
+import { PopupMenu } from "./popup_menu";
 import {
-  sendMessage, // eslint-disable-line
   Method,
   RecMode,
   RecSetMode,
   RecStart,
   RecStop,
+  sendMessage, // eslint-disable-line
 } from "../rapidrec/communication";
-import { PopupMenu } from "./popup_menu";
 
 beforeAll(() => {
   console.log = jest.fn();
   console.warn = jest.fn();
-  console.error = () => jest.fn();
+  console.error = jest.fn();
+});
+
+beforeEach(() => {
+  globalThis.chrome = {
+    // @ts-expect-error Chrome global object doesn't implemented in jest context, but TS waiting for it
+    scripting: {
+      executeScript: jest.fn(),
+    },
+  };
 });
 
 test("Default mode is `Screen Only`", () => {
-  const component = render(<PopupMenu />);
-  const toggleButtonGroup = component.children(":first-child");
+  render(<PopupMenu />);
 
-  const screenAndCamBtn = toggleButtonGroup.children(":first-child");
-  const screenOnlyBtn = toggleButtonGroup.children(":last-child");
+  const screenAndCamBtn = screen.getByText("Screen & Cam");
+  const screenOnlyBtn = screen.getByText("Screen Only");
 
-  expect(screenAndCamBtn.is(".Mui-selected")).toEqual(false);
-  expect(screenOnlyBtn.is(".Mui-selected")).toEqual(true);
+  expect(screenAndCamBtn.className.includes("Mui-selected")).toEqual(false);
+  expect(screenOnlyBtn.className.includes("Mui-selected")).toEqual(true);
 });
 
-test("When click on one mode then its disabled another", async () => {
+test("When click on one mode then it's disabled another", () => {
   const mockedSendMessage = jest.fn().mockResolvedValue({});
   // @ts-expect-error Create mocked sendMessage
   sendMessage = mockedSendMessage;
 
-  const component = render(<PopupMenu />);
-  const toggleButtonGroup = component.children(":first-child");
+  render(<PopupMenu />);
 
-  const screenAndCamBtn = toggleButtonGroup.children(":first-child");
-  const screenOnlyBtn = toggleButtonGroup.children(":last-child");
+  const screenAndCamBtn = screen.getByText("Screen & Cam");
+  const screenOnlyBtn = screen.getByText("Screen Only");
 
-  expect(screenAndCamBtn.is(".Mui-selected")).toEqual(false);
-  expect(screenOnlyBtn.is(".Mui-selected")).toEqual(true);
+  fireEvent.click(screenAndCamBtn);
 
-  await screenAndCamBtn.click();
-
-  expect(screenAndCamBtn.is(".Mui-selected")).toEqual(true);
-  expect(screenOnlyBtn.is(".Mui-selected")).toEqual(false);
+  expect(screenAndCamBtn.className.includes("Mui-selected")).toEqual(true);
+  expect(screenOnlyBtn.className.includes("Mui-selected")).toEqual(false);
   expect(mockedSendMessage).toHaveBeenCalledTimes(1);
   expect(mockedSendMessage).toHaveBeenNthCalledWith(1, {
     method: Method.RecSetMode,
     params: { mode: RecMode.ScreenAndCam },
   } as RecSetMode);
 
-  await screenOnlyBtn.click();
+  fireEvent.click(screenOnlyBtn);
 
-  expect(screenAndCamBtn.is(".Mui-selected")).toEqual(false);
-  expect(screenOnlyBtn.is(".Mui-selected")).toEqual(true);
+  expect(screenAndCamBtn.className.includes("Mui-selected")).toEqual(false);
+  expect(screenOnlyBtn.className.includes("Mui-selected")).toEqual(true);
   expect(mockedSendMessage).toHaveBeenCalledTimes(2);
   expect(mockedSendMessage).toHaveBeenNthCalledWith(2, {
     method: Method.RecSetMode,
@@ -66,27 +70,26 @@ test("When click on one mode then its disabled another", async () => {
   } as RecSetMode);
 });
 
-test("Switching between `Start` and `Stop` text in recording control button", async () => {
+test("Switching between `Start` and `Stop` text in recording control button", () => {
   const mockedSendMessage = jest.fn().mockResolvedValue({});
   // @ts-expect-error Create mocked sendMessage
   sendMessage = mockedSendMessage;
 
-  const component = render(<PopupMenu />);
-  const recordingControlButton = component.children(":last-child");
+  render(<PopupMenu />);
 
-  expect(recordingControlButton.text()).toEqual("Start");
+  const recControlBtn = screen.getByText("Start");
 
-  await recordingControlButton.click();
+  fireEvent.click(recControlBtn);
 
-  expect(recordingControlButton.text()).toEqual("Stop");
+  expect(recControlBtn.textContent).toEqual("Stop");
   expect(mockedSendMessage).toHaveBeenCalledTimes(1);
   expect(mockedSendMessage).toHaveBeenNthCalledWith(1, {
     method: Method.RecStart,
   } as RecStart);
 
-  await recordingControlButton.click();
+  fireEvent.click(recControlBtn);
 
-  expect(recordingControlButton.text()).toEqual("Start");
+  expect(recControlBtn.textContent).toEqual("Start");
   expect(mockedSendMessage).toHaveBeenCalledTimes(2);
   expect(mockedSendMessage).toHaveBeenNthCalledWith(2, {
     method: Method.RecStop,
