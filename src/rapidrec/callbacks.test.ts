@@ -24,12 +24,6 @@ import { ErrorCode } from "./errors";
 
 jest.mock("./rapidrec");
 
-beforeAll(() => {
-  console.log = jest.fn();
-  console.warn = jest.fn();
-  console.error = () => jest.fn();
-});
-
 describe("onMessage", () => {
   describe("Methods", () => {
     test("RecSetMode", async () => {

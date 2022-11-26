@@ -16,12 +16,6 @@ import { RapidRec, State } from "./rapidrec";
 
 jest.mock("./injection");
 
-beforeAll(() => {
-  console.log = jest.fn();
-  console.warn = jest.fn();
-  console.error = () => jest.fn();
-});
-
 describe("setMode", () => {
   test("ScreenOnly", async () => {
     const response = await RapidRec.setMode({

@@ -15,12 +15,6 @@ import {
   sendMessage, // eslint-disable-line
 } from "../rapidrec/communication";
 
-beforeAll(() => {
-  console.log = jest.fn();
-  console.warn = jest.fn();
-  console.error = jest.fn();
-});
-
 beforeEach(() => {
   globalThis.chrome = {
     // @ts-expect-error Chrome global object doesn't implemented in jest context, but TS waiting for it
