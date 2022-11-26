@@ -1,90 +1,105 @@
 /**
  * @jest-environment jsdom
  */
+// NOTE: https://testing-library.com/docs/
 import React from "react";
-import render from "react-test";
-import {
-  Method,
-  RecStart,
-  RecStop,
-  sendMessage, // eslint-disable-line
-} from "../rapidrec/communication";
+import { fireEvent, render } from "@testing-library/react";
 
+import { createCameraStream } from "../browser-side/stream"; // eslint-disable-line
+
+import { Method, RecStart, RecStop, sendMessage } from "../rapidrec/communication"; // eslint-disable-line
 import { CameraBubble } from "./camera_bubble";
 
-beforeAll(() => {
-  console.log = jest.fn();
-  console.warn = jest.fn();
-  console.error = () => jest.fn();
+jest.mock("../browser-side/stream");
+
+beforeEach(() => {
+  globalThis.chrome = {
+    // @ts-expect-error Chrome global object doesn't implemented in jest context, but TS waiting for it
+    scripting: {
+      executeScript: jest.fn(),
+    },
+  };
 });
 
 describe("Buttons on start", () => {
-  const component = render(<CameraBubble />);
-  const buttonGroup = component.children(":last-child");
+  const createCameraStreamMocking = jest.fn().mockResolvedValue({});
+  // @ts-expect-error Create mocked createCameraStream
+  createCameraStream = createCameraStreamMocking;
 
-  const deleteBtn = buttonGroup.children(":nth-child(1)");
-  const playPauseBtn = buttonGroup.children(":nth-child(2)");
-  const stopBtn = buttonGroup.children(":nth-child(3)");
+  const { container } = render(<CameraBubble />);
+
+  const buttonsGroup = container.getElementsByClassName(
+    "MuiButtonGroup-root"
+  )[0];
+  const [deleteBtn, playPauseBtn, stopBtn] =
+    buttonsGroup.getElementsByClassName("MuiButtonBase-root") ?? [];
 
   test("`Play/Pause` is enabled", () => {
-    expect(playPauseBtn.is(".Mui-disabled")).toEqual(false);
+    expect(playPauseBtn.className.includes("Mui-disabled")).toEqual(false);
   });
 
-  test("`Play/Pause` icon is Play", () => {
-    expect(playPauseBtn.html().includes("PlayCircleFilledRoundedIcon")).toEqual(
-      true
+  test("`Play/Pause` icon is `Play`", () => {
+    expect(playPauseBtn.firstElementChild?.getAttribute("data-testid")).toEqual(
+      "PlayCircleFilledRoundedIcon"
     );
   });
 
   test("`Stop` is disabled", () => {
-    expect(stopBtn.is(".Mui-disabled")).toEqual(true);
+    expect(stopBtn.className.includes("Mui-disabled")).toEqual(true);
   });
 
   test("`Delete` is disabled", () => {
-    expect(deleteBtn.is(".Mui-disabled")).toEqual(true);
+    expect(deleteBtn.className.includes("Mui-disabled")).toEqual(true);
   });
 });
 
 describe("Click on various buttons", () => {
-  const mockedSendMessage = jest.fn().mockResolvedValue({});
-  // @ts-expect-error Create mocked sendMessage
-  sendMessage = mockedSendMessage;
+  const createCameraStreamMocking = jest.fn().mockResolvedValue({});
+  // @ts-expect-error Create mocked createCameraStream
+  createCameraStream = createCameraStreamMocking;
 
-  const component = render(<CameraBubble />);
-  const buttonGroup = component.children(":last-child");
+  const { container } = render(<CameraBubble />);
 
-  const deleteBtn = buttonGroup.children(":nth-child(1)");
-  const playPauseBtn = buttonGroup.children(":nth-child(2)");
-  const stopBtn = buttonGroup.children(":nth-child(3)");
+  const buttonsGroup = container.getElementsByClassName(
+    "MuiButtonGroup-root"
+  )[0];
+  const [deleteBtn, playPauseBtn, stopBtn] =
+    buttonsGroup.getElementsByClassName("MuiButtonBase-root") ?? [];
 
-  describe("Clicking on`Play/Pause`", () => {
-    test("Enable `Delete` and `Stop` on `Play` click", async () => {
-      await playPauseBtn.click();
+  describe("Clicking on `Play/Pause`", () => {
+    const mockedSendMessage = jest.fn().mockResolvedValue({});
+    // @ts-expect-error Create mocked sendMessage
+    sendMessage = mockedSendMessage;
 
-      expect(stopBtn.is(".Mui-disabled")).toEqual(false);
-      expect(deleteBtn.is(".Mui-disabled")).toEqual(false);
+    fireEvent.click(playPauseBtn);
+
+    test("`Delete` and `Stop` are available", () => {
+      expect(deleteBtn.className.includes("Mui-disabled")).toEqual(false);
+      expect(stopBtn.className.includes("Mui-disabled")).toEqual(false);
     });
 
-    test("Start recording message was sent on `Play` click", () => {
-      expect(mockedSendMessage).toHaveBeenCalledTimes(1);
-      expect(mockedSendMessage).toHaveBeenNthCalledWith(1, {
+    test("Start recording message was sent", () => {
+      expect(mockedSendMessage).toHaveBeenLastCalledWith({
         method: Method.RecStart,
       } as RecStart);
     });
 
-    test("After clicking on `Play` icon was changed to `Pause`", () => {
+    test("Icon was changed to `Pause`", () => {
       expect(
-        playPauseBtn.html().includes("PauseCircleFilledRoundedIcon")
-      ).toEqual(true);
+        playPauseBtn.firstElementChild?.getAttribute("data-testid")
+      ).toEqual("PauseCircleFilledRoundedIcon");
     });
   });
 
   describe("Clicking on `Stop`", () => {
-    test("Stop recording message send on `Stop` click", async () => {
-      await stopBtn.click();
+    const mockedSendMessage = jest.fn().mockResolvedValue({});
+    // @ts-expect-error Create mocked sendMessage
+    sendMessage = mockedSendMessage;
 
-      expect(mockedSendMessage).toHaveBeenCalledTimes(2);
-      expect(mockedSendMessage).toHaveBeenNthCalledWith(2, {
+    fireEvent.click(stopBtn);
+
+    test("Start recording message was sent", () => {
+      expect(mockedSendMessage).toHaveBeenLastCalledWith({
         method: Method.RecStop,
       } as RecStop);
     });

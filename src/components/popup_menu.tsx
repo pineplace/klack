@@ -61,9 +61,9 @@ export const PopupMenu = () => {
           } as RecStart | RecStop)
             .then((response) => {
               console.log(JSON.stringify(response));
-              setInProgress((prevValue) => !prevValue);
             })
             .catch((err) => console.error(err));
+          setInProgress((prevValue) => !prevValue);
         }}
       >
         {inProgress ? "Stop" : "Start"}

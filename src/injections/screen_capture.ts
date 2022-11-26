@@ -3,20 +3,15 @@
  * the screen capture itself, and the generation of the URL of the
  * result
  */
+import { createScreenCaptureStream } from "../browser-side/stream";
 import { Method, RecStop, sendMessage } from "../rapidrec/communication";
 
 async function startCapture(): Promise<void> {
-  // NOTE: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
-  const mediaStream = await navigator.mediaDevices.getDisplayMedia({
-    audio: true,
-    video: true,
-  });
-  // NOTE: https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder
-  const mimeTypes = ["video/mp4", "video/webm"];
-  const mimeType = mimeTypes.find((mimeType) =>
+  const stream = await createScreenCaptureStream();
+  const mimeType = ["video/mp4", "video/webm"].find((mimeType) =>
     MediaRecorder.isTypeSupported(mimeType)
   );
-  const mediaRecorder = new MediaRecorder(mediaStream, {
+  const mediaRecorder = new MediaRecorder(stream, {
     mimeType,
   });
   console.log("MediaRecorder created", mimeType);

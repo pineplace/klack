@@ -15,24 +15,16 @@ import {
   RecStop,
   sendMessage,
 } from "../rapidrec/communication";
+import {
+  CameraCaptureProperties,
+  createCameraStream,
+} from "../browser-side/stream";
 
 // FIXME: I don't like it, get rid of it
-const cameraBubbleSize = {
+const cameraCaptureProperties: CameraCaptureProperties = {
   width: 200,
   height: 200,
 };
-
-async function captureTheCamera() {
-  const mediaStream = await navigator.mediaDevices.getUserMedia({
-    // audio: true,
-    video: {
-      ...cameraBubbleSize,
-      facingMode: "environment", // or user for mobile devices
-    },
-  });
-
-  return mediaStream;
-}
 
 // NOTE @imblowfish: https://www.npmjs.com/package/react-draggable
 export const CameraBubble = () => {
@@ -40,7 +32,7 @@ export const CameraBubble = () => {
   const [inProgress, setInProgress] = useState(false);
 
   useEffect(() => {
-    captureTheCamera()
+    createCameraStream(cameraCaptureProperties)
       .then((stream) => {
         console.log("Set camera source", stream);
         setCameraSrc(stream);
@@ -66,7 +58,7 @@ export const CameraBubble = () => {
         </IconButton>
         {cameraSrc ? (
           <Avatar
-            sx={cameraBubbleSize}
+            sx={cameraCaptureProperties}
             component='video'
             ref={(ref: HTMLVideoElement) => {
               ref.srcObject = cameraSrc;
@@ -74,7 +66,7 @@ export const CameraBubble = () => {
             }}
           />
         ) : (
-          <Avatar sx={{ width: 200, height: 200 }}>
+          <Avatar sx={cameraCaptureProperties}>
             <CameraRoundedIcon fontSize='large' />
           </Avatar>
         )}
