@@ -65,6 +65,25 @@ test("When click on one mode then it's disabled another", () => {
   } as RecSetMode);
 });
 
+test("User can't disable all modes", () => {
+  const mockedSendMessage = jest.fn().mockResolvedValue({});
+  // @ts-expect-error Create mocked sendMessage
+  sendMessage = mockedSendMessage;
+
+  render(<PopupMenu />);
+
+  const screenAndCamBtn = screen.getByText("Screen & Cam");
+  const screenOnlyBtn = screen.getByText("Screen Only");
+
+  expect(screenAndCamBtn.className.includes("Mui-selected")).toEqual(false);
+  expect(screenOnlyBtn.className.includes("Mui-selected")).toEqual(true);
+
+  fireEvent.click(screenOnlyBtn);
+
+  expect(screenAndCamBtn.className.includes("Mui-selected")).toEqual(false);
+  expect(screenOnlyBtn.className.includes("Mui-selected")).toEqual(true);
+});
+
 test("Switching between `Start` and `Stop` text in recording control button", () => {
   const mockedSendMessage = jest.fn().mockResolvedValue({});
   // @ts-expect-error Create mocked sendMessage
