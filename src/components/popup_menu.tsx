@@ -24,7 +24,12 @@ export const PopupMenu = () => {
       <ToggleButtonGroup
         color='primary'
         value={mode}
-        onChange={(_event, newMode: RecMode) => setMode(newMode)}
+        onChange={(_event, newMode: RecMode) => {
+          if (!newMode) {
+            return;
+          }
+          setMode(newMode);
+        }}
         exclusive
       >
         <ToggleButton
