@@ -1,7 +1,15 @@
 import { onMessage, onTabChange, onTabClosing } from "../callbacks";
 import { builder, MessageResponse } from "../messaging";
+import {
+  handleHideCameraBubble,
+  handleShowCameraBubble,
+  handleStartRecording,
+  handleStopRecording,
+  handleTabChange,
+  handleTabClosing,
+} from "../handlers";
 
-import { handleTabChange, handleTabClosing } from "../handlers";
+jest.mock("../handlers");
 
 beforeEach(() => {
   // @ts-expect-error module function mocking
@@ -11,6 +19,50 @@ beforeEach(() => {
 });
 
 describe("onMessage", () => {
+  test("Correct StartRecording message", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.startRecording(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleStartRecording).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
+  test("Correct StopRecording message", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.stopRecording(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleStopRecording).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
+  test("Correct ShowCameraBubble message", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.showCameraBubble(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleShowCameraBubble).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
+  test("Correct HideCameraBubble message", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.hideCameraBubble(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleHideCameraBubble).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
   test("Correct BrowserTabChange message", async () => {
     let response: MessageResponse | undefined;
 

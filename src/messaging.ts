@@ -12,6 +12,9 @@ export enum Method {
   StartRecording,
   StopRecording,
 
+  ShowCameraBubble,
+  HideCameraBubble,
+
   BrowserTabChange,
   BrowserTabClosing,
 }
@@ -40,6 +43,20 @@ function buildStartRecording(): Message {
 function buildStopRecording(): Message {
   return {
     method: Method.StopRecording,
+    args: {},
+  };
+}
+
+function buildShowCameraBubble(): Message {
+  return {
+    method: Method.ShowCameraBubble,
+    args: {},
+  };
+}
+
+function buildHideCameraBubble(): Message {
+  return {
+    method: Method.HideCameraBubble,
     args: {},
   };
 }
@@ -78,6 +95,8 @@ function buildErrorResponse(err: Error): MessageResponse {
 export const builder = {
   startRecording: buildStartRecording,
   stopRecording: buildStopRecording,
+  showCameraBubble: buildShowCameraBubble,
+  hideCameraBubble: buildHideCameraBubble,
   internal: {
     browserTabChange: buildBrowserTabChange,
     browserTabClosing: buildBrowserTabClosing,

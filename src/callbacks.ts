@@ -1,6 +1,12 @@
-import { handleTabChange, handleTabClosing } from "./handlers";
-import { Message, MessageResponse, Method } from "./messaging";
-import { builder } from "./messaging";
+import {
+  handleHideCameraBubble,
+  handleShowCameraBubble,
+  handleStartRecording,
+  handleStopRecording,
+  handleTabChange,
+  handleTabClosing,
+} from "./handlers";
+import { builder, Message, MessageResponse, Method } from "./messaging";
 
 export async function onMessage(
   message: Message,
@@ -8,6 +14,12 @@ export async function onMessage(
   sendResponse?: (response?: MessageResponse) => void
 ): Promise<void> {
   const methods = new Map([
+    [Method.StartRecording, handleStartRecording],
+    [Method.StopRecording, handleStopRecording],
+
+    [Method.ShowCameraBubble, handleShowCameraBubble],
+    [Method.HideCameraBubble, handleHideCameraBubble],
+
     [Method.BrowserTabChange, handleTabChange],
     [Method.BrowserTabClosing, handleTabClosing],
   ]);

@@ -15,6 +15,20 @@ describe("builder", () => {
     } as Message);
   });
 
+  test("buildShowCameraBubble", () => {
+    expect(builder.showCameraBubble()).toEqual({
+      method: Method.ShowCameraBubble,
+      args: {},
+    } as Message);
+  });
+
+  test("buildHideCameraBubble", () => {
+    expect(builder.hideCameraBubble()).toEqual({
+      method: Method.HideCameraBubble,
+      args: {},
+    } as Message);
+  });
+
   test("buildBrowserTabChange", () => {
     expect(builder.internal.browserTabChange(10)).toEqual({
       method: Method.BrowserTabChange,
