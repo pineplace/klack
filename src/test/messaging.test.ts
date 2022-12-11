@@ -15,6 +15,15 @@ describe("builder", () => {
     } as Message);
   });
 
+  test("buildDownloadRecording", () => {
+    expect(builder.downloadRecording("some-recording-url")).toEqual({
+      method: Method.DownloadRecording,
+      args: {
+        downloadUrl: "some-recording-url",
+      },
+    } as Message);
+  });
+
   test("buildShowCameraBubble", () => {
     expect(builder.showCameraBubble()).toEqual({
       method: Method.ShowCameraBubble,

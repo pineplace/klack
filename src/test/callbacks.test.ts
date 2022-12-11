@@ -1,6 +1,7 @@
 import { onMessage, onTabChange, onTabClosing } from "../callbacks";
 import { builder, MessageResponse } from "../messaging";
 import {
+  handleDownloadRecording,
   handleHideCameraBubble,
   handleShowCameraBubble,
   handleStartRecording,
@@ -38,6 +39,19 @@ describe("onMessage", () => {
     });
 
     expect(handleStopRecording).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
+  test("Correct DownloadRecording message", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.downloadRecording("some-video-url"), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleDownloadRecording).toHaveBeenCalledWith({
+      downloadUrl: "some-video-url",
+    });
     expect(response).toEqual(builder.response.ok());
   });
 

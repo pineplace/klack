@@ -1,5 +1,8 @@
 export type StartRecording = Record<string, never>;
 export type StopRecording = Record<string, never>;
+export interface DownloadRecording {
+  downloadUrl: string;
+}
 export type ShowCameraBubble = Record<string, never>;
 export type HideCameraBubble = Record<string, never>;
 export interface BrowserTabChange {
@@ -12,6 +15,7 @@ export interface BrowserTabClosing {
 export enum Method {
   StartRecording,
   StopRecording,
+  DownloadRecording,
 
   ShowCameraBubble,
   HideCameraBubble,
@@ -22,6 +26,7 @@ export enum Method {
 export type MethodArgs =
   | StartRecording
   | StopRecording
+  | DownloadRecording
   | ShowCameraBubble
   | HideCameraBubble
   | BrowserTabChange
@@ -47,6 +52,15 @@ function buildStopRecording(): Message {
   return {
     method: Method.StopRecording,
     args: {},
+  };
+}
+
+function buildDownloadRecording(downloadUrl: string): Message {
+  return {
+    method: Method.DownloadRecording,
+    args: {
+      downloadUrl,
+    },
   };
 }
 
@@ -98,6 +112,7 @@ function buildErrorResponse(err: Error): MessageResponse {
 export const builder = {
   startRecording: buildStartRecording,
   stopRecording: buildStopRecording,
+  downloadRecording: buildDownloadRecording,
   showCameraBubble: buildShowCameraBubble,
   hideCameraBubble: buildHideCameraBubble,
   internal: {

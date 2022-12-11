@@ -1,4 +1,4 @@
-import { BrowserTabChange, MethodArgs } from "./messaging";
+import { BrowserTabChange, DownloadRecording, MethodArgs } from "./messaging";
 
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
@@ -14,6 +14,16 @@ export async function handleStartRecording(_args: MethodArgs): Promise<void> {
 export async function handleStopRecording(_args: MethodArgs): Promise<void> {
   console.log("handleStopRecording()");
   // TODO: Implement me and remove eslint-disable above
+}
+
+export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
+  console.log("handleDownloadRecording");
+
+  args = args as DownloadRecording;
+
+  await chrome.downloads.download({
+    url: args.downloadUrl,
+  });
 }
 
 export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
