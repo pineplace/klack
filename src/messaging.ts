@@ -1,6 +1,7 @@
 export type StartRecording = Record<string, never>;
 export type StopRecording = Record<string, never>;
-
+export type ShowCameraBubble = Record<string, never>;
+export type HideCameraBubble = Record<string, never>;
 export interface BrowserTabChange {
   newTabId: number;
 }
@@ -21,6 +22,8 @@ export enum Method {
 export type MethodArgs =
   | StartRecording
   | StopRecording
+  | ShowCameraBubble
+  | HideCameraBubble
   | BrowserTabChange
   | BrowserTabClosing;
 
