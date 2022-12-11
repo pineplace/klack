@@ -1,8 +1,7 @@
 import React from "react";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { Title, Description } from "@storybook/addon-docs";
-
-import { CameraBubble } from "./camera_bubble";
+import CameraBubble from "./camera_bubble";
 
 export default {
   title: "RapidRec/CameraBubble",

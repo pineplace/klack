@@ -1,45 +1,82 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Draggable from "react-draggable";
-import { Avatar, ButtonGroup, IconButton } from "@mui/material";
-import { Stack } from "@mui/material";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import CameraRoundedIcon from "@mui/icons-material/CameraRounded";
-import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
-import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledRounded";
+import { Avatar, ButtonGroup, IconButton, Stack } from "@mui/material";
+import PlayCircleFilledRounded from "@mui/icons-material/PlayCircleFilledRounded";
 import StopCircleRoundedIcon from "@mui/icons-material/StopCircleRounded";
-import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
+import CameraRoundedIcon from "@mui/icons-material/CameraRounded";
+import { builder, sender } from "../messaging";
 
-import {
-  Method,
-  RecStart,
-  RecStop,
-  sendMessage,
-} from "../rapidrec/communication";
-import {
-  CameraCaptureProperties,
-  createCameraStream,
-} from "../browser-side/stream";
+const CameraStream = () => {
+  const [source, setSource] = useState<MediaStream | undefined>();
 
-// FIXME: I don't like it, get rid of it
-const cameraCaptureProperties: CameraCaptureProperties = {
-  width: 200,
-  height: 200,
-};
-
-// NOTE @imblowfish: https://www.npmjs.com/package/react-draggable
-export const CameraBubble = () => {
-  const [cameraSrc, setCameraSrc] = useState<MediaStream | null>(null);
-  const [inProgress, setInProgress] = useState(false);
+  const createCameraStream = async () => {
+    return await navigator.mediaDevices.getUserMedia({
+      // audio: true,
+      video: {
+        width: 200,
+        height: 200,
+        facingMode: "environment",
+      },
+    });
+  };
 
   useEffect(() => {
-    createCameraStream(cameraCaptureProperties)
-      .then((stream) => {
-        console.log("Set camera source", stream);
-        setCameraSrc(stream);
+    createCameraStream()
+      .then((mediaStream) => {
+        setSource(mediaStream);
       })
-      .catch((err) => console.error("Can't capture camera stream", err));
+      .catch((err) => console.error(err));
   }, []);
 
+  if (source) {
+    return (
+      <Avatar
+        sx={{ width: 200, height: 200 }}
+        component='video'
+        ref={(ref: HTMLVideoElement) => {
+          if (!ref) {
+            return;
+          }
+          ref.srcObject = source;
+          ref.autoplay = true;
+        }}
+      />
+    );
+  }
+  return (
+    <Avatar sx={{ width: 200, height: 200 }}>
+      <CameraRoundedIcon />
+    </Avatar>
+  );
+};
+
+const StartStopRecording = () => {
+  const [inProgress, setInProgress] = useState(false);
+
+  return (
+    <IconButton
+      onClick={() => {
+        sender
+          .send(inProgress ? builder.stopRecording() : builder.startRecording())
+          .catch((err) => console.error(err));
+
+        setInProgress(!inProgress);
+      }}
+    >
+      {inProgress ? <StopCircleRoundedIcon /> : <PlayCircleFilledRounded />}
+    </IconButton>
+  );
+};
+
+const RecordingControl = () => {
+  return (
+    <ButtonGroup>
+      <StartStopRecording />
+    </ButtonGroup>
+  );
+};
+
+const CameraBubble = () => {
   return (
     <Draggable>
       <Stack
@@ -53,59 +90,11 @@ export const CameraBubble = () => {
         justifyContent='center'
         spacing={1}
       >
-        <IconButton>
-          <CloseRoundedIcon fontSize='large' />
-        </IconButton>
-        {cameraSrc ? (
-          <Avatar
-            sx={cameraCaptureProperties}
-            component='video'
-            ref={(ref: HTMLVideoElement) => {
-              ref.srcObject = cameraSrc;
-              ref.autoplay = true;
-            }}
-          />
-        ) : (
-          <Avatar sx={cameraCaptureProperties}>
-            <CameraRoundedIcon fontSize='large' />
-          </Avatar>
-        )}
-        <ButtonGroup>
-          <IconButton disabled={!inProgress}>
-            <DeleteRoundedIcon fontSize='large' />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              if (!inProgress) {
-                sendMessage({
-                  method: Method.RecStart,
-                } as RecStart)
-                  .then((response) => console.log(response))
-                  .catch((err) => console.error(err));
-              }
-              setInProgress((value) => !value);
-            }}
-          >
-            {inProgress ? (
-              <PauseCircleFilledRoundedIcon fontSize='large' />
-            ) : (
-              <PlayCircleFilledRoundedIcon fontSize='large' />
-            )}
-          </IconButton>
-          <IconButton
-            disabled={!inProgress}
-            onClick={() => {
-              sendMessage({
-                method: Method.RecStop,
-              } as RecStop)
-                .then((response) => console.log(response))
-                .catch((err) => console.error(err));
-            }}
-          >
-            <StopCircleRoundedIcon fontSize='large' />
-          </IconButton>
-        </ButtonGroup>
+        <CameraStream />
+        <RecordingControl />
       </Stack>
     </Draggable>
   );
 };
+
+export { CameraBubble as default };

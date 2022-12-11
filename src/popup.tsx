@@ -1,13 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import PopupMenu from "./components/popup_menu";
 
-import { PopupMenu } from "./components/popup_menu";
+const root = document.getElementById("root");
 
-const App = () => {
-  return <PopupMenu />;
-};
-
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as Element | DocumentFragment
-);
-root.render(<App />);
+if (!root) {
+  console.error(`Can't find element with id 'root'`);
+} else {
+  ReactDOM.createRoot(root).render(<PopupMenu />);
+}

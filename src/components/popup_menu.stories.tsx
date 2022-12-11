@@ -1,8 +1,7 @@
 import React from "react";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { Title, Description } from "@storybook/addon-docs";
-
-import { PopupMenu } from "./popup_menu";
+import PopupMenu from "./popup_menu";
 
 export default {
   title: "RapidRec/PopupMenu",

@@ -1,19 +1,49 @@
 import React, { useState } from "react";
-import { Button, Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Button, Stack } from "@mui/material";
+import { builder, sender } from "../messaging";
 
-import {
-  Method,
-  RecMode,
-  RecSetMode,
-  RecStart,
-  RecStop,
-  sendMessage,
-} from "../rapidrec/communication";
+const ShowHideCameraBubble = () => {
+  const [isHidden, setIsHidden] = useState(true);
 
-export const PopupMenu = () => {
-  const [mode, setMode] = useState(RecMode.ScreenOnly);
-  const [inProgress, setInProgress] = useState(false);
+  return (
+    <Button
+      onClick={() => {
+        sender
+          .send(
+            isHidden ? builder.showCameraBubble() : builder.hideCameraBubble()
+          )
+          .catch((err) => console.error(err));
 
+        setIsHidden(!isHidden);
+      }}
+    >
+      {isHidden ? "Show bubble" : "Hide bubble"}
+    </Button>
+  );
+};
+
+const StartStopRecording = () => {
+  const [label, setLabel] = useState("Start");
+  return (
+    <Button
+      onClick={() => {
+        sender
+          .send(
+            label === "Start"
+              ? builder.startRecording()
+              : builder.stopRecording()
+          )
+          .catch((err) => console.error(err));
+
+        setLabel(label === "Start" ? "Stop" : "Start");
+      }}
+    >
+      {label}
+    </Button>
+  );
+};
+
+const PopupMenu = () => {
   return (
     <Stack
       direction='column'
@@ -21,58 +51,10 @@ export const PopupMenu = () => {
       justifyContent='center'
       spacing={1}
     >
-      <ToggleButtonGroup
-        color='primary'
-        value={mode}
-        onChange={(_event, newMode: RecMode) => {
-          if (!newMode) {
-            return;
-          }
-          setMode(newMode);
-        }}
-        exclusive
-      >
-        <ToggleButton
-          value={RecMode.ScreenAndCam}
-          onClick={() => {
-            sendMessage({
-              method: Method.RecSetMode,
-              params: { mode: RecMode.ScreenAndCam },
-            } as RecSetMode)
-              .then((response) => console.log(JSON.stringify(response)))
-              .catch((err) => console.error(err));
-          }}
-        >
-          Screen & Cam
-        </ToggleButton>
-        <ToggleButton
-          value={RecMode.ScreenOnly}
-          onClick={() => {
-            sendMessage({
-              method: Method.RecSetMode,
-              params: { mode: RecMode.ScreenOnly },
-            } as RecSetMode)
-              .then((response) => console.log(JSON.stringify(response)))
-              .catch((err) => console.error(err));
-          }}
-        >
-          Screen Only
-        </ToggleButton>
-      </ToggleButtonGroup>
-      <Button
-        onClick={() => {
-          sendMessage({
-            method: inProgress ? Method.RecStop : Method.RecStart,
-          } as RecStart | RecStop)
-            .then((response) => {
-              console.log(JSON.stringify(response));
-            })
-            .catch((err) => console.error(err));
-          setInProgress((prevValue) => !prevValue);
-        }}
-      >
-        {inProgress ? "Stop" : "Start"}
-      </Button>
+      <ShowHideCameraBubble />
+      <StartStopRecording />
     </Stack>
   );
 };
+
+export { PopupMenu as default };
