@@ -6,7 +6,7 @@
     "test": "jest --silent",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:storybook": "jest --rootDir='./src/components' --json --outputFile='.jest-test-results.json'",
+    "test:storybook": "jest --silent --rootDir='./src/components' --json --outputFile='.jest-test-results.json'",
     "build": "webpack --progress --config webpack.prod.cjs",
     "dev": "webpack --progress --watch --config webpack.dev.cjs",
     "clean": "rm -rf ./ext/*.mjs* ./coverage .jest-test-results.json",
