@@ -1,3 +1,5 @@
+import { builder, sender } from "../messaging";
+
 class Recorder {
   #stream: MediaStream;
   #mimeType: string;
@@ -23,18 +25,6 @@ class Recorder {
     });
   }
 
-  #onStart() {
-    // TODO: Implement me
-  }
-
-  #onStop() {
-    // TODO: Implement me
-  }
-
-  #onData(data: Blob) {
-    this.#mediaChunks.push(data);
-  }
-
   #createDownloadUrl(): string {
     this.#mediaRecorder.state;
     return URL.createObjectURL(
@@ -42,6 +32,21 @@ class Recorder {
         type: this.#mimeType,
       })
     );
+  }
+
+  #onStart() {
+    // TODO: Implement me
+  }
+
+  #onStop() {
+    // TODO: Implement me
+    sender
+      .send(builder.downloadRecording(this.#createDownloadUrl()))
+      .catch((err) => console.error(err));
+  }
+
+  #onData(data: Blob) {
+    this.#mediaChunks.push(data);
   }
 
   start() {
@@ -58,7 +63,7 @@ async function share(): Promise<void> {
     audio: true,
     video: true,
   });
-  const mediaRecorder = new Recorder(stream, "video/wemb");
+  const mediaRecorder = new Recorder(stream, "video/webm");
   mediaRecorder.start();
 }
 
