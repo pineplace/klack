@@ -5,8 +5,8 @@ module.exports = {
   entry: {
     background: "./src/background.ts",
     popup: "./src/popup.tsx",
-    cameraBubble: "./src/injections/camera_bubble.tsx",
-    screenCapture: "./src/injections/screen_capture.ts",
+    cameraBubble: "./src/scripts/camera_bubble.ts",
+    screenCapture: "./src/scripts/screen_sharing.ts",
   },
   output: {
     path: path.join(__dirname, "./ext"),
