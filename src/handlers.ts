@@ -3,7 +3,7 @@ import { BrowserTabChange, MethodArgs } from "./messaging";
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
 
-  const tabId = (await chrome.storage.local.get("currentTabId")) as unknown;
+  const { tabId } = await chrome.storage.local.get("tabId");
   await chrome.scripting.executeScript({
     target: { tabId: tabId as number },
     files: ["./screenCapture.bundle.mjs"],
@@ -19,7 +19,9 @@ export async function handleStopRecording(_args: MethodArgs): Promise<void> {
 export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
   console.log("handleShowCameraBubble");
 
-  const tabId = (await chrome.storage.local.get("currentTabId")) as unknown;
+  console.log(await chrome.storage.local.get("tabId"));
+
+  const { tabId } = await chrome.storage.local.get("tabId");
   await chrome.scripting.executeScript({
     target: { tabId: tabId as number },
     files: ["./cameraBubble.bundle.mjs"],
@@ -29,7 +31,7 @@ export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
 export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
   console.log("handleHideCameraBubble");
 
-  const tabId = (await chrome.storage.local.get("currentTabId")) as unknown;
+  const { tabId } = await chrome.storage.local.get("tabId");
   await chrome.scripting.executeScript({
     target: { tabId: tabId as number },
     func: () => {
@@ -43,7 +45,7 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
   args = args as BrowserTabChange;
 
   await chrome.storage.local.set({
-    currentTabId: args.newTabId,
+    tabId: args.newTabId,
   });
 }
 
