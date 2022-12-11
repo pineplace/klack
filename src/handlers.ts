@@ -19,8 +19,6 @@ export async function handleStopRecording(_args: MethodArgs): Promise<void> {
 export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
   console.log("handleShowCameraBubble");
 
-  console.log(await chrome.storage.local.get("tabId"));
-
   const { tabId } = await chrome.storage.local.get("tabId");
   await chrome.scripting.executeScript({
     target: { tabId: tabId as number },
