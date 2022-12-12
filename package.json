@@ -3,16 +3,16 @@
   "description": "Instant screen recording browser extension with floating camera view",
   "version": "0.2.0",
   "scripts": {
-    "test": "jest",
+    "test": "jest --silent",
     "test:watch": "jest --watch",
-    "test:generate-output": "jest --json --outputFile='.jest-test-results.json'",
-    "coverage": "jest --coverage",
+    "test:coverage": "jest --coverage",
+    "test:storybook": "jest --silent --rootDir='./src/components' --json --outputFile='.jest-test-results.json'",
     "build": "webpack --progress --config webpack.prod.cjs",
     "dev": "webpack --progress --watch --config webpack.dev.cjs",
     "clean": "rm -rf ./ext/*.mjs* ./coverage .jest-test-results.json",
     "lint": "eslint --ext .mjs --ext .ts --ext .tsx .",
     "fmt": "prettier --write .",
-    "storybook": "npm run test:generate-output && start-storybook -p 6006",
+    "storybook": "npm run test:storybook && start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
   "repository": {
