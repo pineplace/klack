@@ -1,4 +1,4 @@
-name: RapidRec extension Node CI
+name: Build, lint and test
 
 on:
   pull_request:
