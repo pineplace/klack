@@ -69,7 +69,7 @@ test("handleHideCameraBubble", async () => {
   expect(chrome.storage.local.get).toHaveBeenCalledWith("tabId");
   expect(chrome.scripting.executeScript).toHaveBeenCalledWith({
     target: { tabId: 1 },
-    func: expect.any(Function),
+    func: expect.any(Function) as () => void,
   });
 });
 
