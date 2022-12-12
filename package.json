@@ -12,6 +12,7 @@
     "clean": "rm -rf ./ext/*.mjs* ./coverage .jest-test-results.json",
     "lint": "eslint --ext .mjs --ext .ts --ext .tsx .",
     "fmt": "prettier --write .",
+    "fmt:check": "prettier --check .",
     "storybook": "npm run test:storybook && start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
