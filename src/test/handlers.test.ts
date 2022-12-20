@@ -1,5 +1,6 @@
 import {
   handleDownloadRecording,
+  handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleShowCameraBubble,
   handleStartRecording,
@@ -36,11 +37,18 @@ test("handleStartRecording", async () => {
     target: { tabId: 1 },
     files: ["./screenCapture.bundle.mjs"],
   });
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toHaveBeenCalledWith({
+    recordingInProgress: true,
+  });
 });
 
 test("handleStopRecording", async () => {
-  // Now do nothing
   await handleStopRecording({});
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toHaveBeenCalledWith({
+    recordingInProgress: false,
+  });
 });
 
 test("handleDownloadRecording", async () => {
@@ -80,4 +88,8 @@ test("handleTabChange", async () => {
   expect(chrome.storage.local.set).toHaveBeenCalledWith({
     tabId: 2,
   });
+});
+
+test("handleGetRecordingInProgress", async () => {
+  expect(await handleGetRecordingInProgress()).toEqual(false);
 });

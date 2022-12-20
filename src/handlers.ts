@@ -2,6 +2,7 @@ import {
   BrowserTabChangeArgs,
   DownloadRecordingArgs,
   MethodArgs,
+  MethodResult,
 } from "./messaging";
 
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
@@ -12,12 +13,17 @@ export async function handleStartRecording(_args: MethodArgs): Promise<void> {
     target: { tabId: tabId as number },
     files: ["./screenCapture.bundle.mjs"],
   });
+  await chrome.storage.local.set({
+    recordingInProgress: true,
+  });
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function handleStopRecording(_args: MethodArgs): Promise<void> {
   console.log("handleStopRecording()");
-  // TODO: Implement me and remove eslint-disable above
+
+  await chrome.storage.local.set({
+    recordingInProgress: false,
+  });
 }
 
 export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
@@ -66,4 +72,11 @@ export async function handleTabClosing(args: MethodArgs): Promise<void> {
   console.log(`handleTabClosing(args=${JSON.stringify(args)})`);
 
   await handleHideCameraBubble(args);
+}
+
+export async function handleGetRecordingInProgress(): Promise<MethodResult> {
+  const { recordingInProgress } = await chrome.storage.local.get(
+    "recordingInProgress"
+  );
+  return (recordingInProgress as boolean) ?? false;
 }
