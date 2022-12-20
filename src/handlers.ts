@@ -1,4 +1,8 @@
-import { BrowserTabChange, DownloadRecording, MethodArgs } from "./messaging";
+import {
+  BrowserTabChangeArgs,
+  DownloadRecordingArgs,
+  MethodArgs,
+} from "./messaging";
 
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
@@ -19,7 +23,7 @@ export async function handleStopRecording(_args: MethodArgs): Promise<void> {
 export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
   console.log("handleDownloadRecording");
 
-  args = args as DownloadRecording;
+  args = args as DownloadRecordingArgs;
 
   await chrome.downloads.download({
     url: args.downloadUrl,
@@ -50,7 +54,8 @@ export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
 
 export async function handleTabChange(args: MethodArgs): Promise<void> {
   console.log(`handleTabChange(args=${JSON.stringify(args)})`);
-  args = args as BrowserTabChange;
+
+  args = args as BrowserTabChangeArgs;
 
   await chrome.storage.local.set({
     tabId: args.newTabId,

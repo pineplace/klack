@@ -4,14 +4,12 @@ describe("builder", () => {
   test("buildStartRecording", () => {
     expect(builder.startRecording()).toEqual({
       method: Method.StartRecording,
-      args: {},
     } as Message);
   });
 
   test("buildStopRecording", () => {
     expect(builder.stopRecording()).toEqual({
       method: Method.StopRecording,
-      args: {},
     } as Message);
   });
 
@@ -27,14 +25,18 @@ describe("builder", () => {
   test("buildShowCameraBubble", () => {
     expect(builder.showCameraBubble()).toEqual({
       method: Method.ShowCameraBubble,
-      args: {},
     } as Message);
   });
 
   test("buildHideCameraBubble", () => {
     expect(builder.hideCameraBubble()).toEqual({
       method: Method.HideCameraBubble,
-      args: {},
+    } as Message);
+  });
+
+  test("buildRecordingInProgress", () => {
+    expect(builder.getter.recordingInProgress()).toEqual({
+      method: Method.GetterRecordingInProgress,
     } as Message);
   });
 
@@ -56,16 +58,27 @@ describe("builder", () => {
     } as Message);
   });
 
-  test("buildOkResponse", () => {
-    expect(builder.response.ok()).toEqual({
-      result: "OK",
-    } as MessageResponse);
+  describe("buildOkResponse", () => {
+    test("OK", () => {
+      expect(builder.response.ok()).toEqual({
+        result: "OK",
+      } as MessageResponse);
+    });
+
+    test("RecordingInProgressResult", () => {
+      expect(builder.response.ok(true)).toEqual({
+        result: true,
+      } as MessageResponse);
+
+      expect(builder.response.ok(false)).toEqual({
+        result: false,
+      } as MessageResponse);
+    });
   });
 
   test("buildErrorResponse", () => {
     expect(builder.response.error(new Error("Some error"))).toEqual({
-      result: "Error",
-      message: "Some error",
+      error: "Some error",
     } as MessageResponse);
   });
 });

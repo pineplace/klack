@@ -32,7 +32,7 @@ export async function onMessage(
     if (!handler) {
       throw new Error(`Unexpected method: ${method}`);
     }
-    await handler(args);
+    await handler(args ?? {});
     sendResponse?.(builder.response.ok());
   } catch (err) {
     console.error(err);
