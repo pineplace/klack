@@ -8,6 +8,7 @@ chrome.runtime.onMessage.addListener(
     onMessage(message, sender, sendResponse).catch((err) => {
       throw err;
     });
+    return true;
   }
 );
 
