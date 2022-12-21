@@ -1,5 +1,6 @@
 import {
   handleDownloadRecording,
+  handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleShowCameraBubble,
   handleStartRecording,
@@ -14,6 +15,8 @@ export async function onMessage(
   _sender?: chrome.runtime.MessageSender,
   sendResponse?: (response?: MessageResponse) => void
 ): Promise<void> {
+  console.log(`onMessage ${JSON.stringify(message)}`);
+
   const methods = new Map([
     [Method.StartRecording, handleStartRecording],
     [Method.StopRecording, handleStopRecording],
@@ -26,14 +29,18 @@ export async function onMessage(
     [Method.BrowserTabClosing, handleTabClosing],
   ]);
 
+  const getters = new Map([
+    [Method.GetterRecordingInProgress, handleGetRecordingInProgress],
+  ]);
+
   const { method, args } = message;
-  const handler = methods.get(method);
+  const handler = methods.get(method) ?? getters.get(method);
   try {
     if (!handler) {
       throw new Error(`Unexpected method: ${method}`);
     }
-    await handler(args);
-    sendResponse?.(builder.response.ok());
+    const result = await handler(args ?? {});
+    sendResponse?.(builder.response.ok(result ?? undefined));
   } catch (err) {
     console.error(err);
     sendResponse?.(builder.response.error(err as Error));

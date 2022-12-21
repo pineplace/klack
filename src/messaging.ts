@@ -1,17 +1,3 @@
-export type StartRecording = Record<string, never>;
-export type StopRecording = Record<string, never>;
-export interface DownloadRecording {
-  downloadUrl: string;
-}
-export type ShowCameraBubble = Record<string, never>;
-export type HideCameraBubble = Record<string, never>;
-export interface BrowserTabChange {
-  newTabId: number;
-}
-export interface BrowserTabClosing {
-  closedTabId: number;
-}
-
 export enum Method {
   StartRecording,
   StopRecording,
@@ -22,36 +8,42 @@ export enum Method {
 
   BrowserTabChange,
   BrowserTabClosing,
+
+  GetterRecordingInProgress,
 }
+
+export type DownloadRecordingArgs = { downloadUrl: string };
+export type BrowserTabChangeArgs = { newTabId: number };
+export type BrowserTabClosingArgs = { closedTabId: number };
+
+export type RecordingInProgressResult = boolean;
+
 export type MethodArgs =
-  | StartRecording
-  | StopRecording
-  | DownloadRecording
-  | ShowCameraBubble
-  | HideCameraBubble
-  | BrowserTabChange
-  | BrowserTabClosing;
+  | DownloadRecordingArgs
+  | BrowserTabChangeArgs
+  | BrowserTabClosingArgs
+  | Record<string, never>;
+
+export type MethodResult = RecordingInProgressResult | "OK";
 
 export interface Message {
   method: Method;
-  args: MethodArgs;
+  args?: MethodArgs;
 }
 export type MessageResponse = {
-  result: "OK" | "Error";
-  message?: string;
+  result?: MethodResult;
+  error?: string;
 };
 
 function buildStartRecording(): Message {
   return {
     method: Method.StartRecording,
-    args: {},
   };
 }
 
 function buildStopRecording(): Message {
   return {
     method: Method.StopRecording,
-    args: {},
   };
 }
 
@@ -67,14 +59,18 @@ function buildDownloadRecording(downloadUrl: string): Message {
 function buildShowCameraBubble(): Message {
   return {
     method: Method.ShowCameraBubble,
-    args: {},
   };
 }
 
 function buildHideCameraBubble(): Message {
   return {
     method: Method.HideCameraBubble,
-    args: {},
+  };
+}
+
+function buildRecordingInProgress(): Message {
+  return {
+    method: Method.GetterRecordingInProgress,
   };
 }
 
@@ -96,16 +92,15 @@ function buildBrowserTabClosing(closedTabId: number): Message {
   };
 }
 
-function buildOkResponse(): MessageResponse {
+function buildOkResponse(result: MethodResult = "OK"): MessageResponse {
   return {
-    result: "OK",
+    result,
   };
 }
 
 function buildErrorResponse(err: Error): MessageResponse {
   return {
-    result: "Error",
-    message: err.message,
+    error: err.message,
   };
 }
 
@@ -115,6 +110,9 @@ export const builder = {
   downloadRecording: buildDownloadRecording,
   showCameraBubble: buildShowCameraBubble,
   hideCameraBubble: buildHideCameraBubble,
+  getter: {
+    recordingInProgress: buildRecordingInProgress,
+  },
   internal: {
     browserTabChange: buildBrowserTabChange,
     browserTabClosing: buildBrowserTabClosing,

@@ -1,31 +1,34 @@
+/*
+ * NOTE: `handlers.ts` initializes `chrome.storage.local` on import
+ * and test fails without this override
+ */
+globalThis.chrome = {
+  // @ts-expect-error Chrome methods mocking
+  downloads: {
+    download: jest.fn().mockResolvedValue({}),
+  },
+  // @ts-expect-error Chrome methods mocking
+  scripting: {
+    executeScript: jest.fn().mockResolvedValue({}),
+  },
+  storage: {
+    // @ts-expect-error Chrome methods mocking
+    local: {
+      set: jest.fn().mockResolvedValue({}),
+      get: jest.fn().mockResolvedValue({ tabId: 1 }),
+    },
+  },
+};
+
 import {
   handleDownloadRecording,
+  handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleShowCameraBubble,
   handleStartRecording,
   handleStopRecording,
   handleTabChange,
 } from "../handlers";
-
-beforeEach(() => {
-  globalThis.chrome = {
-    // @ts-expect-error Chrome methods mocking
-    downloads: {
-      download: jest.fn().mockResolvedValue({}),
-    },
-    // @ts-expect-error Chrome methods mocking
-    scripting: {
-      executeScript: jest.fn().mockResolvedValue({}),
-    },
-    storage: {
-      // @ts-expect-error Chrome methods mocking
-      local: {
-        set: jest.fn().mockResolvedValue({}),
-        get: jest.fn().mockResolvedValue({ tabId: 1 }),
-      },
-    },
-  };
-});
 
 test("handleStartRecording", async () => {
   await handleStartRecording({});
@@ -36,11 +39,18 @@ test("handleStartRecording", async () => {
     target: { tabId: 1 },
     files: ["./screenCapture.bundle.mjs"],
   });
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toHaveBeenCalledWith({
+    recordingInProgress: true,
+  });
 });
 
 test("handleStopRecording", async () => {
-  // Now do nothing
   await handleStopRecording({});
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toHaveBeenCalledWith({
+    recordingInProgress: false,
+  });
 });
 
 test("handleDownloadRecording", async () => {
@@ -80,4 +90,8 @@ test("handleTabChange", async () => {
   expect(chrome.storage.local.set).toHaveBeenCalledWith({
     tabId: 2,
   });
+});
+
+test("handleGetRecordingInProgress", async () => {
+  expect(await handleGetRecordingInProgress()).toEqual(false);
 });
