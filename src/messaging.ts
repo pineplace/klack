@@ -30,9 +30,10 @@ export interface Message {
   method: Method;
   args?: MethodArgs;
 }
-export type MessageResponse = NonNullable<
-  { result: MethodResult } | { error: string }
->;
+export type MessageResponse = {
+  result?: MethodResult;
+  error?: string;
+};
 
 function buildStartRecording(): Message {
   return {
