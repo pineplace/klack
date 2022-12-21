@@ -34,6 +34,11 @@ export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
   await chrome.downloads.download({
     url: args.downloadUrl,
   });
+
+  // FIXME: Temporal solution
+  await chrome.storage.local.set({
+    recordingInProgress: false,
+  });
 }
 
 export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
