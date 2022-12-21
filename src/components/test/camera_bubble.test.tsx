@@ -3,7 +3,7 @@
  */
 // NOTE: https://testing-library.com/docs/
 import React from "react";
-import { act, fireEvent, render } from "@testing-library/react";
+import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { builder, sender } from "../../messaging";
 import CameraBubble from "../camera_bubble";
 
@@ -16,9 +16,12 @@ jest.mock("../../messaging", () => {
       stopRecording: jest.fn(),
       showCameraBubble: jest.fn(),
       hideCameraBubble: jest.fn(),
+      getter: {
+        recordingInProgress: jest.fn(),
+      },
     },
     sender: {
-      send: jest.fn().mockResolvedValue({}),
+      send: jest.fn().mockResolvedValue({ result: false }),
     },
   };
 });
@@ -29,6 +32,15 @@ beforeAll(() => {
       getUserMedia: jest.fn().mockResolvedValue({}),
     },
   });
+});
+
+beforeEach(() => {
+  jest.useFakeTimers();
+});
+
+afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
 });
 
 describe("CameraStream", () => {
@@ -68,11 +80,29 @@ test("StartStopRecording", async () => {
   const [startStopRecording] =
     buttonGroup.getElementsByClassName("MuiButtonBase-root") ?? [];
 
-  fireEvent.click(startStopRecording);
+  await act(() => {
+    (sender.send as jest.Mock).mockResolvedValue({ result: true });
+    fireEvent.click(startStopRecording);
+  });
 
   expect(builder.startRecording).toHaveBeenCalled();
   expect(sender.send).toHaveBeenCalled();
-  expect(
-    startStopRecording.firstElementChild?.getAttribute("data-testid")
-  ).toEqual("StopCircleRoundedIcon");
+  await waitFor(() => {
+    expect(
+      startStopRecording.firstElementChild?.getAttribute("data-testid")
+    ).toEqual("StopCircleRoundedIcon");
+  });
+
+  await act(() => {
+    (sender.send as jest.Mock).mockResolvedValue({ result: false });
+    fireEvent.click(startStopRecording);
+  });
+
+  expect(builder.stopRecording).toHaveBeenCalled();
+  expect(sender.send).toHaveBeenCalled();
+  await waitFor(() => {
+    expect(
+      startStopRecording.firstElementChild?.getAttribute("data-testid")
+    ).toEqual("PlayCircleFilledRoundedIcon");
+  });
 });
