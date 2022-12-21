@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Stack } from "@mui/material";
 import { builder, sender } from "../messaging";
 
@@ -23,22 +23,34 @@ const ShowHideCameraBubble = () => {
 };
 
 const StartStopRecording = () => {
-  const [label, setLabel] = useState("Start");
+  const [inProgress, setInProgress] = useState(false);
+
+  useEffect(() => {
+    sender
+      .send(builder.getter.recordingInProgress())
+      .then((response) => {
+        if (!response) {
+          return;
+        }
+        if (response.error) {
+          throw new Error(response.error);
+        }
+        setInProgress((response.result as boolean) ?? inProgress);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  });
+
   return (
     <Button
       onClick={() => {
         sender
-          .send(
-            label === "Start"
-              ? builder.startRecording()
-              : builder.stopRecording()
-          )
+          .send(inProgress ? builder.stopRecording() : builder.startRecording())
           .catch((err) => console.error(err));
-
-        setLabel(label === "Start" ? "Stop" : "Start");
       }}
     >
-      {label}
+      {inProgress ? "Stop" : "Start"}
     </Button>
   );
 };
