@@ -75,6 +75,8 @@ export async function handleTabClosing(args: MethodArgs): Promise<void> {
 }
 
 export async function handleGetRecordingInProgress(): Promise<MethodResult> {
+  console.log("handleGetRecordingInProgress()");
+
   const { recordingInProgress } = await chrome.storage.local.get(
     "recordingInProgress"
   );

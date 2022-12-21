@@ -15,6 +15,8 @@ export async function onMessage(
   _sender?: chrome.runtime.MessageSender,
   sendResponse?: (response?: MessageResponse) => void
 ): Promise<void> {
+  console.log(`onMessage ${JSON.stringify(message)}`);
+
   const methods = new Map([
     [Method.StartRecording, handleStartRecording],
     [Method.StopRecording, handleStopRecording],
