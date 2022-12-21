@@ -53,14 +53,36 @@ const CameraStream = () => {
 const StartStopRecording = () => {
   const [inProgress, setInProgress] = useState(false);
 
+  useEffect(() => {
+    const checkInProgress = () => {
+      sender
+        .send(builder.getter.recordingInProgress())
+        .then((response) => {
+          if (!response) {
+            return;
+          }
+          if (response.error) {
+            throw new Error(response.error);
+          }
+          setInProgress((response.result as boolean) ?? inProgress);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    };
+
+    const interval = setInterval(checkInProgress, 500);
+    return () => {
+      clearInterval(interval);
+    };
+  });
+
   return (
     <IconButton
       onClick={() => {
         sender
           .send(inProgress ? builder.stopRecording() : builder.startRecording())
           .catch((err) => console.error(err));
-
-        setInProgress(!inProgress);
       }}
     >
       {inProgress ? <StopCircleRoundedIcon /> : <PlayCircleFilledRounded />}
