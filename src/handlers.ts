@@ -5,6 +5,27 @@ import {
   MethodResult,
 } from "./messaging";
 
+interface StorageContext {
+  tabId: number;
+  recordingInProgress: boolean;
+}
+
+chrome.storage.local
+  .set({
+    tabId: 0,
+    recordingInProgress: false,
+  } satisfies StorageContext)
+  .then(() => {
+    console.log("Storage has been initialized with initial values");
+  })
+  .catch((err) => {
+    console.error(
+      `Failed to initialize storage with default values: ${
+        (err as Error).message
+      }`
+    );
+  });
+
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
 
@@ -35,7 +56,6 @@ export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
     url: args.downloadUrl,
   });
 
-  // FIXME: Temporal solution
   await chrome.storage.local.set({
     recordingInProgress: false,
   });
