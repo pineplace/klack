@@ -1,3 +1,25 @@
+/*
+ * NOTE: `handlers.ts` initializes `chrome.storage.local` on import
+ * and test fails without this override
+ */
+globalThis.chrome = {
+  // @ts-expect-error Chrome methods mocking
+  downloads: {
+    download: jest.fn().mockResolvedValue({}),
+  },
+  // @ts-expect-error Chrome methods mocking
+  scripting: {
+    executeScript: jest.fn().mockResolvedValue({}),
+  },
+  storage: {
+    // @ts-expect-error Chrome methods mocking
+    local: {
+      set: jest.fn().mockResolvedValue({}),
+      get: jest.fn().mockResolvedValue({ tabId: 1 }),
+    },
+  },
+};
+
 import {
   handleDownloadRecording,
   handleGetRecordingInProgress,
@@ -7,26 +29,6 @@ import {
   handleStopRecording,
   handleTabChange,
 } from "../handlers";
-
-beforeEach(() => {
-  globalThis.chrome = {
-    // @ts-expect-error Chrome methods mocking
-    downloads: {
-      download: jest.fn().mockResolvedValue({}),
-    },
-    // @ts-expect-error Chrome methods mocking
-    scripting: {
-      executeScript: jest.fn().mockResolvedValue({}),
-    },
-    storage: {
-      // @ts-expect-error Chrome methods mocking
-      local: {
-        set: jest.fn().mockResolvedValue({}),
-        get: jest.fn().mockResolvedValue({ tabId: 1 }),
-      },
-    },
-  };
-});
 
 test("handleStartRecording", async () => {
   await handleStartRecording({});
