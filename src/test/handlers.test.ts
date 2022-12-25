@@ -15,8 +15,15 @@ globalThis.chrome = {
     // @ts-expect-error Chrome methods mocking
     local: {
       set: jest.fn().mockResolvedValue({}),
-      get: jest.fn().mockResolvedValue({ tabId: 1 }),
+      get: jest.fn().mockResolvedValue({
+        tabId: 1,
+        screenRecordingTabId: 2,
+      }),
     },
+  },
+  // @ts-expect-error Chrome methods mocking
+  tabs: {
+    sendMessage: jest.fn(),
   },
 };
 
@@ -29,6 +36,24 @@ import {
   handleStopRecording,
   handleTabChange,
 } from "../handlers";
+import { Method } from "../messaging";
+
+// import { builder, sender } from "../messaging";
+
+// jest.mock("../messaging", () => {
+//   const mocked: object = jest.createMockFromModule("../messaging");
+//   return {
+//     ...mocked,
+//     // builder: {
+//     //   internal: {
+
+//     //   }
+//     // },
+//     // sender: {
+//     //   send: jest.fn().mockResolvedValue({}),
+//     // },
+//   }
+// })
 
 test("handleStartRecording", async () => {
   await handleStartRecording({});
@@ -42,14 +67,23 @@ test("handleStartRecording", async () => {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.set).toHaveBeenCalledWith({
     recordingInProgress: true,
+    screenRecordingTabId: 1,
   });
 });
 
 test("handleStopRecording", async () => {
   await handleStopRecording({});
   // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.get).toHaveBeenCalledWith("screenRecordingTabId");
+
+  expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(2, {
+    method: Method.TabStopMediaRecorder,
+  });
+
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.set).toHaveBeenCalledWith({
     recordingInProgress: false,
+    screenRecordingTabId: 0,
   });
 });
 

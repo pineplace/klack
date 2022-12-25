@@ -1,4 +1,27 @@
-import { builder, Message, MessageResponse, Method } from "../messaging";
+import {
+  builder,
+  Message,
+  MessageResponse,
+  Method,
+  sender,
+} from "../messaging";
+
+beforeEach(() => {
+  /*
+   * NOTE: `handlers.ts` initializes `chrome.storage.local` on import
+   * and test fails without this override
+   */
+  globalThis.chrome = {
+    // @ts-expect-error Chrome methods mocking
+    runtime: {
+      sendMessage: jest.fn(),
+    },
+    // @ts-expect-error Chrome methods mocking
+    tabs: {
+      sendMessage: jest.fn(),
+    },
+  };
+});
 
 describe("builder", () => {
   test("buildStartRecording", () => {
@@ -58,6 +81,12 @@ describe("builder", () => {
     } as Message);
   });
 
+  test("buildTabStopMediaRecorder", () => {
+    expect(builder.internal.tabStopMediaRecorder()).toEqual({
+      method: Method.TabStopMediaRecorder,
+    });
+  });
+
   describe("buildOkResponse", () => {
     test("OK", () => {
       expect(builder.response.ok()).toEqual({
@@ -80,5 +109,19 @@ describe("builder", () => {
     expect(builder.response.error(new Error("Some error"))).toEqual({
       error: "Some error",
     } as MessageResponse);
+  });
+});
+
+describe("sender", () => {
+  test("send with tabId", async () => {
+    await sender.send(builder.startRecording(), 11);
+    expect(chrome.tabs.sendMessage).toHaveBeenCalled();
+    expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
+  });
+
+  test("send without tabId", async () => {
+    await sender.send(builder.startRecording());
+    expect(chrome.runtime.sendMessage).toHaveBeenCalled();
+    expect(chrome.tabs.sendMessage).not.toHaveBeenCalled();
   });
 });
