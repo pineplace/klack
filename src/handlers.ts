@@ -3,17 +3,21 @@ import {
   DownloadRecordingArgs,
   MethodArgs,
   MethodResult,
+  builder,
+  sender,
 } from "./messaging";
 
 interface StorageContext {
-  tabId: number;
+  tabId: number; // current tab
   recordingInProgress: boolean;
+  screenRecordingTabId: number; // tab where screen recording was started
 }
 
 chrome.storage.local
   .set({
     tabId: 0,
     recordingInProgress: false,
+    screenRecordingTabId: 0,
   } satisfies StorageContext)
   .then(() => {
     console.log("Storage has been initialized with initial values");
@@ -36,14 +40,23 @@ export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   });
   await chrome.storage.local.set({
     recordingInProgress: true,
+    screenRecordingTabId: tabId as number,
   });
 }
 
 export async function handleStopRecording(_args: MethodArgs): Promise<void> {
   console.log("handleStopRecording()");
 
+  const { screenRecordingTabId } = await chrome.storage.local.get(
+    "screenRecordingTabId"
+  );
+  await sender.send(
+    builder.internal.tabStopMediaRecorder(),
+    screenRecordingTabId as number
+  );
   await chrome.storage.local.set({
     recordingInProgress: false,
+    screenRecordingTabId: 0,
   });
 }
 

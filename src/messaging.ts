@@ -8,6 +8,7 @@ export enum Method {
 
   BrowserTabChange,
   BrowserTabClosing,
+  TabStopMediaRecorder,
 
   GetterRecordingInProgress,
 }
@@ -92,6 +93,12 @@ function buildBrowserTabClosing(closedTabId: number): Message {
   };
 }
 
+function buildTabStopMediaRecorder(): Message {
+  return {
+    method: Method.TabStopMediaRecorder,
+  };
+}
+
 function buildOkResponse(result: MethodResult = "OK"): MessageResponse {
   return {
     result,
@@ -116,6 +123,7 @@ export const builder = {
   internal: {
     browserTabChange: buildBrowserTabChange,
     browserTabClosing: buildBrowserTabClosing,
+    tabStopMediaRecorder: buildTabStopMediaRecorder,
   },
   response: {
     ok: buildOkResponse,
@@ -124,7 +132,11 @@ export const builder = {
 };
 
 export const sender = {
-  send: async (message: Message): Promise<MessageResponse> => {
-    return await chrome.runtime.sendMessage(message);
+  send: (message: Message, tabId?: number): Promise<MessageResponse> => {
+    if (!tabId) {
+      return chrome.runtime.sendMessage(message);
+    }
+    console.log(`Send message to tab ${tabId}`);
+    return chrome.tabs.sendMessage(tabId, message);
   },
 };

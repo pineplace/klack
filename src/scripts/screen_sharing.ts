@@ -1,4 +1,4 @@
-import { builder, sender } from "../messaging";
+import { Message, Method, builder, sender } from "../messaging";
 
 class Recorder {
   #stream: MediaStream;
@@ -39,7 +39,6 @@ class Recorder {
   }
 
   #onStop() {
-    // TODO: Implement me
     sender
       .send(builder.downloadRecording(this.#createDownloadUrl()))
       .catch((err) => console.error(err));
@@ -55,6 +54,9 @@ class Recorder {
 
   stop() {
     this.#mediaRecorder.stop();
+    for (const track of this.#stream.getTracks()) {
+      track.stop();
+    }
   }
 }
 
@@ -65,6 +67,15 @@ async function share(): Promise<void> {
   });
   const mediaRecorder = new Recorder(stream, "video/webm");
   mediaRecorder.start();
+
+  chrome.runtime.onMessage.addListener((message: Message) => {
+    if (message.method !== Method.TabStopMediaRecorder) {
+      console.error(`Unexpected method: ${message.method}`);
+      return;
+    }
+    console.log("MediaRecorder stop event received");
+    mediaRecorder.stop();
+  });
 }
 
 share().catch((err) => console.error(err));
