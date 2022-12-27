@@ -11,6 +11,7 @@ export enum Method {
   TabStopMediaRecorder,
 
   GetterRecordingInProgress,
+  GetterIsCameraBubbleVisible,
 }
 
 export type DownloadRecordingArgs = { downloadUrl: string };
@@ -18,6 +19,7 @@ export type BrowserTabChangeArgs = { newTabId: number };
 export type BrowserTabClosingArgs = { closedTabId: number };
 
 export type RecordingInProgressResult = boolean;
+export type IsCameraBubbleVisibleResult = boolean;
 
 export type MethodArgs =
   | DownloadRecordingArgs
@@ -25,7 +27,10 @@ export type MethodArgs =
   | BrowserTabClosingArgs
   | Record<string, never>;
 
-export type MethodResult = RecordingInProgressResult | "OK";
+export type MethodResult =
+  | RecordingInProgressResult
+  | IsCameraBubbleVisibleResult
+  | "OK";
 
 export interface Message {
   method: Method;
@@ -75,6 +80,12 @@ function buildRecordingInProgress(): Message {
   };
 }
 
+function buildIsCameraBubbleVisible(): Message {
+  return {
+    method: Method.GetterIsCameraBubbleVisible,
+  };
+}
+
 function buildBrowserTabChange(newTabId: number): Message {
   return {
     method: Method.BrowserTabChange,
@@ -119,6 +130,7 @@ export const builder = {
   hideCameraBubble: buildHideCameraBubble,
   getter: {
     recordingInProgress: buildRecordingInProgress,
+    isCameraBubbleVisible: buildIsCameraBubbleVisible,
   },
   internal: {
     browserTabChange: buildBrowserTabChange,

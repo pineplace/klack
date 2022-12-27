@@ -3,21 +3,36 @@ import { Button, Stack } from "@mui/material";
 import { builder, sender } from "../messaging";
 
 const ShowHideCameraBubble = () => {
-  const [isHidden, setIsHidden] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    sender
+      .send(builder.getter.isCameraBubbleVisible())
+      .then((response) => {
+        if (!response) {
+          return;
+        }
+        if (response.error) {
+          throw new Error(response.error);
+        }
+        setIsVisible(response.result as boolean);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  });
 
   return (
     <Button
       onClick={() => {
         sender
           .send(
-            isHidden ? builder.showCameraBubble() : builder.hideCameraBubble()
+            isVisible ? builder.hideCameraBubble() : builder.showCameraBubble()
           )
           .catch((err) => console.error(err));
-
-        setIsHidden(!isHidden);
       }}
     >
-      {isHidden ? "Show bubble" : "Hide bubble"}
+      {isVisible ? "Hide bubble" : "Show bubble"}
     </Button>
   );
 };
@@ -35,7 +50,7 @@ const StartStopRecording = () => {
         if (response.error) {
           throw new Error(response.error);
         }
-        setInProgress((response.result as boolean) ?? inProgress);
+        setInProgress(response.result as boolean);
       })
       .catch((err) => {
         console.error(err);

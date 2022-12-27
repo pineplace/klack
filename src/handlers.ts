@@ -10,6 +10,7 @@ import {
 interface StorageContext {
   tabId: number; // current tab
   recordingInProgress: boolean;
+  cameraBubbleVisible: boolean;
   screenRecordingTabId: number; // tab where screen recording was started
 }
 
@@ -17,6 +18,7 @@ chrome.storage.local
   .set({
     tabId: 0,
     recordingInProgress: false,
+    cameraBubbleVisible: false,
     screenRecordingTabId: 0,
   } satisfies StorageContext)
   .then(() => {
@@ -82,6 +84,9 @@ export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
     target: { tabId: tabId as number },
     files: ["./cameraBubble.bundle.mjs"],
   });
+  await chrome.storage.local.set({
+    cameraBubbleVisible: true,
+  });
 }
 
 export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
@@ -93,6 +98,9 @@ export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
     func: () => {
       document.getElementById("rapidrec-camera-bubble")?.remove();
     },
+  });
+  await chrome.storage.local.set({
+    cameraBubbleVisible: false,
   });
 }
 
@@ -118,5 +126,14 @@ export async function handleGetRecordingInProgress(): Promise<MethodResult> {
   const { recordingInProgress } = await chrome.storage.local.get(
     "recordingInProgress"
   );
-  return (recordingInProgress as boolean) ?? false;
+  return recordingInProgress as boolean;
+}
+
+export async function handleGetIsCameraBubbleVisible(): Promise<MethodResult> {
+  console.log("handleGetIsCameraBubbleVisible");
+
+  const { cameraBubbleVisible } = await chrome.storage.local.get(
+    "cameraBubbleVisible"
+  );
+  return cameraBubbleVisible as boolean;
 }
