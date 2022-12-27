@@ -17,6 +17,8 @@ globalThis.chrome = {
       set: jest.fn().mockResolvedValue({}),
       get: jest.fn().mockResolvedValue({
         tabId: 1,
+        recordingInProgress: true,
+        cameraBubbleVisible: true,
         screenRecordingTabId: 2,
       }),
     },
@@ -29,6 +31,7 @@ globalThis.chrome = {
 
 import {
   handleDownloadRecording,
+  handleGetIsCameraBubbleVisible,
   handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleShowCameraBubble,
@@ -37,23 +40,6 @@ import {
   handleTabChange,
 } from "../handlers";
 import { Method } from "../messaging";
-
-// import { builder, sender } from "../messaging";
-
-// jest.mock("../messaging", () => {
-//   const mocked: object = jest.createMockFromModule("../messaging");
-//   return {
-//     ...mocked,
-//     // builder: {
-//     //   internal: {
-
-//     //   }
-//     // },
-//     // sender: {
-//     //   send: jest.fn().mockResolvedValue({}),
-//     // },
-//   }
-// })
 
 test("handleStartRecording", async () => {
   await handleStartRecording({});
@@ -127,5 +113,9 @@ test("handleTabChange", async () => {
 });
 
 test("handleGetRecordingInProgress", async () => {
-  expect(await handleGetRecordingInProgress()).toEqual(false);
+  expect(await handleGetRecordingInProgress()).toEqual(true);
+});
+
+test("handleGetIsCameraBubbleVisible", async () => {
+  expect(await handleGetIsCameraBubbleVisible()).toEqual(true);
 });

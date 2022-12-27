@@ -24,6 +24,7 @@ jest.mock("../../messaging", () => {
       hideCameraBubble: jest.fn(),
       getter: {
         recordingInProgress: jest.fn(),
+        isCameraBubbleVisible: jest.fn(),
       },
     },
     sender: {
@@ -33,30 +34,42 @@ jest.mock("../../messaging", () => {
 });
 
 test("ShowHideRecording switching", async () => {
-  await act(() => {
-    render(<PopupMenu />);
+  (sender.send as jest.Mock).mockResolvedValue({ result: false });
+
+  const { rerender } = await act(() => {
+    return render(<PopupMenu />);
   });
 
   const button = screen.getByText("Show bubble");
 
   await act(() => {
+    (sender.send as jest.Mock).mockResolvedValue({ result: true });
     fireEvent.click(button);
+    rerender(<PopupMenu />);
   });
 
   expect(builder.showCameraBubble).toHaveBeenCalled();
   expect(sender.send).toHaveBeenCalled();
-  expect(button.textContent).toEqual("Hide bubble");
+  await waitFor(() => {
+    expect(button.textContent).toEqual("Hide bubble");
+  });
 
   await act(() => {
+    (sender.send as jest.Mock).mockResolvedValue({ result: false });
     fireEvent.click(button);
+    rerender(<PopupMenu />);
   });
 
   expect(builder.hideCameraBubble).toHaveBeenCalled();
   expect(sender.send).toHaveBeenCalled();
-  expect(button.textContent).toEqual("Show bubble");
+  await waitFor(() => {
+    expect(button.textContent).toEqual("Show bubble");
+  });
 });
 
 test("StartStopRecording switching", async () => {
+  (sender.send as jest.Mock).mockResolvedValue({ result: false });
+
   const { rerender } = await act(() => {
     return render(<PopupMenu />);
   });

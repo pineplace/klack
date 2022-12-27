@@ -63,6 +63,12 @@ describe("builder", () => {
     } as Message);
   });
 
+  test("buildIsCameraBubbleVisible", () => {
+    expect(builder.getter.isCameraBubbleVisible()).toEqual({
+      method: Method.GetterIsCameraBubbleVisible,
+    } as Message);
+  });
+
   test("buildBrowserTabChange", () => {
     expect(builder.internal.browserTabChange(10)).toEqual({
       method: Method.BrowserTabChange,

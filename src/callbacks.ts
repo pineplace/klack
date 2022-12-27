@@ -1,5 +1,6 @@
 import {
   handleDownloadRecording,
+  handleGetIsCameraBubbleVisible,
   handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleShowCameraBubble,
@@ -31,6 +32,7 @@ export async function onMessage(
 
   const getters = new Map([
     [Method.GetterRecordingInProgress, handleGetRecordingInProgress],
+    [Method.GetterIsCameraBubbleVisible, handleGetIsCameraBubbleVisible],
   ]);
 
   const { method, args } = message;

@@ -24,6 +24,7 @@ import { onMessage, onTabChange, onTabClosing } from "../callbacks";
 import { builder, MessageResponse } from "../messaging";
 import {
   handleDownloadRecording,
+  handleGetIsCameraBubbleVisible,
   handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleShowCameraBubble,
@@ -132,6 +133,17 @@ describe("onMessage", () => {
     });
 
     expect(handleGetRecordingInProgress).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
+  test("Correct GetterIsCameraBubbleVisible", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.getter.isCameraBubbleVisible(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleGetIsCameraBubbleVisible).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 
