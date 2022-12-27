@@ -80,7 +80,7 @@ test("StartStopRecording", async () => {
   const [startStopRecording] =
     buttonGroup.getElementsByClassName("MuiButtonBase-root") ?? [];
 
-  await act(() => {
+  act(() => {
     (sender.send as jest.Mock).mockResolvedValue({ result: true });
     fireEvent.click(startStopRecording);
   });
@@ -93,7 +93,7 @@ test("StartStopRecording", async () => {
     ).toEqual("StopCircleRoundedIcon");
   });
 
-  await act(() => {
+  act(() => {
     (sender.send as jest.Mock).mockResolvedValue({ result: false });
     fireEvent.click(startStopRecording);
   });

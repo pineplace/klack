@@ -45,13 +45,13 @@ afterEach(() => {
 test("ShowHideRecording switching", async () => {
   (sender.send as jest.Mock).mockResolvedValue({ result: false });
 
-  await act(() => {
-    return render(<PopupMenu />);
+  act(() => {
+    render(<PopupMenu />);
   });
 
   const button = screen.getByText("Show bubble");
 
-  await act(() => {
+  act(() => {
     (sender.send as jest.Mock).mockResolvedValue({ result: true });
     fireEvent.click(button);
   });
@@ -62,7 +62,7 @@ test("ShowHideRecording switching", async () => {
     expect(button.textContent).toEqual("Hide bubble");
   });
 
-  await act(() => {
+  act(() => {
     (sender.send as jest.Mock).mockResolvedValue({ result: false });
     fireEvent.click(button);
   });
@@ -77,13 +77,13 @@ test("ShowHideRecording switching", async () => {
 test("StartStopRecording switching", async () => {
   (sender.send as jest.Mock).mockResolvedValue({ result: false });
 
-  await act(() => {
-    return render(<PopupMenu />);
+  act(() => {
+    render(<PopupMenu />);
   });
 
   const button = screen.getByText("Start");
 
-  await act(() => {
+  act(() => {
     (sender.send as jest.Mock).mockResolvedValue({ result: true });
     fireEvent.click(button);
   });
@@ -94,7 +94,7 @@ test("StartStopRecording switching", async () => {
     expect(button.textContent).toEqual("Stop");
   });
 
-  await act(() => {
+  act(() => {
     (sender.send as jest.Mock).mockResolvedValue({ result: false });
     fireEvent.click(button);
   });
