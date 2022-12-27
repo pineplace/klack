@@ -6,20 +6,27 @@ const ShowHideCameraBubble = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    sender
-      .send(builder.getter.isCameraBubbleVisible())
-      .then((response) => {
-        if (!response) {
-          return;
-        }
-        if (response.error) {
-          throw new Error(response.error);
-        }
-        setIsVisible(response.result as boolean);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    const checkIsCameraVisible = () => {
+      sender
+        .send(builder.getter.isCameraBubbleVisible())
+        .then((response) => {
+          if (!response) {
+            return;
+          }
+          if (response.error) {
+            throw new Error(response.error);
+          }
+          setIsVisible(response.result as boolean);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    };
+
+    const interval = setInterval(checkIsCameraVisible, 500);
+    return () => {
+      clearInterval(interval);
+    };
   });
 
   return (
@@ -41,20 +48,27 @@ const StartStopRecording = () => {
   const [inProgress, setInProgress] = useState(false);
 
   useEffect(() => {
-    sender
-      .send(builder.getter.recordingInProgress())
-      .then((response) => {
-        if (!response) {
-          return;
-        }
-        if (response.error) {
-          throw new Error(response.error);
-        }
-        setInProgress(response.result as boolean);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    const checkInProgress = () => {
+      sender
+        .send(builder.getter.recordingInProgress())
+        .then((response) => {
+          if (!response) {
+            return;
+          }
+          if (response.error) {
+            throw new Error(response.error);
+          }
+          setInProgress(response.result as boolean);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    };
+
+    const interval = setInterval(checkInProgress, 500);
+    return () => {
+      clearInterval(interval);
+    };
   });
 
   return (

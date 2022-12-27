@@ -33,10 +33,19 @@ jest.mock("../../messaging", () => {
   };
 });
 
+beforeEach(() => {
+  jest.useFakeTimers();
+});
+
+afterEach(() => {
+  jest.runOnlyPendingTimers();
+  jest.useRealTimers();
+});
+
 test("ShowHideRecording switching", async () => {
   (sender.send as jest.Mock).mockResolvedValue({ result: false });
 
-  const { rerender } = await act(() => {
+  await act(() => {
     return render(<PopupMenu />);
   });
 
@@ -45,7 +54,6 @@ test("ShowHideRecording switching", async () => {
   await act(() => {
     (sender.send as jest.Mock).mockResolvedValue({ result: true });
     fireEvent.click(button);
-    rerender(<PopupMenu />);
   });
 
   expect(builder.showCameraBubble).toHaveBeenCalled();
@@ -57,7 +65,6 @@ test("ShowHideRecording switching", async () => {
   await act(() => {
     (sender.send as jest.Mock).mockResolvedValue({ result: false });
     fireEvent.click(button);
-    rerender(<PopupMenu />);
   });
 
   expect(builder.hideCameraBubble).toHaveBeenCalled();
@@ -70,7 +77,7 @@ test("ShowHideRecording switching", async () => {
 test("StartStopRecording switching", async () => {
   (sender.send as jest.Mock).mockResolvedValue({ result: false });
 
-  const { rerender } = await act(() => {
+  await act(() => {
     return render(<PopupMenu />);
   });
 
@@ -79,7 +86,6 @@ test("StartStopRecording switching", async () => {
   await act(() => {
     (sender.send as jest.Mock).mockResolvedValue({ result: true });
     fireEvent.click(button);
-    rerender(<PopupMenu />);
   });
 
   expect(builder.startRecording).toHaveBeenCalled();
@@ -91,7 +97,6 @@ test("StartStopRecording switching", async () => {
   await act(() => {
     (sender.send as jest.Mock).mockResolvedValue({ result: false });
     fireEvent.click(button);
-    rerender(<PopupMenu />);
   });
 
   expect(builder.stopRecording).toHaveBeenCalled();
