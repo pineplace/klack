@@ -38,7 +38,7 @@ export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   const { tabId } = await chrome.storage.local.get("tabId");
   await chrome.scripting.executeScript({
     target: { tabId: tabId as number },
-    files: ["./screenCapture.bundle.mjs"],
+    files: ["./screenSharing.bundle.mjs"],
   });
   await chrome.storage.local.set({
     recordingInProgress: true,

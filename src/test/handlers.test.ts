@@ -48,7 +48,7 @@ test("handleStartRecording", async () => {
   expect(chrome.storage.local.get).toHaveBeenCalledWith("tabId");
   expect(chrome.scripting.executeScript).toHaveBeenCalledWith({
     target: { tabId: 1 },
-    files: ["./screenCapture.bundle.mjs"],
+    files: ["./screenSharing.bundle.mjs"],
   });
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.set).toHaveBeenCalledWith({
