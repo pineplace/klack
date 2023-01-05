@@ -62,6 +62,15 @@ export async function handleStopRecording(_args: MethodArgs): Promise<void> {
   });
 }
 
+export async function handleCancelRecording(_args: MethodArgs): Promise<void> {
+  console.log("handleCancelRecording()");
+
+  await chrome.storage.local.set({
+    recordingInProgress: false,
+    screenRecordingTabId: 0,
+  });
+}
+
 export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
   console.log("handleDownloadRecording");
 
