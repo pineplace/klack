@@ -1,6 +1,7 @@
 export enum Method {
   StartRecording,
   StopRecording,
+  CancelRecording,
   DownloadRecording,
 
   ShowCameraBubble,
@@ -50,6 +51,12 @@ function buildStartRecording(): Message {
 function buildStopRecording(): Message {
   return {
     method: Method.StopRecording,
+  };
+}
+
+function buildCancelRecording(): Message {
+  return {
+    method: Method.CancelRecording,
   };
 }
 
@@ -125,6 +132,7 @@ function buildErrorResponse(err: Error): MessageResponse {
 export const builder = {
   startRecording: buildStartRecording,
   stopRecording: buildStopRecording,
+  cancelRecording: buildCancelRecording,
   downloadRecording: buildDownloadRecording,
   showCameraBubble: buildShowCameraBubble,
   hideCameraBubble: buildHideCameraBubble,

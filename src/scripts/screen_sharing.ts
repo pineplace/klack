@@ -78,4 +78,7 @@ async function share(): Promise<void> {
   });
 }
 
-share().catch((err) => console.error(err));
+share().catch((err) => {
+  console.error(`Can't start screen sharing ${(err as Error).message}`);
+  sender.send(builder.cancelRecording()).catch((err) => console.error(err));
+});

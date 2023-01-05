@@ -30,6 +30,7 @@ globalThis.chrome = {
 };
 
 import {
+  handleCancelRecording,
   handleDownloadRecording,
   handleGetIsCameraBubbleVisible,
   handleGetRecordingInProgress,
@@ -48,7 +49,7 @@ test("handleStartRecording", async () => {
   expect(chrome.storage.local.get).toHaveBeenCalledWith("tabId");
   expect(chrome.scripting.executeScript).toHaveBeenCalledWith({
     target: { tabId: 1 },
-    files: ["./screenCapture.bundle.mjs"],
+    files: ["./screenSharing.bundle.mjs"],
   });
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.set).toHaveBeenCalledWith({
@@ -65,6 +66,16 @@ test("handleStopRecording", async () => {
   expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(2, {
     method: Method.TabStopMediaRecorder,
   });
+
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toHaveBeenCalledWith({
+    recordingInProgress: false,
+    screenRecordingTabId: 0,
+  });
+});
+
+test("handleCancelRecording", async () => {
+  await handleCancelRecording({});
 
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.set).toHaveBeenCalledWith({

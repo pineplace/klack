@@ -1,4 +1,5 @@
 import {
+  handleCancelRecording,
   handleDownloadRecording,
   handleGetIsCameraBubbleVisible,
   handleGetRecordingInProgress,
@@ -21,6 +22,7 @@ export async function onMessage(
   const methods = new Map([
     [Method.StartRecording, handleStartRecording],
     [Method.StopRecording, handleStopRecording],
+    [Method.CancelRecording, handleCancelRecording],
     [Method.DownloadRecording, handleDownloadRecording],
 
     [Method.ShowCameraBubble, handleShowCameraBubble],

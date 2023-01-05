@@ -23,6 +23,7 @@ globalThis.chrome = {
 import { onMessage, onTabChange, onTabClosing } from "../callbacks";
 import { builder, MessageResponse } from "../messaging";
 import {
+  handleCancelRecording,
   handleDownloadRecording,
   handleGetIsCameraBubbleVisible,
   handleGetRecordingInProgress,
@@ -63,6 +64,17 @@ describe("onMessage", () => {
     });
 
     expect(handleStopRecording).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
+  test("Correct CancelRecording message", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.cancelRecording(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleCancelRecording).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 

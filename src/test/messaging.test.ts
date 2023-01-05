@@ -36,6 +36,12 @@ describe("builder", () => {
     } as Message);
   });
 
+  test("buildCancelRecording", () => {
+    expect(builder.cancelRecording()).toEqual({
+      method: Method.CancelRecording,
+    } as Message);
+  });
+
   test("buildDownloadRecording", () => {
     expect(builder.downloadRecording("some-recording-url")).toEqual({
       method: Method.DownloadRecording,
