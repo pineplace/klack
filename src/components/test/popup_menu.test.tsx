@@ -22,9 +22,12 @@ jest.mock("../../messaging", () => {
       stopRecording: jest.fn(),
       showCameraBubble: jest.fn(),
       hideCameraBubble: jest.fn(),
+      allowMicrophone: jest.fn(),
+      disallowMicrophone: jest.fn(),
       getter: {
         recordingInProgress: jest.fn(),
         isCameraBubbleVisible: jest.fn(),
+        isMicrophoneAllowed: jest.fn(),
       },
     },
     sender: {
@@ -71,6 +74,38 @@ test("ShowHideRecording switching", async () => {
   expect(sender.send).toHaveBeenCalled();
   await waitFor(() => {
     expect(button.textContent).toEqual("Show bubble");
+  });
+});
+
+test("TurnOnTurnOffMic switching", async () => {
+  (sender.send as jest.Mock).mockResolvedValue({ result: false });
+
+  act(() => {
+    render(<PopupMenu />);
+  });
+
+  const button = screen.getByText("Allow Mic");
+
+  act(() => {
+    (sender.send as jest.Mock).mockResolvedValue({ result: true });
+    fireEvent.click(button);
+  });
+
+  expect(builder.allowMicrophone).toHaveBeenCalled();
+  expect(sender.send).toHaveBeenCalled();
+  await waitFor(() => {
+    expect(button.textContent).toEqual("Disallow Mic");
+  });
+
+  act(() => {
+    (sender.send as jest.Mock).mockResolvedValue({ result: false });
+    fireEvent.click(button);
+  });
+
+  expect(builder.disallowMicrophone).toHaveBeenCalled();
+  expect(sender.send).toHaveBeenCalled();
+  await waitFor(() => {
+    expect(button.textContent).toEqual("Allow Mic");
   });
 });
 

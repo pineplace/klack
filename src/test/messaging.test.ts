@@ -63,6 +63,18 @@ describe("builder", () => {
     } as Message);
   });
 
+  test("buildAllowMicrophone", () => {
+    expect(builder.allowMicrophone()).toEqual({
+      method: Method.AllowMicrophone,
+    } as Message);
+  });
+
+  test("buildDisallowMicrophone", () => {
+    expect(builder.disallowMicrophone()).toEqual({
+      method: Method.DisallowMicrophone,
+    } as Message);
+  });
+
   test("buildRecordingInProgress", () => {
     expect(builder.getter.recordingInProgress()).toEqual({
       method: Method.GetterRecordingInProgress,
@@ -72,6 +84,12 @@ describe("builder", () => {
   test("buildIsCameraBubbleVisible", () => {
     expect(builder.getter.isCameraBubbleVisible()).toEqual({
       method: Method.GetterIsCameraBubbleVisible,
+    } as Message);
+  });
+
+  test("buildIsMicrophoneAllowed", () => {
+    expect(builder.getter.isMicrophoneAllowed()).toEqual({
+      method: Method.GetterIsMicrophoneAllowed,
     } as Message);
   });
 
