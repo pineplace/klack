@@ -1,16 +1,30 @@
 import { Message, Method, builder, sender } from "../messaging";
 
 class Recorder {
-  #stream: MediaStream;
   #mimeType: string;
-  #mediaChunks: BlobPart[];
+  #tracks: MediaStreamTrack[];
   #mediaRecorder: MediaRecorder;
+  #mediaChunks: BlobPart[];
 
-  constructor(stream: MediaStream, mimeType: string) {
-    this.#stream = stream;
+  constructor(mimeType: string, screenSharing: MediaStream, mic: MediaStream) {
     this.#mimeType = mimeType;
+    this.#tracks = [...screenSharing.getTracks(), ...mic.getTracks()];
+    this.#mediaRecorder = new MediaRecorder(
+      new MediaStream([
+        ...screenSharing.getVideoTracks(),
+        ...this.#mergedAudioTracks(screenSharing, mic),
+      ]),
+      { mimeType }
+    );
     this.#mediaChunks = [];
-    this.#mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+    /* NOTE: Clicking the native `Stop sharing` button only stops the screen sharing
+     *       tracks, but doesn't affect the microphone stream tracks.
+     *       This event listener fixes that.
+     */
+    screenSharing.getVideoTracks()[0].addEventListener("ended", () => {
+      this.stop();
+    });
 
     this.#mediaRecorder.addEventListener("start", (_event) => {
       this.#onStart();
@@ -23,6 +37,21 @@ class Recorder {
     this.#mediaRecorder.addEventListener("dataavailable", (event) => {
       this.#onData(event.data);
     });
+  }
+
+  #mergedAudioTracks(...streams: MediaStream[]): MediaStreamTrack[] {
+    const audioContext = new AudioContext();
+    const streamDestination = audioContext.createMediaStreamDestination();
+
+    for (const stream of streams) {
+      if (!stream.getAudioTracks().length) {
+        continue;
+      }
+      const source = audioContext.createMediaStreamSource(stream);
+      source.connect(streamDestination);
+    }
+
+    return streamDestination.stream.getAudioTracks();
   }
 
   #createDownloadUrl(): string {
@@ -54,19 +83,20 @@ class Recorder {
 
   stop() {
     this.#mediaRecorder.stop();
-    for (const track of this.#stream.getTracks()) {
+    for (const track of this.#tracks) {
       track.stop();
     }
   }
 }
 
 async function share(): Promise<void> {
-  const stream = await navigator.mediaDevices.getDisplayMedia({
+  const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const screenSharingStream = await navigator.mediaDevices.getDisplayMedia({
     audio: true,
     video: true,
   });
-  const mediaRecorder = new Recorder(stream, "video/webm");
-  mediaRecorder.start();
+  const recorder = new Recorder("video/webm", screenSharingStream, micStream);
+  recorder.start();
 
   chrome.runtime.onMessage.addListener((message: Message) => {
     if (message.method !== Method.TabStopMediaRecorder) {
@@ -74,7 +104,7 @@ async function share(): Promise<void> {
       return;
     }
     console.log("MediaRecorder stop event received");
-    mediaRecorder.stop();
+    recorder.stop();
   });
 }
 
