@@ -123,7 +123,9 @@ export async function handleAllowMicrophone(_args: MethodArgs): Promise<void> {
   });
 }
 
-export async function handleDisallowMicrophone(_args: MethodArgs): Promise<void> {
+export async function handleDisallowMicrophone(
+  _args: MethodArgs
+): Promise<void> {
   console.log("handleDisallowMicrophone");
 
   await chrome.storage.local.set({

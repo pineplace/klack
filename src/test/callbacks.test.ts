@@ -193,7 +193,7 @@ describe("onMessage", () => {
 
     expect(handleGetIsMicrophoneAllowed).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
-  })
+  });
 
   test("Unexpected method", async () => {
     let response: MessageResponse | undefined;
