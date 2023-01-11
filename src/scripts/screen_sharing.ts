@@ -64,7 +64,14 @@ class Recorder {
   }
 
   #onStart() {
-    // TODO: Implement me
+    chrome.runtime.onMessage.addListener((message: Message) => {
+      if (message.method !== Method.TabStopMediaRecorder) {
+        console.error(`Unexpected method: ${message.method}`);
+        return;
+      }
+      console.log("Stop event received");
+      this.stop();
+    });
   }
 
   #onStop() {
@@ -97,15 +104,6 @@ async function share(): Promise<void> {
   });
   const recorder = new Recorder("video/webm", screenSharingStream, micStream);
   recorder.start();
-
-  chrome.runtime.onMessage.addListener((message: Message) => {
-    if (message.method !== Method.TabStopMediaRecorder) {
-      console.error(`Unexpected method: ${message.method}`);
-      return;
-    }
-    console.log("MediaRecorder stop event received");
-    recorder.stop();
-  });
 }
 
 share().catch((err) => {
