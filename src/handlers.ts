@@ -74,7 +74,7 @@ export async function handleCancelRecording(_args: MethodArgs): Promise<void> {
 }
 
 export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
-  console.log("handleDownloadRecording");
+  console.log(`handleDownloadRecording(args=${JSON.stringify(args)})`);
 
   args = args as DownloadRecordingArgs;
 
@@ -155,6 +155,11 @@ export async function handleGetRecordingInProgress(): Promise<MethodResult> {
   const { recordingInProgress } = await chrome.storage.local.get(
     "recordingInProgress"
   );
+
+  console.log(
+    `handleGetRecordingInProgress res=${recordingInProgress as string}`
+  );
+
   return recordingInProgress as boolean;
 }
 
@@ -164,6 +169,11 @@ export async function handleGetIsCameraBubbleVisible(): Promise<MethodResult> {
   const { cameraBubbleVisible } = await chrome.storage.local.get(
     "cameraBubbleVisible"
   );
+
+  console.log(
+    `handleGetIsCameraBubbleVisible res=${cameraBubbleVisible as string}`
+  );
+
   return cameraBubbleVisible as boolean;
 }
 
@@ -173,6 +183,8 @@ export async function handleGetIsMicrophoneAllowed(): Promise<MethodResult> {
   const { microphoneAllowed } = await chrome.storage.local.get(
     "microphoneAllowed"
   );
+
+  console.log(`handleIsMicrophoneAllowed res=${microphoneAllowed as string}`);
 
   return microphoneAllowed as boolean;
 }
