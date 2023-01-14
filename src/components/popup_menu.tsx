@@ -44,6 +44,50 @@ const ShowHideCameraBubble = () => {
   );
 };
 
+const TurnOnTurnOffMic = () => {
+  const [micAllowed, setMicAllowed] = useState(false);
+
+  useEffect(() => {
+    const checkTurnedOn = () => {
+      sender
+        .send(builder.getter.isMicrophoneAllowed())
+        .then((response) => {
+          if (!response) {
+            return;
+          }
+          if (response.error) {
+            throw new Error(response.error);
+          }
+          setMicAllowed(response.result as boolean);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    };
+
+    const interval = setInterval(checkTurnedOn, 500);
+    return () => {
+      clearInterval(interval);
+    };
+  });
+
+  return (
+    <Button
+      onClick={() => {
+        sender
+          .send(
+            micAllowed
+              ? builder.disallowMicrophone()
+              : builder.allowMicrophone()
+          )
+          .catch((err) => console.error(err));
+      }}
+    >
+      {micAllowed ? "Disallow Mic" : "Allow Mic"}
+    </Button>
+  );
+};
+
 const StartStopRecording = () => {
   const [inProgress, setInProgress] = useState(false);
 
@@ -93,6 +137,7 @@ const PopupMenu = () => {
       spacing={1}
     >
       <ShowHideCameraBubble />
+      <TurnOnTurnOffMic />
       <StartStopRecording />
     </Stack>
   );

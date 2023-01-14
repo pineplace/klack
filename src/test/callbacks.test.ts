@@ -23,9 +23,12 @@ globalThis.chrome = {
 import { onMessage, onTabChange, onTabClosing } from "../callbacks";
 import { builder, MessageResponse } from "../messaging";
 import {
+  handleAllowMicrophone,
   handleCancelRecording,
+  handleDisallowMicrophone,
   handleDownloadRecording,
   handleGetIsCameraBubbleVisible,
+  handleGetIsMicrophoneAllowed,
   handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleShowCameraBubble,
@@ -113,6 +116,28 @@ describe("onMessage", () => {
     expect(response).toEqual(builder.response.ok());
   });
 
+  test("Correct AllowMicrophone message", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.allowMicrophone(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleAllowMicrophone).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
+  test("Correct DisallowMicrophone message", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.disallowMicrophone(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleDisallowMicrophone).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
   test("Correct BrowserTabChange message", async () => {
     let response: MessageResponse | undefined;
 
@@ -156,6 +181,17 @@ describe("onMessage", () => {
     });
 
     expect(handleGetIsCameraBubbleVisible).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
+  test("Correct GetterIsMicrophoneAllowed", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.getter.isMicrophoneAllowed(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleGetIsMicrophoneAllowed).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 

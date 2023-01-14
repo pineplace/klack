@@ -7,12 +7,16 @@ export enum Method {
   ShowCameraBubble,
   HideCameraBubble,
 
+  AllowMicrophone,
+  DisallowMicrophone,
+
   BrowserTabChange,
   BrowserTabClosing,
   TabStopMediaRecorder,
 
   GetterRecordingInProgress,
   GetterIsCameraBubbleVisible,
+  GetterIsMicrophoneAllowed,
 }
 
 export type DownloadRecordingArgs = { downloadUrl: string };
@@ -21,6 +25,7 @@ export type BrowserTabClosingArgs = { closedTabId: number };
 
 export type RecordingInProgressResult = boolean;
 export type IsCameraBubbleVisibleResult = boolean;
+export type IsMicrophoneAllowedResult = boolean;
 
 export type MethodArgs =
   | DownloadRecordingArgs
@@ -31,6 +36,7 @@ export type MethodArgs =
 export type MethodResult =
   | RecordingInProgressResult
   | IsCameraBubbleVisibleResult
+  | IsMicrophoneAllowedResult
   | "OK";
 
 export interface Message {
@@ -81,6 +87,18 @@ function buildHideCameraBubble(): Message {
   };
 }
 
+function buildAllowMicrophone(): Message {
+  return {
+    method: Method.AllowMicrophone,
+  };
+}
+
+function buildDisallowMicrophone(): Message {
+  return {
+    method: Method.DisallowMicrophone,
+  };
+}
+
 function buildRecordingInProgress(): Message {
   return {
     method: Method.GetterRecordingInProgress,
@@ -90,6 +108,12 @@ function buildRecordingInProgress(): Message {
 function buildIsCameraBubbleVisible(): Message {
   return {
     method: Method.GetterIsCameraBubbleVisible,
+  };
+}
+
+function buildIsMicrophoneAllowed(): Message {
+  return {
+    method: Method.GetterIsMicrophoneAllowed,
   };
 }
 
@@ -136,9 +160,12 @@ export const builder = {
   downloadRecording: buildDownloadRecording,
   showCameraBubble: buildShowCameraBubble,
   hideCameraBubble: buildHideCameraBubble,
+  allowMicrophone: buildAllowMicrophone,
+  disallowMicrophone: buildDisallowMicrophone,
   getter: {
     recordingInProgress: buildRecordingInProgress,
     isCameraBubbleVisible: buildIsCameraBubbleVisible,
+    isMicrophoneAllowed: buildIsMicrophoneAllowed,
   },
   internal: {
     browserTabChange: buildBrowserTabChange,

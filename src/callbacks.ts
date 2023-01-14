@@ -1,7 +1,10 @@
 import {
+  handleAllowMicrophone,
   handleCancelRecording,
+  handleDisallowMicrophone,
   handleDownloadRecording,
   handleGetIsCameraBubbleVisible,
+  handleGetIsMicrophoneAllowed,
   handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleShowCameraBubble,
@@ -28,6 +31,9 @@ export async function onMessage(
     [Method.ShowCameraBubble, handleShowCameraBubble],
     [Method.HideCameraBubble, handleHideCameraBubble],
 
+    [Method.AllowMicrophone, handleAllowMicrophone],
+    [Method.DisallowMicrophone, handleDisallowMicrophone],
+
     [Method.BrowserTabChange, handleTabChange],
     [Method.BrowserTabClosing, handleTabClosing],
   ]);
@@ -35,6 +41,7 @@ export async function onMessage(
   const getters = new Map([
     [Method.GetterRecordingInProgress, handleGetRecordingInProgress],
     [Method.GetterIsCameraBubbleVisible, handleGetIsCameraBubbleVisible],
+    [Method.GetterIsMicrophoneAllowed, handleGetIsMicrophoneAllowed],
   ]);
 
   const { method, args } = message;

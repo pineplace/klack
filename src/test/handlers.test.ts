@@ -19,6 +19,7 @@ globalThis.chrome = {
         tabId: 1,
         recordingInProgress: true,
         cameraBubbleVisible: true,
+        microphoneAllowed: false,
         screenRecordingTabId: 2,
       }),
     },
@@ -30,9 +31,12 @@ globalThis.chrome = {
 };
 
 import {
+  handleAllowMicrophone,
   handleCancelRecording,
+  handleDisallowMicrophone,
   handleDownloadRecording,
   handleGetIsCameraBubbleVisible,
+  handleGetIsMicrophoneAllowed,
   handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleShowCameraBubble,
@@ -114,6 +118,24 @@ test("handleHideCameraBubble", async () => {
   });
 });
 
+test("handleAllowMicrophone", async () => {
+  await handleAllowMicrophone({});
+
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toHaveBeenCalledWith({
+    microphoneAllowed: true,
+  });
+});
+
+test("handleDisallowMicrophone", async () => {
+  await handleDisallowMicrophone({});
+
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toHaveBeenCalledWith({
+    microphoneAllowed: false,
+  });
+});
+
 test("handleTabChange", async () => {
   await handleTabChange({ newTabId: 2 });
 
@@ -129,4 +151,11 @@ test("handleGetRecordingInProgress", async () => {
 
 test("handleGetIsCameraBubbleVisible", async () => {
   expect(await handleGetIsCameraBubbleVisible()).toEqual(true);
+});
+
+test("handleGetIsMicrophoneAllowed", async () => {
+  expect(await handleGetIsMicrophoneAllowed()).toEqual(false);
+
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.get).toHaveBeenCalledWith("microphoneAllowed");
 });
