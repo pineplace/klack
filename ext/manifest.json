@@ -19,5 +19,11 @@
   ],
   "host_permissions": [
     "https://*/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["camera_bubble_stream.html"],
+      "matches": ["<all_urls>"]
+    }
   ]
 }
