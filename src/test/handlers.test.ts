@@ -8,6 +8,10 @@ globalThis.chrome = {
     download: jest.fn().mockResolvedValue({}),
   },
   // @ts-expect-error Chrome methods mocking
+  runtime: {
+    getURL: jest.fn().mockReturnValue("chrome-extension://some-url"),
+  },
+  // @ts-expect-error Chrome methods mocking
   scripting: {
     executeScript: jest.fn().mockResolvedValue({}),
   },
@@ -27,6 +31,11 @@ globalThis.chrome = {
   // @ts-expect-error Chrome methods mocking
   tabs: {
     sendMessage: jest.fn(),
+    create: jest.fn().mockResolvedValue({ id: 12 }),
+  },
+  // @ts-expect-error Chrome methods mocking
+  windows: {
+    create: jest.fn(),
   },
 };
 
@@ -49,16 +58,20 @@ import { Method } from "../messaging";
 test("handleStartRecording", async () => {
   await handleStartRecording({});
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.get).toHaveBeenCalledWith("tabId");
-  expect(chrome.scripting.executeScript).toHaveBeenCalledWith({
-    target: { tabId: 1 },
-    files: ["./screenSharing.bundle.mjs"],
+  expect(chrome.tabs.create).toHaveBeenCalledWith({
+    active: false,
+    url: "chrome-extension://some-url",
+  });
+  expect(chrome.windows.create).toHaveBeenCalledWith({
+    focused: true,
+    tabId: 12,
+    width: 650,
+    height: 710,
   });
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.set).toHaveBeenCalledWith({
     recordingInProgress: true,
-    screenRecordingTabId: 1,
+    screenRecordingTabId: 12,
   });
 });
 
