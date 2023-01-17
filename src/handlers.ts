@@ -37,14 +37,21 @@ chrome.storage.local
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
 
-  const { tabId } = await chrome.storage.local.get("tabId");
-  await chrome.scripting.executeScript({
-    target: { tabId: tabId as number },
-    files: ["./screenSharing.bundle.mjs"],
+  const tab = await chrome.tabs.create({
+    active: false,
+    url: chrome.runtime.getURL("./screen_sharing.html"),
   });
+
+  await chrome.windows.create({
+    focused: true,
+    tabId: tab.id,
+    width: 650,
+    height: 710,
+  });
+
   await chrome.storage.local.set({
     recordingInProgress: true,
-    screenRecordingTabId: tabId as number,
+    screenRecordingTabId: tab.id,
   });
 }
 
