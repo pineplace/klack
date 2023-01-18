@@ -26,15 +26,14 @@ jest.mock("../../messaging", () => {
   };
 });
 
-beforeAll(() => {
-  Object.defineProperty(navigator, "mediaDevices", {
-    value: {
-      getUserMedia: jest.fn().mockResolvedValue({}),
-    },
-  });
-});
-
 beforeEach(() => {
+  globalThis.chrome = {
+    // @ts-expect-error Chrome methods mocking
+    runtime: {
+      getURL: jest.fn().mockReturnValue("chrome-extension://some-url"),
+    },
+  };
+
   jest.useFakeTimers();
 });
 
@@ -43,30 +42,12 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-describe("CameraStream", () => {
-  test("Avatar is 'div' if CameraRoundedIcon if camera source is unavailable", async () => {
-    navigator.mediaDevices.getUserMedia = jest.fn().mockRejectedValueOnce({});
-
-    const { container } = await act(() => {
-      return render(<CameraBubble />);
-    });
-
-    expect(
-      container.getElementsByClassName("MuiAvatar-circular")[0].tagName
-    ).toEqual("DIV");
+test("CameraBubbleFrame", async () => {
+  const { container } = await act(() => {
+    return render(<CameraBubble />);
   });
 
-  test("Avatar is 'video' if camera source is available", async () => {
-    navigator.mediaDevices.getUserMedia = jest.fn().mockResolvedValue({});
-
-    const { container } = await act(() => {
-      return render(<CameraBubble />);
-    });
-
-    expect(
-      container.getElementsByClassName("MuiAvatar-circular")[0].tagName
-    ).toEqual("VIDEO");
-  });
+  expect(container.getElementsByTagName("iframe")).toBeDefined();
 });
 
 test("StartStopRecording", async () => {

@@ -8,6 +8,7 @@ chrome.runtime.onMessage.addListener(
     onMessage(message, sender, sendResponse).catch((err) => {
       throw err;
     });
+    // NOTE: We need to return `true`, because we using `sendResponse` asynchronously
     return true;
   }
 );

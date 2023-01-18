@@ -36,7 +36,6 @@ class RecorderV2 {
 
     chrome.runtime.onMessage.addListener((message: Message) => {
       if (message.method !== Method.TabStopMediaRecorder) {
-        console.error(`Unexpected method: ${message.method}`);
         return;
       }
       this.stop();
