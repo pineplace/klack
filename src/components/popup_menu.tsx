@@ -131,9 +131,9 @@ const StartStopRecording = () => {
 const PopupMenu = () => {
   return (
     <Stack
-      direction='column'
-      alignItems='center'
-      justifyContent='center'
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
       spacing={1}
     >
       <ShowHideCameraBubble />
