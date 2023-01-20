@@ -17,11 +17,11 @@ const CameraBubbleFrame = () => {
         overflow: "hidden",
         borderRadius: "50%",
       }}
-      allow='camera'
+      allow="camera"
       src={chrome.runtime.getURL("camera_bubble_stream.html")}
       // FIXME: `scrolling` property is deprecated, but I didn't found another solution
       //        I tried to replace it with `overflow: hidden`, but it doesn't work
-      scrolling='no'
+      scrolling="no"
     />
   );
 };
@@ -84,9 +84,9 @@ const CameraBubble = () => {
           zIndex: 2147483647,
           userSelect: "none",
         }}
-        direction='column'
-        alignItems='center'
-        justifyContent='center'
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
         spacing={1}
       >
         <CameraBubbleFrame />
