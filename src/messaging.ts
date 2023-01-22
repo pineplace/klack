@@ -13,6 +13,7 @@ export enum Method {
   BrowserTabChange,
   BrowserTabClosing,
   TabStopMediaRecorder,
+  OpenUserActiveWindow,
 
   GetterRecordingInProgress,
   GetterIsCameraBubbleVisible,
@@ -141,6 +142,12 @@ function buildTabStopMediaRecorder(): Message {
   };
 }
 
+function buildOpenUserActiveWindow(): Message {
+  return {
+    method: Method.OpenUserActiveWindow,
+  };
+}
+
 function buildOkResponse(result: MethodResult = "OK"): MessageResponse {
   return {
     result,
@@ -171,6 +178,7 @@ export const builder = {
     browserTabChange: buildBrowserTabChange,
     browserTabClosing: buildBrowserTabClosing,
     tabStopMediaRecorder: buildTabStopMediaRecorder,
+    openUserActiveWindow: buildOpenUserActiveWindow,
   },
   response: {
     ok: buildOkResponse,

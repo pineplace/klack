@@ -117,6 +117,12 @@ describe("builder", () => {
     });
   });
 
+  test("buildOpenUserActiveWindow", () => {
+    expect(builder.internal.openUserActiveWindow()).toEqual({
+      method: Method.OpenUserActiveWindow,
+    });
+  });
+
   describe("buildOkResponse", () => {
     test("OK", () => {
       expect(builder.response.ok()).toEqual({
