@@ -8,16 +8,18 @@ import {
 } from "./messaging";
 
 interface StorageContext {
-  tabId: number; // current tab
+  userActiveTabId: number;
+  userActiveWindowId: number;
+  screenRecordingTabId: number;
   recordingInProgress: boolean;
   cameraBubbleVisible: boolean;
   microphoneAllowed: boolean;
-  screenRecordingTabId: number; // tab where screen recording was started
 }
 
 chrome.storage.local
   .set({
-    tabId: 0,
+    userActiveTabId: 0,
+    userActiveWindowId: 0,
     recordingInProgress: false,
     cameraBubbleVisible: false,
     microphoneAllowed: true,
@@ -37,6 +39,8 @@ chrome.storage.local
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
 
+  const activeWindow = await chrome.windows.getCurrent();
+
   const tab = await chrome.tabs.create({
     active: false,
     url: chrome.runtime.getURL("./screen_sharing.html"),
@@ -52,6 +56,7 @@ export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   await chrome.storage.local.set({
     recordingInProgress: true,
     screenRecordingTabId: tab.id,
+    userActiveWindowId: activeWindow.id,
   });
 }
 
@@ -97,9 +102,9 @@ export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
 export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
   console.log("handleShowCameraBubble");
 
-  const { tabId } = await chrome.storage.local.get("tabId");
+  const { userActiveTabId } = await chrome.storage.local.get("userActiveTabId");
   await chrome.scripting.executeScript({
-    target: { tabId: tabId as number },
+    target: { tabId: userActiveTabId as number },
     files: ["./cameraBubble.bundle.mjs"],
   });
   await chrome.storage.local.set({
@@ -110,9 +115,9 @@ export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
 export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
   console.log("handleHideCameraBubble");
 
-  const { tabId } = await chrome.storage.local.get("tabId");
+  const { userActiveTabId } = await chrome.storage.local.get("userActiveTabId");
   await chrome.scripting.executeScript({
-    target: { tabId: tabId as number },
+    target: { tabId: userActiveTabId as number },
     func: () => {
       document.getElementById("rapidrec-camera-bubble")?.remove();
     },
@@ -145,8 +150,16 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
 
   args = args as BrowserTabChangeArgs;
 
+  const { screenRecordingTabId } = await chrome.storage.local.get(
+    "screenRecordingTabId"
+  );
+
+  if (screenRecordingTabId === args.newTabId) {
+    return;
+  }
+
   await chrome.storage.local.set({
-    tabId: args.newTabId,
+    userActiveTabId: args.newTabId,
   });
 }
 
@@ -154,6 +167,20 @@ export async function handleTabClosing(args: MethodArgs): Promise<void> {
   console.log(`handleTabClosing(args=${JSON.stringify(args)})`);
 
   await handleHideCameraBubble(args);
+}
+
+export async function handleOpenUserActiveWindow(
+  _args: MethodArgs
+): Promise<void> {
+  console.log("handleOpenUserActiveWindow()");
+
+  const { userActiveWindowId } = await chrome.storage.local.get(
+    "userActiveWindowId"
+  );
+
+  await chrome.windows.update(userActiveWindowId as number, {
+    focused: true,
+  });
 }
 
 export async function handleGetRecordingInProgress(): Promise<MethodResult> {

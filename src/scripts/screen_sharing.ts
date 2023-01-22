@@ -133,6 +133,8 @@ async function share(): Promise<void> {
 
   const recorder = new RecorderV2(streams);
   recorder.start();
+
+  await sender.send(builder.internal.openUserActiveWindow());
 }
 
 share().catch((err) => {

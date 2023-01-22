@@ -7,6 +7,7 @@ import {
   handleGetIsMicrophoneAllowed,
   handleGetRecordingInProgress,
   handleHideCameraBubble,
+  handleOpenUserActiveWindow,
   handleShowCameraBubble,
   handleStartRecording,
   handleStopRecording,
@@ -36,6 +37,7 @@ export async function onMessage(
 
     [Method.BrowserTabChange, handleTabChange],
     [Method.BrowserTabClosing, handleTabClosing],
+    [Method.OpenUserActiveWindow, handleOpenUserActiveWindow],
   ]);
 
   const getters = new Map([

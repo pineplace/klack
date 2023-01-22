@@ -31,6 +31,7 @@ import {
   handleGetIsMicrophoneAllowed,
   handleGetRecordingInProgress,
   handleHideCameraBubble,
+  handleOpenUserActiveWindow,
   handleShowCameraBubble,
   handleStartRecording,
   handleStopRecording,
@@ -159,6 +160,17 @@ describe("onMessage", () => {
 
     expect(handleTabClosing).toHaveBeenCalled();
     expect(handleTabClosing).toHaveBeenCalledWith({ closedTabId: 2 });
+    expect(response).toEqual(builder.response.ok());
+  });
+
+  test("Correct OpenUserActiveWindow", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.internal.openUserActiveWindow(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleOpenUserActiveWindow).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 
