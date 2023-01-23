@@ -33,6 +33,7 @@ globalThis.chrome = {
   tabs: {
     sendMessage: jest.fn(),
     create: jest.fn().mockResolvedValue({ id: 12 }),
+    remove: jest.fn(),
   },
   // @ts-expect-error Chrome methods mocking
   windows: {
@@ -89,12 +90,6 @@ test("handleStopRecording", async () => {
   expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(9, {
     method: Method.TabStopMediaRecorder,
   });
-
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.set).toHaveBeenCalledWith({
-    recordingInProgress: false,
-    screenRecordingTabId: 0,
-  });
 });
 
 test("handleCancelRecording", async () => {
@@ -112,6 +107,17 @@ test("handleDownloadRecording", async () => {
 
   expect(chrome.downloads.download).toHaveBeenCalledWith({
     url: "some-recording-url",
+  });
+
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.get).toHaveBeenCalledWith("screenRecordingTabId");
+
+  expect(chrome.tabs.remove).toHaveBeenCalledWith(9);
+
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toHaveBeenCalledWith({
+    recordingInProgress: false,
+    screenRecordingTabId: 0,
   });
 });
 
