@@ -57,6 +57,7 @@ import {
   handleStartRecording,
   handleStopRecording,
   handleTabChange,
+  handleTabUpdated,
 } from "../handlers";
 import { Method } from "../messaging";
 
@@ -182,6 +183,13 @@ describe("handleTabChange", () => {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(chrome.storage.local.set).not.toHaveBeenCalled();
   });
+});
+
+test("handleTabUpdated", async () => {
+  await handleTabUpdated({});
+  /* NOTE: `handleTabUpdated` calls `handleGetIsCameraBubbleVisible` and `handleShowCameraBubble`
+           which are already checked in their own tests
+   */
 });
 
 test("handleOpenUserActiveWindow", async () => {

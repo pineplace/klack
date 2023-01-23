@@ -1,4 +1,9 @@
-import { onMessage, onTabChange, onTabClosing } from "./callbacks";
+import {
+  onMessage,
+  onTabChange,
+  onTabClosing,
+  onTabUpdated,
+} from "./callbacks";
 import { Message } from "./messaging";
 
 // API reference: https://developer.chrome.com/docs/extensions/reference/
@@ -21,6 +26,12 @@ chrome.tabs.onActivated.addListener((activeTabInfo) => {
 
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
   onTabClosing(tabId, removeInfo).catch((err) => {
+    throw err;
+  });
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  onTabUpdated(tabId, changeInfo, tab).catch((err) => {
     throw err;
   });
 });

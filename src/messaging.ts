@@ -12,6 +12,7 @@ export enum Method {
 
   BrowserTabChange,
   BrowserTabClosing,
+  BrowserTabUpdated,
   TabStopMediaRecorder,
   OpenUserActiveWindow,
 
@@ -136,6 +137,12 @@ function buildBrowserTabClosing(closedTabId: number): Message {
   };
 }
 
+function buildBrowserTabUpdated(): Message {
+  return {
+    method: Method.BrowserTabUpdated,
+  };
+}
+
 function buildTabStopMediaRecorder(): Message {
   return {
     method: Method.TabStopMediaRecorder,
@@ -177,6 +184,7 @@ export const builder = {
   internal: {
     browserTabChange: buildBrowserTabChange,
     browserTabClosing: buildBrowserTabClosing,
+    browserTabUpdated: buildBrowserTabUpdated,
     tabStopMediaRecorder: buildTabStopMediaRecorder,
     openUserActiveWindow: buildOpenUserActiveWindow,
   },

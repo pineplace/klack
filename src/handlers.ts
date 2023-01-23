@@ -172,6 +172,14 @@ export async function handleTabClosing(args: MethodArgs): Promise<void> {
   await handleHideCameraBubble(args);
 }
 
+export async function handleTabUpdated(_args: MethodArgs): Promise<void> {
+  console.log("handleTabUpdated()");
+
+  if (await handleGetIsCameraBubbleVisible()) {
+    await handleShowCameraBubble({});
+  }
+}
+
 export async function handleOpenUserActiveWindow(
   _args: MethodArgs
 ): Promise<void> {

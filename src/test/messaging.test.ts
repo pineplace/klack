@@ -111,6 +111,12 @@ describe("builder", () => {
     } as Message);
   });
 
+  test("buildBrowserTabUpdated", () => {
+    expect(builder.internal.browserTabUpdated()).toEqual({
+      method: Method.BrowserTabUpdated,
+    });
+  });
+
   test("buildTabStopMediaRecorder", () => {
     expect(builder.internal.tabStopMediaRecorder()).toEqual({
       method: Method.TabStopMediaRecorder,
