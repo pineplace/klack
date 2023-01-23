@@ -13,6 +13,7 @@ import {
   handleStopRecording,
   handleTabChange,
   handleTabClosing,
+  handleTabUpdated,
 } from "./handlers";
 import { builder, Message, MessageResponse, Method } from "./messaging";
 
@@ -37,6 +38,7 @@ export async function onMessage(
 
     [Method.BrowserTabChange, handleTabChange],
     [Method.BrowserTabClosing, handleTabClosing],
+    [Method.BrowserTabUpdated, handleTabUpdated],
     [Method.OpenUserActiveWindow, handleOpenUserActiveWindow],
   ]);
 
@@ -71,4 +73,12 @@ export async function onTabClosing(
   _removeInfo: { isWindowClosing: boolean; windowId: number }
 ): Promise<void> {
   await onMessage(builder.internal.browserTabClosing(closedTabId));
+}
+
+export async function onTabUpdated(
+  _tabId: number,
+  _changeInfo: chrome.tabs.TabChangeInfo,
+  _tab: chrome.tabs.Tab
+): Promise<void> {
+  await onMessage(builder.internal.browserTabUpdated());
 }

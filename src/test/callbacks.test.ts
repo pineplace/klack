@@ -20,7 +20,12 @@ globalThis.chrome = {
   },
 };
 
-import { onMessage, onTabChange, onTabClosing } from "../callbacks";
+import {
+  onMessage,
+  onTabChange,
+  onTabClosing,
+  onTabUpdated,
+} from "../callbacks";
 import { builder, MessageResponse } from "../messaging";
 import {
   handleAllowMicrophone,
@@ -37,6 +42,7 @@ import {
   handleStopRecording,
   handleTabChange,
   handleTabClosing,
+  handleTabUpdated,
 } from "../handlers";
 
 jest.mock("../handlers");
@@ -163,6 +169,17 @@ describe("onMessage", () => {
     expect(response).toEqual(builder.response.ok());
   });
 
+  test("Correct BrowserTabUpdated message", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.internal.browserTabUpdated(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(handleTabUpdated).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
   test("Correct OpenUserActiveWindow", async () => {
     let response: MessageResponse | undefined;
 
@@ -251,5 +268,14 @@ describe("onTabClosing", () => {
 
     expect(handleTabClosing).toHaveBeenCalled();
     expect(handleTabClosing).toHaveBeenCalledWith({ closedTabId: 3 });
+  });
+});
+
+describe("onTabUpdated", () => {
+  test("Correct message", async () => {
+    // @ts-expect-error The 3rd parameter is ignored in `onTabUpdated` and has no value
+    await onTabUpdated(0, {}, {});
+
+    expect(handleTabUpdated).toHaveBeenCalled();
   });
 });
