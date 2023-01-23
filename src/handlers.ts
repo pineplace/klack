@@ -70,10 +70,6 @@ export async function handleStopRecording(_args: MethodArgs): Promise<void> {
     builder.internal.tabStopMediaRecorder(),
     screenRecordingTabId as number
   );
-  await chrome.storage.local.set({
-    recordingInProgress: false,
-    screenRecordingTabId: 0,
-  });
 }
 
 export async function handleCancelRecording(_args: MethodArgs): Promise<void> {
@@ -94,8 +90,15 @@ export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
     url: args.downloadUrl,
   });
 
+  const { screenRecordingTabId } = await chrome.storage.local.get(
+    "screenRecordingTabId"
+  );
+
+  await chrome.tabs.remove(screenRecordingTabId as number);
+
   await chrome.storage.local.set({
     recordingInProgress: false,
+    screenRecordingTabId: 0,
   });
 }
 
