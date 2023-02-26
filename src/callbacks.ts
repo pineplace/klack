@@ -3,9 +3,6 @@ import {
   handleCancelRecording,
   handleDisallowMicrophone,
   handleDownloadRecording,
-  handleGetIsCameraBubbleVisible,
-  handleGetIsMicrophoneAllowed,
-  handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleOpenUserActiveWindow,
   handleShowCameraBubble,
@@ -42,20 +39,14 @@ export async function onMessage(
     [Method.OpenUserActiveWindow, handleOpenUserActiveWindow],
   ]);
 
-  const getters = new Map([
-    [Method.GetterRecordingInProgress, handleGetRecordingInProgress],
-    [Method.GetterIsCameraBubbleVisible, handleGetIsCameraBubbleVisible],
-    [Method.GetterIsMicrophoneAllowed, handleGetIsMicrophoneAllowed],
-  ]);
-
   const { method, args } = message;
-  const handler = methods.get(method) ?? getters.get(method);
+  const handler = methods.get(method);
   try {
     if (!handler) {
       throw new Error(`Unexpected method: ${method}`);
     }
-    const result = await handler(args ?? {});
-    sendResponse?.(builder.response.ok(result ?? undefined));
+    await handler(args ?? {});
+    sendResponse?.(builder.response.ok());
   } catch (err) {
     console.error(err);
     sendResponse?.(builder.response.error(err as Error));
@@ -65,14 +56,14 @@ export async function onMessage(
 export async function onTabChange(
   newTabId: chrome.tabs.TabActiveInfo
 ): Promise<void> {
-  await onMessage(builder.internal.browserTabChange(newTabId.tabId));
+  await onMessage(builder.event.browserTabChange(newTabId.tabId));
 }
 
 export async function onTabClosing(
   closedTabId: number,
   _removeInfo: { isWindowClosing: boolean; windowId: number }
 ): Promise<void> {
-  await onMessage(builder.internal.browserTabClosing(closedTabId));
+  await onMessage(builder.event.browserTabClosing(closedTabId));
 }
 
 export async function onTabUpdated(
@@ -80,5 +71,5 @@ export async function onTabUpdated(
   _changeInfo: chrome.tabs.TabChangeInfo,
   _tab: chrome.tabs.Tab
 ): Promise<void> {
-  await onMessage(builder.internal.browserTabUpdated());
+  await onMessage(builder.event.browserTabUpdated());
 }

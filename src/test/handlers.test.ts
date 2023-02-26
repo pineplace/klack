@@ -1,6 +1,7 @@
 /*
- * NOTE: `handlers.ts` initializes `chrome.storage.local` on import
- * and test fails without this override
+ * NOTE: `handlers.ts` depends on `storage.ts` that initializes
+ *       `chrome.storage.local` on import and test fails without
+ *       this override
  */
 globalThis.chrome = {
   // @ts-expect-error Chrome methods mocking
@@ -19,14 +20,7 @@ globalThis.chrome = {
     // @ts-expect-error Chrome methods mocking
     local: {
       set: jest.fn().mockResolvedValue({}),
-      get: jest.fn().mockResolvedValue({
-        userActiveTabId: 1,
-        userActiveWindowId: 7,
-        recordingInProgress: true,
-        cameraBubbleVisible: true,
-        microphoneAllowed: false,
-        screenRecordingTabId: 9,
-      }),
+      get: jest.fn().mockResolvedValue({}),
     },
   },
   // @ts-expect-error Chrome methods mocking
@@ -48,9 +42,6 @@ import {
   handleCancelRecording,
   handleDisallowMicrophone,
   handleDownloadRecording,
-  handleGetIsCameraBubbleVisible,
-  handleGetIsMicrophoneAllowed,
-  handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleOpenUserActiveWindow,
   handleShowCameraBubble,
@@ -60,6 +51,17 @@ import {
   handleTabUpdated,
 } from "../handlers";
 import { Method } from "../messaging";
+import { storage } from "../storage";
+
+jest.mock("../storage");
+
+beforeEach(() => {
+  storage.set.currentTabId = jest.fn();
+
+  storage.get.currentTabId = jest.fn().mockResolvedValue(1);
+  storage.get.currentWindowId = jest.fn().mockResolvedValue(7);
+  storage.get.recordingTabId = jest.fn().mockResolvedValue(9);
+});
 
 test("handleStartRecording", async () => {
   await handleStartRecording({});
@@ -75,19 +77,15 @@ test("handleStartRecording", async () => {
     width: 650,
     height: 710,
   });
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.set).toHaveBeenCalledWith({
-    recordingInProgress: true,
-    screenRecordingTabId: 12,
-    userActiveWindowId: 7,
-  });
+  expect(storage.set.recordingTabId).toHaveBeenCalledWith(12);
+  expect(storage.set.currentWindowId).toHaveBeenCalledWith(7);
+  expect(storage.set.recordingInProgress).toHaveBeenCalledWith(true);
 });
 
 test("handleStopRecording", async () => {
   await handleStopRecording({});
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.get).toHaveBeenCalledWith("screenRecordingTabId");
 
+  expect(storage.get.recordingTabId).toHaveBeenCalled();
   expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(9, {
     method: Method.TabStopMediaRecorder,
   });
@@ -96,11 +94,8 @@ test("handleStopRecording", async () => {
 test("handleCancelRecording", async () => {
   await handleCancelRecording({});
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.set).toHaveBeenCalledWith({
-    recordingInProgress: false,
-    screenRecordingTabId: 0,
-  });
+  expect(storage.set.recordingTabId).toHaveBeenCalledWith(0);
+  expect(storage.set.recordingInProgress).toHaveBeenCalledWith(false);
 });
 
 test("handleDownloadRecording", async () => {
@@ -110,23 +105,16 @@ test("handleDownloadRecording", async () => {
     url: "some-recording-url",
   });
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.get).toHaveBeenCalledWith("screenRecordingTabId");
-
+  expect(storage.get.recordingTabId).toHaveBeenCalled();
   expect(chrome.tabs.remove).toHaveBeenCalledWith(9);
-
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.set).toHaveBeenCalledWith({
-    recordingInProgress: false,
-    screenRecordingTabId: 0,
-  });
+  expect(storage.set.recordingInProgress).toHaveBeenCalledWith(false);
+  expect(storage.set.recordingTabId).toHaveBeenCalledWith(0);
 });
 
 test("handleShowCameraBubble", async () => {
   await handleShowCameraBubble({});
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.get).toHaveBeenCalledWith("userActiveTabId");
+  expect(storage.get.currentTabId).toHaveBeenCalled();
   expect(chrome.scripting.executeScript).toHaveBeenCalledWith({
     target: { tabId: 1 },
     files: ["./cameraBubble.bundle.mjs"],
@@ -136,8 +124,7 @@ test("handleShowCameraBubble", async () => {
 test("handleHideCameraBubble", async () => {
   await handleHideCameraBubble({});
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.get).toHaveBeenCalledWith("userActiveTabId");
+  expect(storage.get.currentTabId).toHaveBeenCalled();
   expect(chrome.scripting.executeScript).toHaveBeenCalledWith({
     target: { tabId: 1 },
     func: expect.any(Function) as () => void,
@@ -147,41 +134,29 @@ test("handleHideCameraBubble", async () => {
 test("handleAllowMicrophone", async () => {
   await handleAllowMicrophone({});
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.set).toHaveBeenCalledWith({
-    microphoneAllowed: true,
-  });
+  expect(storage.set.microphoneAllowed).toHaveBeenCalledWith(true);
 });
 
 test("handleDisallowMicrophone", async () => {
   await handleDisallowMicrophone({});
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.set).toHaveBeenCalledWith({
-    microphoneAllowed: false,
-  });
+  expect(storage.set.microphoneAllowed).toHaveBeenCalledWith(false);
 });
 
 describe("handleTabChange", () => {
   test("`newTabId` is different from `screenRecordingTabId`", async () => {
     await handleTabChange({ newTabId: 2 });
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(chrome.storage.local.get).toHaveBeenCalledWith(
-      "screenRecordingTabId"
-    );
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(chrome.storage.local.set).toHaveBeenCalledWith({
-      userActiveTabId: 2,
-    });
+    expect(storage.get.recordingTabId).toHaveBeenCalled();
+    expect(storage.set.currentTabId).toHaveBeenCalledWith(2);
   });
 
   test("`newTabId` is the same as `screenRecordingTabId`", async () => {
-    chrome.storage.local.set = jest.fn();
+    storage.get.recordingTabId = jest.fn().mockResolvedValue(9);
 
     await handleTabChange({ newTabId: 9 });
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(chrome.storage.local.set).not.toHaveBeenCalled();
+
+    expect(storage.set.currentTabId).not.toHaveBeenCalled();
   });
 });
 
@@ -195,24 +170,8 @@ test("handleTabUpdated", async () => {
 test("handleOpenUserActiveWindow", async () => {
   await handleOpenUserActiveWindow({});
 
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.get).toHaveBeenCalledWith("userActiveWindowId");
+  expect(storage.get.currentWindowId).toHaveBeenCalledWith();
   expect(chrome.windows.update).toHaveBeenCalledWith(7, {
     focused: true,
   });
-});
-
-test("handleGetRecordingInProgress", async () => {
-  expect(await handleGetRecordingInProgress()).toEqual(true);
-});
-
-test("handleGetIsCameraBubbleVisible", async () => {
-  expect(await handleGetIsCameraBubbleVisible()).toEqual(true);
-});
-
-test("handleGetIsMicrophoneAllowed", async () => {
-  expect(await handleGetIsMicrophoneAllowed()).toEqual(false);
-
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.get).toHaveBeenCalledWith("microphoneAllowed");
 });

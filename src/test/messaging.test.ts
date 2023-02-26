@@ -75,26 +75,8 @@ describe("builder", () => {
     } as Message);
   });
 
-  test("buildRecordingInProgress", () => {
-    expect(builder.getter.recordingInProgress()).toEqual({
-      method: Method.GetterRecordingInProgress,
-    } as Message);
-  });
-
-  test("buildIsCameraBubbleVisible", () => {
-    expect(builder.getter.isCameraBubbleVisible()).toEqual({
-      method: Method.GetterIsCameraBubbleVisible,
-    } as Message);
-  });
-
-  test("buildIsMicrophoneAllowed", () => {
-    expect(builder.getter.isMicrophoneAllowed()).toEqual({
-      method: Method.GetterIsMicrophoneAllowed,
-    } as Message);
-  });
-
   test("buildBrowserTabChange", () => {
-    expect(builder.internal.browserTabChange(10)).toEqual({
+    expect(builder.event.browserTabChange(10)).toEqual({
       method: Method.BrowserTabChange,
       args: {
         newTabId: 10,
@@ -103,7 +85,7 @@ describe("builder", () => {
   });
 
   test("buildBrowserTabClosing", () => {
-    expect(builder.internal.browserTabClosing(11)).toEqual({
+    expect(builder.event.browserTabClosing(11)).toEqual({
       method: Method.BrowserTabClosing,
       args: {
         closedTabId: 11,
@@ -112,19 +94,19 @@ describe("builder", () => {
   });
 
   test("buildBrowserTabUpdated", () => {
-    expect(builder.internal.browserTabUpdated()).toEqual({
+    expect(builder.event.browserTabUpdated()).toEqual({
       method: Method.BrowserTabUpdated,
     });
   });
 
   test("buildTabStopMediaRecorder", () => {
-    expect(builder.internal.tabStopMediaRecorder()).toEqual({
+    expect(builder.tabStopMediaRecorder()).toEqual({
       method: Method.TabStopMediaRecorder,
     });
   });
 
   test("buildOpenUserActiveWindow", () => {
-    expect(builder.internal.openUserActiveWindow()).toEqual({
+    expect(builder.openUserActiveWindow()).toEqual({
       method: Method.OpenUserActiveWindow,
     });
   });
