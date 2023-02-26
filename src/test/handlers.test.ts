@@ -51,16 +51,29 @@ import {
   handleTabUpdated,
 } from "../handlers";
 import { Method } from "../messaging";
+jest.mock("../storage", () => {
+  return {
+    storage: {
+      reset: jest.fn().mockResolvedValue({}),
+      set: {},
+      get: {},
+    },
+  };
+});
 import { storage } from "../storage";
-
-jest.mock("../storage");
 
 beforeEach(() => {
   storage.set.currentTabId = jest.fn();
+  storage.set.currentWindowId = jest.fn();
+  storage.set.recordingTabId = jest.fn();
+  storage.set.cameraBubbleVisible = jest.fn();
+  storage.set.microphoneAllowed = jest.fn();
+  storage.set.recordingInProgress = jest.fn();
 
   storage.get.currentTabId = jest.fn().mockResolvedValue(1);
   storage.get.currentWindowId = jest.fn().mockResolvedValue(7);
   storage.get.recordingTabId = jest.fn().mockResolvedValue(9);
+  storage.get.cameraBubbleVisible = jest.fn().mockResolvedValue(false);
 });
 
 test("handleStartRecording", async () => {
@@ -162,9 +175,8 @@ describe("handleTabChange", () => {
 
 test("handleTabUpdated", async () => {
   await handleTabUpdated({});
-  /* NOTE: `handleTabUpdated` calls `handleGetIsCameraBubbleVisible` and `handleShowCameraBubble`
-           which are already checked in their own tests
-   */
+
+  expect(storage.get.cameraBubbleVisible).toHaveBeenCalled();
 });
 
 test("handleOpenUserActiveWindow", async () => {

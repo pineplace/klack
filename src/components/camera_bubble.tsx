@@ -34,7 +34,9 @@ const StartStopRecording = () => {
     const interval = setInterval(() => {
       storage.get
         .recordingInProgress()
-        .then(setInProgress)
+        .then((value: boolean) => {
+          setInProgress(value);
+        })
         .catch((err) => console.error(err));
     }, 500);
 

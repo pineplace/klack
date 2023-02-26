@@ -7,6 +7,12 @@ import {
 } from "./messaging";
 import { storage } from "./storage";
 
+storage
+  .reset()
+  .catch((err) =>
+    console.error(`Can't reset storage values ${(err as Error).message}`)
+  );
+
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
 
@@ -102,6 +108,7 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
   args = args as BrowserTabChangeArgs;
 
   if ((await storage.get.recordingTabId()) === args.newTabId) {
+    console.warn("Ignore tab change, because recording tab equals new tab");
     return;
   }
 

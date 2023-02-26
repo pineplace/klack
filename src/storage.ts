@@ -9,24 +9,6 @@ interface Context {
   microphoneAllowed: boolean;
 }
 
-storageImpl
-  .set({
-    currentTabId: 0,
-    recordingTabId: 0,
-    currentWindowId: 0,
-    recordingInProgress: false,
-    cameraBubbleVisible: false,
-    microphoneAllowed: true,
-  } satisfies Context)
-  .then(() => console.log("Storage has been initialized with default values"))
-  .catch((err) =>
-    console.error(
-      `Storage hasn't been initialized with default value ${
-        (err as Error).message
-      }`
-    )
-  );
-
 async function setCurrentTabId(tabId: number): Promise<void> {
   await storageImpl.set({ currentTabId: tabId });
 }
@@ -82,6 +64,16 @@ async function getMicrophoneAllowed(): Promise<boolean> {
 }
 
 export const storage = {
+  reset: async () => {
+    await storageImpl.set({
+      currentTabId: 0,
+      recordingTabId: 0,
+      currentWindowId: 0,
+      recordingInProgress: false,
+      cameraBubbleVisible: false,
+      microphoneAllowed: true,
+    } satisfies Context);
+  },
   set: {
     currentTabId: setCurrentTabId,
     recordingTabId: setRecordingTabId,
