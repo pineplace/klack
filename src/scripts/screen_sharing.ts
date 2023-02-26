@@ -1,4 +1,5 @@
 import { Message, Method, builder, sender } from "../messaging";
+import { storage } from "../storage";
 
 class RecorderV2 {
   #outputType: string;
@@ -111,19 +112,12 @@ class RecorderV2 {
 }
 
 async function share(): Promise<void> {
-  const resp = await sender.send(builder.getter.isMicrophoneAllowed());
-  if (!resp) {
-    throw new Error("Can't get response from background script");
-  }
-  if (resp.error) {
-    throw new Error(`Error response from background script ${resp.error}`);
-  }
-  const micAllowed = resp.result;
-
   const streams: MediaStream[] = [];
-  if (micAllowed) {
+
+  if (await storage.get.microphoneAllowed()) {
     streams.push(await navigator.mediaDevices.getUserMedia({ audio: true }));
   }
+
   streams.push(
     await navigator.mediaDevices.getDisplayMedia({
       audio: true,
@@ -134,7 +128,7 @@ async function share(): Promise<void> {
   const recorder = new RecorderV2(streams);
   recorder.start();
 
-  await sender.send(builder.internal.openUserActiveWindow());
+  await sender.send(builder.openUserActiveWindow());
 }
 
 share().catch((err) => {

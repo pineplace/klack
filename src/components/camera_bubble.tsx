@@ -4,6 +4,7 @@ import { ButtonGroup, IconButton, Stack } from "@mui/material";
 import PlayCircleFilledRounded from "@mui/icons-material/PlayCircleFilledRounded";
 import StopCircleRoundedIcon from "@mui/icons-material/StopCircleRounded";
 import { builder, sender } from "../messaging";
+import { storage } from "../storage";
 
 const CameraBubbleFrame = () => {
   return (
@@ -30,24 +31,15 @@ const StartStopRecording = () => {
   const [inProgress, setInProgress] = useState(false);
 
   useEffect(() => {
-    const checkInProgress = () => {
-      sender
-        .send(builder.getter.recordingInProgress())
-        .then((response) => {
-          if (!response) {
-            return;
-          }
-          if (response.error) {
-            throw new Error(response.error);
-          }
-          setInProgress((response.result as boolean) ?? inProgress);
+    const interval = setInterval(() => {
+      storage.get
+        .recordingInProgress()
+        .then((value: boolean) => {
+          setInProgress(value);
         })
-        .catch((err) => {
-          console.error(err);
-        });
-    };
+        .catch((err) => console.error(err));
+    }, 500);
 
-    const interval = setInterval(checkInProgress, 500);
     return () => {
       clearInterval(interval);
     };

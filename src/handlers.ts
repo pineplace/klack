@@ -2,39 +2,16 @@ import {
   BrowserTabChangeArgs,
   DownloadRecordingArgs,
   MethodArgs,
-  MethodResult,
   builder,
   sender,
 } from "./messaging";
+import { storage } from "./storage";
 
-interface StorageContext {
-  userActiveTabId: number;
-  userActiveWindowId: number;
-  screenRecordingTabId: number;
-  recordingInProgress: boolean;
-  cameraBubbleVisible: boolean;
-  microphoneAllowed: boolean;
-}
-
-chrome.storage.local
-  .set({
-    userActiveTabId: 0,
-    userActiveWindowId: 0,
-    recordingInProgress: false,
-    cameraBubbleVisible: false,
-    microphoneAllowed: true,
-    screenRecordingTabId: 0,
-  } satisfies StorageContext)
-  .then(() => {
-    console.log("Storage has been initialized with initial values");
-  })
-  .catch((err) => {
-    console.error(
-      `Failed to initialize storage with default values: ${
-        (err as Error).message
-      }`
-    );
-  });
+storage
+  .reset()
+  .catch((err) =>
+    console.error(`Can't reset storage values ${(err as Error).message}`)
+  );
 
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
@@ -53,32 +30,25 @@ export async function handleStartRecording(_args: MethodArgs): Promise<void> {
     height: 710,
   });
 
-  await chrome.storage.local.set({
-    recordingInProgress: true,
-    screenRecordingTabId: tab.id,
-    userActiveWindowId: activeWindow.id,
-  });
+  await storage.set.recordingTabId(tab.id as number);
+  await storage.set.currentWindowId(activeWindow.id as number);
+  await storage.set.recordingInProgress(true);
 }
 
 export async function handleStopRecording(_args: MethodArgs): Promise<void> {
   console.log("handleStopRecording()");
 
-  const { screenRecordingTabId } = await chrome.storage.local.get(
-    "screenRecordingTabId"
-  );
   await sender.send(
-    builder.internal.tabStopMediaRecorder(),
-    screenRecordingTabId as number
+    builder.tabStopMediaRecorder(),
+    await storage.get.recordingTabId()
   );
 }
 
 export async function handleCancelRecording(_args: MethodArgs): Promise<void> {
   console.log("handleCancelRecording()");
 
-  await chrome.storage.local.set({
-    recordingInProgress: false,
-    screenRecordingTabId: 0,
-  });
+  await storage.set.recordingTabId(0);
+  await storage.set.recordingInProgress(false);
 }
 
 export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
@@ -90,52 +60,38 @@ export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
     url: args.downloadUrl,
   });
 
-  const { screenRecordingTabId } = await chrome.storage.local.get(
-    "screenRecordingTabId"
-  );
+  await chrome.tabs.remove(await storage.get.recordingTabId());
 
-  await chrome.tabs.remove(screenRecordingTabId as number);
-
-  await chrome.storage.local.set({
-    recordingInProgress: false,
-    screenRecordingTabId: 0,
-  });
+  await storage.set.recordingTabId(0);
+  await storage.set.recordingInProgress(false);
 }
 
 export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
   console.log("handleShowCameraBubble");
 
-  const { userActiveTabId } = await chrome.storage.local.get("userActiveTabId");
   await chrome.scripting.executeScript({
-    target: { tabId: userActiveTabId as number },
+    target: { tabId: await storage.get.currentTabId() },
     files: ["./cameraBubble.bundle.mjs"],
   });
-  await chrome.storage.local.set({
-    cameraBubbleVisible: true,
-  });
+  await storage.set.cameraBubbleVisible(true);
 }
 
 export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
   console.log("handleHideCameraBubble");
 
-  const { userActiveTabId } = await chrome.storage.local.get("userActiveTabId");
   await chrome.scripting.executeScript({
-    target: { tabId: userActiveTabId as number },
+    target: { tabId: await storage.get.currentTabId() },
     func: () => {
       document.getElementById("rapidrec-camera-bubble")?.remove();
     },
   });
-  await chrome.storage.local.set({
-    cameraBubbleVisible: false,
-  });
+  await storage.set.cameraBubbleVisible(false);
 }
 
 export async function handleAllowMicrophone(_args: MethodArgs): Promise<void> {
   console.log("handleAllowMicrophone");
 
-  await chrome.storage.local.set({
-    microphoneAllowed: true,
-  });
+  await storage.set.microphoneAllowed(true);
 }
 
 export async function handleDisallowMicrophone(
@@ -143,9 +99,7 @@ export async function handleDisallowMicrophone(
 ): Promise<void> {
   console.log("handleDisallowMicrophone");
 
-  await chrome.storage.local.set({
-    microphoneAllowed: false,
-  });
+  await storage.set.microphoneAllowed(false);
 }
 
 export async function handleTabChange(args: MethodArgs): Promise<void> {
@@ -153,17 +107,12 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
 
   args = args as BrowserTabChangeArgs;
 
-  const { screenRecordingTabId } = await chrome.storage.local.get(
-    "screenRecordingTabId"
-  );
-
-  if (screenRecordingTabId === args.newTabId) {
+  if ((await storage.get.recordingTabId()) === args.newTabId) {
+    console.warn("Ignore tab change, because recording tab equals new tab");
     return;
   }
 
-  await chrome.storage.local.set({
-    userActiveTabId: args.newTabId,
-  });
+  await storage.set.currentTabId(args.newTabId);
 }
 
 export async function handleTabClosing(args: MethodArgs): Promise<void> {
@@ -175,7 +124,7 @@ export async function handleTabClosing(args: MethodArgs): Promise<void> {
 export async function handleTabUpdated(_args: MethodArgs): Promise<void> {
   console.log("handleTabUpdated()");
 
-  if (await handleGetIsCameraBubbleVisible()) {
+  if (await storage.get.cameraBubbleVisible()) {
     await handleShowCameraBubble({});
   }
 }
@@ -185,51 +134,7 @@ export async function handleOpenUserActiveWindow(
 ): Promise<void> {
   console.log("handleOpenUserActiveWindow()");
 
-  const { userActiveWindowId } = await chrome.storage.local.get(
-    "userActiveWindowId"
-  );
-
-  await chrome.windows.update(userActiveWindowId as number, {
+  await chrome.windows.update(await storage.get.currentWindowId(), {
     focused: true,
   });
-}
-
-export async function handleGetRecordingInProgress(): Promise<MethodResult> {
-  console.log("handleGetRecordingInProgress()");
-
-  const { recordingInProgress } = await chrome.storage.local.get(
-    "recordingInProgress"
-  );
-
-  console.log(
-    `handleGetRecordingInProgress res=${recordingInProgress as string}`
-  );
-
-  return recordingInProgress as boolean;
-}
-
-export async function handleGetIsCameraBubbleVisible(): Promise<MethodResult> {
-  console.log("handleGetIsCameraBubbleVisible");
-
-  const { cameraBubbleVisible } = await chrome.storage.local.get(
-    "cameraBubbleVisible"
-  );
-
-  console.log(
-    `handleGetIsCameraBubbleVisible res=${cameraBubbleVisible as string}`
-  );
-
-  return cameraBubbleVisible as boolean;
-}
-
-export async function handleGetIsMicrophoneAllowed(): Promise<MethodResult> {
-  console.log("handleIsMicrophoneAllowed");
-
-  const { microphoneAllowed } = await chrome.storage.local.get(
-    "microphoneAllowed"
-  );
-
-  console.log(`handleIsMicrophoneAllowed res=${microphoneAllowed as string}`);
-
-  return microphoneAllowed as boolean;
 }

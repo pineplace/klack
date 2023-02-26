@@ -1,29 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Button, Stack } from "@mui/material";
 import { builder, sender } from "../messaging";
+import { storage } from "../storage";
 
 const ShowHideCameraBubble = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const checkIsCameraVisible = () => {
-      sender
-        .send(builder.getter.isCameraBubbleVisible())
-        .then((response) => {
-          if (!response) {
-            return;
-          }
-          if (response.error) {
-            throw new Error(response.error);
-          }
-          setIsVisible(response.result as boolean);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    };
+    const interval = setInterval(() => {
+      storage.get
+        .cameraBubbleVisible()
+        .then(setIsVisible)
+        .catch((err) => console.error(err));
+    }, 500);
 
-    const interval = setInterval(checkIsCameraVisible, 500);
     return () => {
       clearInterval(interval);
     };
@@ -48,24 +38,13 @@ const TurnOnTurnOffMic = () => {
   const [micAllowed, setMicAllowed] = useState(false);
 
   useEffect(() => {
-    const checkTurnedOn = () => {
-      sender
-        .send(builder.getter.isMicrophoneAllowed())
-        .then((response) => {
-          if (!response) {
-            return;
-          }
-          if (response.error) {
-            throw new Error(response.error);
-          }
-          setMicAllowed(response.result as boolean);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    };
+    const interval = setInterval(() => {
+      storage.get
+        .microphoneAllowed()
+        .then(setMicAllowed)
+        .catch((err) => console.error(err));
+    }, 500);
 
-    const interval = setInterval(checkTurnedOn, 500);
     return () => {
       clearInterval(interval);
     };
@@ -92,24 +71,13 @@ const StartStopRecording = () => {
   const [inProgress, setInProgress] = useState(false);
 
   useEffect(() => {
-    const checkInProgress = () => {
-      sender
-        .send(builder.getter.recordingInProgress())
-        .then((response) => {
-          if (!response) {
-            return;
-          }
-          if (response.error) {
-            throw new Error(response.error);
-          }
-          setInProgress(response.result as boolean);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    };
+    const interval = setInterval(() => {
+      storage.get
+        .recordingInProgress()
+        .then(setInProgress)
+        .catch((err) => console.error(err));
+    }, 500);
 
-    const interval = setInterval(checkInProgress, 500);
     return () => {
       clearInterval(interval);
     };

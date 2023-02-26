@@ -1,6 +1,7 @@
 /*
- * NOTE: `handlers.ts` initializes `chrome.storage.local` on import
- * and test fails without this override
+ * NOTE: `handlers.ts` depends on `storage.ts` that initializes
+ *       `chrome.storage.local` on import and test fails without
+ *       this override
  */
 globalThis.chrome = {
   // @ts-expect-error Chrome methods mocking
@@ -32,9 +33,6 @@ import {
   handleCancelRecording,
   handleDisallowMicrophone,
   handleDownloadRecording,
-  handleGetIsCameraBubbleVisible,
-  handleGetIsMicrophoneAllowed,
-  handleGetRecordingInProgress,
   handleHideCameraBubble,
   handleOpenUserActiveWindow,
   handleShowCameraBubble,
@@ -148,7 +146,7 @@ describe("onMessage", () => {
   test("Correct BrowserTabChange message", async () => {
     let response: MessageResponse | undefined;
 
-    await onMessage(builder.internal.browserTabChange(1), {}, (resp) => {
+    await onMessage(builder.event.browserTabChange(1), {}, (resp) => {
       response = resp;
     });
 
@@ -160,7 +158,7 @@ describe("onMessage", () => {
   test("Correct BrowserTabClosing message", async () => {
     let response: MessageResponse | undefined;
 
-    await onMessage(builder.internal.browserTabClosing(2), {}, (resp) => {
+    await onMessage(builder.event.browserTabClosing(2), {}, (resp) => {
       response = resp;
     });
 
@@ -172,7 +170,7 @@ describe("onMessage", () => {
   test("Correct BrowserTabUpdated message", async () => {
     let response: MessageResponse | undefined;
 
-    await onMessage(builder.internal.browserTabUpdated(), {}, (resp) => {
+    await onMessage(builder.event.browserTabUpdated(), {}, (resp) => {
       response = resp;
     });
 
@@ -183,44 +181,11 @@ describe("onMessage", () => {
   test("Correct OpenUserActiveWindow", async () => {
     let response: MessageResponse | undefined;
 
-    await onMessage(builder.internal.openUserActiveWindow(), {}, (resp) => {
+    await onMessage(builder.openUserActiveWindow(), {}, (resp) => {
       response = resp;
     });
 
     expect(handleOpenUserActiveWindow).toHaveBeenCalled();
-    expect(response).toEqual(builder.response.ok());
-  });
-
-  test("Correct GetterRecordingInProgress message", async () => {
-    let response: MessageResponse | undefined;
-
-    await onMessage(builder.getter.recordingInProgress(), {}, (resp) => {
-      response = resp;
-    });
-
-    expect(handleGetRecordingInProgress).toHaveBeenCalled();
-    expect(response).toEqual(builder.response.ok());
-  });
-
-  test("Correct GetterIsCameraBubbleVisible", async () => {
-    let response: MessageResponse | undefined;
-
-    await onMessage(builder.getter.isCameraBubbleVisible(), {}, (resp) => {
-      response = resp;
-    });
-
-    expect(handleGetIsCameraBubbleVisible).toHaveBeenCalled();
-    expect(response).toEqual(builder.response.ok());
-  });
-
-  test("Correct GetterIsMicrophoneAllowed", async () => {
-    let response: MessageResponse | undefined;
-
-    await onMessage(builder.getter.isMicrophoneAllowed(), {}, (resp) => {
-      response = resp;
-    });
-
-    expect(handleGetIsMicrophoneAllowed).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 

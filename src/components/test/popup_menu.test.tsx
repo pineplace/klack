@@ -2,6 +2,22 @@
  * @jest-environment jsdom
  */
 // NOTE: https://testing-library.com/docs/
+
+/*
+ * NOTE: `handlers.ts` depends on `storage.ts` that initializes
+ *       `chrome.storage.local` on import and test fails without
+ *       this override
+ */
+globalThis.chrome = {
+  storage: {
+    // @ts-expect-error Chrome methods mocking
+    local: {
+      set: jest.fn().mockResolvedValue({}),
+      get: jest.fn().mockResolvedValue({}),
+    },
+  },
+};
+
 import React from "react";
 import {
   act,
@@ -12,7 +28,9 @@ import {
 } from "@testing-library/react";
 import { builder, sender } from "../../messaging";
 import PopupMenu from "../popup_menu";
+import { storage } from "../../storage";
 
+jest.mock("../../storage");
 jest.mock("../../messaging", () => {
   const mocked: object = jest.createMockFromModule("../../messaging");
   return {
@@ -24,11 +42,6 @@ jest.mock("../../messaging", () => {
       hideCameraBubble: jest.fn(),
       allowMicrophone: jest.fn(),
       disallowMicrophone: jest.fn(),
-      getter: {
-        recordingInProgress: jest.fn(),
-        isCameraBubbleVisible: jest.fn(),
-        isMicrophoneAllowed: jest.fn(),
-      },
     },
     sender: {
       send: jest.fn().mockResolvedValue({ result: false }),
@@ -38,6 +51,10 @@ jest.mock("../../messaging", () => {
 
 beforeEach(() => {
   jest.useFakeTimers();
+
+  storage.get.cameraBubbleVisible = jest.fn().mockResolvedValue(false);
+  storage.get.microphoneAllowed = jest.fn().mockResolvedValue(true);
+  storage.get.recordingInProgress = jest.fn().mockResolvedValue(false);
 });
 
 afterEach(() => {
@@ -46,8 +63,6 @@ afterEach(() => {
 });
 
 test("ShowHideRecording switching", async () => {
-  (sender.send as jest.Mock).mockResolvedValue({ result: false });
-
   act(() => {
     render(<PopupMenu />);
   });
@@ -55,7 +70,7 @@ test("ShowHideRecording switching", async () => {
   const button = screen.getByText("Show bubble");
 
   act(() => {
-    (sender.send as jest.Mock).mockResolvedValue({ result: true });
+    storage.get.cameraBubbleVisible = jest.fn().mockResolvedValue(true);
     fireEvent.click(button);
   });
 
@@ -66,7 +81,7 @@ test("ShowHideRecording switching", async () => {
   });
 
   act(() => {
-    (sender.send as jest.Mock).mockResolvedValue({ result: false });
+    storage.get.cameraBubbleVisible = jest.fn().mockResolvedValue(false);
     fireEvent.click(button);
   });
 
@@ -78,8 +93,6 @@ test("ShowHideRecording switching", async () => {
 });
 
 test("TurnOnTurnOffMic switching", async () => {
-  (sender.send as jest.Mock).mockResolvedValue({ result: false });
-
   act(() => {
     render(<PopupMenu />);
   });
@@ -87,7 +100,7 @@ test("TurnOnTurnOffMic switching", async () => {
   const button = screen.getByText("Allow Mic");
 
   act(() => {
-    (sender.send as jest.Mock).mockResolvedValue({ result: true });
+    storage.get.microphoneAllowed = jest.fn().mockResolvedValue(true);
     fireEvent.click(button);
   });
 
@@ -98,7 +111,7 @@ test("TurnOnTurnOffMic switching", async () => {
   });
 
   act(() => {
-    (sender.send as jest.Mock).mockResolvedValue({ result: false });
+    storage.get.microphoneAllowed = jest.fn().mockResolvedValue(false);
     fireEvent.click(button);
   });
 
@@ -110,8 +123,6 @@ test("TurnOnTurnOffMic switching", async () => {
 });
 
 test("StartStopRecording switching", async () => {
-  (sender.send as jest.Mock).mockResolvedValue({ result: false });
-
   act(() => {
     render(<PopupMenu />);
   });
@@ -119,7 +130,7 @@ test("StartStopRecording switching", async () => {
   const button = screen.getByText("Start");
 
   act(() => {
-    (sender.send as jest.Mock).mockResolvedValue({ result: true });
+    storage.get.recordingInProgress = jest.fn().mockResolvedValue(true);
     fireEvent.click(button);
   });
 
@@ -130,7 +141,7 @@ test("StartStopRecording switching", async () => {
   });
 
   act(() => {
-    (sender.send as jest.Mock).mockResolvedValue({ result: false });
+    storage.get.recordingInProgress = jest.fn().mockResolvedValue(false);
     fireEvent.click(button);
   });
 

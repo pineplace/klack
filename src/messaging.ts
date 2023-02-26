@@ -15,10 +15,6 @@ export enum Method {
   BrowserTabUpdated,
   TabStopMediaRecorder,
   OpenUserActiveWindow,
-
-  GetterRecordingInProgress,
-  GetterIsCameraBubbleVisible,
-  GetterIsMicrophoneAllowed,
 }
 
 export type DownloadRecordingArgs = { downloadUrl: string };
@@ -101,24 +97,6 @@ function buildDisallowMicrophone(): Message {
   };
 }
 
-function buildRecordingInProgress(): Message {
-  return {
-    method: Method.GetterRecordingInProgress,
-  };
-}
-
-function buildIsCameraBubbleVisible(): Message {
-  return {
-    method: Method.GetterIsCameraBubbleVisible,
-  };
-}
-
-function buildIsMicrophoneAllowed(): Message {
-  return {
-    method: Method.GetterIsMicrophoneAllowed,
-  };
-}
-
 function buildBrowserTabChange(newTabId: number): Message {
   return {
     method: Method.BrowserTabChange,
@@ -176,17 +154,12 @@ export const builder = {
   hideCameraBubble: buildHideCameraBubble,
   allowMicrophone: buildAllowMicrophone,
   disallowMicrophone: buildDisallowMicrophone,
-  getter: {
-    recordingInProgress: buildRecordingInProgress,
-    isCameraBubbleVisible: buildIsCameraBubbleVisible,
-    isMicrophoneAllowed: buildIsMicrophoneAllowed,
-  },
-  internal: {
+  tabStopMediaRecorder: buildTabStopMediaRecorder,
+  openUserActiveWindow: buildOpenUserActiveWindow,
+  event: {
     browserTabChange: buildBrowserTabChange,
     browserTabClosing: buildBrowserTabClosing,
     browserTabUpdated: buildBrowserTabUpdated,
-    tabStopMediaRecorder: buildTabStopMediaRecorder,
-    openUserActiveWindow: buildOpenUserActiveWindow,
   },
   response: {
     ok: buildOkResponse,

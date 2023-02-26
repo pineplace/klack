@@ -2,11 +2,29 @@
  * @jest-environment jsdom
  */
 // NOTE: https://testing-library.com/docs/
+
+/*
+ * NOTE: `handlers.ts` depends on `storage.ts` that initializes
+ *       `chrome.storage.local` on import and test fails without
+ *       this override
+ */
+globalThis.chrome = {
+  storage: {
+    // @ts-expect-error Chrome methods mocking
+    local: {
+      set: jest.fn().mockResolvedValue({}),
+      get: jest.fn().mockResolvedValue({}),
+    },
+  },
+};
+
 import React from "react";
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { builder, sender } from "../../messaging";
 import CameraBubble from "../camera_bubble";
+import { storage } from "../../storage";
 
+jest.mock("../../storage");
 jest.mock("../../messaging", () => {
   const mocked: object = jest.createMockFromModule("../../messaging");
   return {
@@ -16,12 +34,9 @@ jest.mock("../../messaging", () => {
       stopRecording: jest.fn(),
       showCameraBubble: jest.fn(),
       hideCameraBubble: jest.fn(),
-      getter: {
-        recordingInProgress: jest.fn(),
-      },
     },
     sender: {
-      send: jest.fn().mockResolvedValue({ result: false }),
+      send: jest.fn().mockResolvedValue({ result: "OK" }),
     },
   };
 });
@@ -62,7 +77,7 @@ test("StartStopRecording", async () => {
     buttonGroup.getElementsByClassName("MuiButtonBase-root") ?? [];
 
   act(() => {
-    (sender.send as jest.Mock).mockResolvedValue({ result: true });
+    storage.get.recordingInProgress = jest.fn().mockResolvedValue(true);
     fireEvent.click(startStopRecording);
   });
 
@@ -75,7 +90,7 @@ test("StartStopRecording", async () => {
   });
 
   act(() => {
-    (sender.send as jest.Mock).mockResolvedValue({ result: false });
+    storage.get.recordingInProgress = jest.fn().mockResolvedValue(false);
     fireEvent.click(startStopRecording);
   });
 
