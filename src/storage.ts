@@ -4,6 +4,7 @@ interface Context {
   currentTabId: number;
   recordingTabId: number;
   currentWindowId: number;
+  recordingWindowId: number;
   recordingInProgress: boolean;
   cameraBubbleVisible: boolean;
   microphoneAllowed: boolean;
@@ -34,6 +35,15 @@ async function setCurrentWindowId(windowId: number): Promise<void> {
 async function getCurrentWindowId(): Promise<number> {
   const { currentWindowId } = await storageImpl.get("currentWindowId");
   return currentWindowId as number;
+}
+
+async function setRecordingWindowId(windowId: number): Promise<void> {
+  await storageImpl.set({ recordingWindowId: windowId });
+}
+
+async function getRecordingWindowId(): Promise<number> {
+  const { recordingWindowId } = await storageImpl.get("recordingWindowId");
+  return recordingWindowId as number;
 }
 
 async function setRecordingInProgress(value: boolean): Promise<void> {
@@ -69,6 +79,7 @@ export const storage = {
       currentTabId: 0,
       recordingTabId: 0,
       currentWindowId: 0,
+      recordingWindowId: 0,
       recordingInProgress: false,
       cameraBubbleVisible: false,
       microphoneAllowed: true,
@@ -78,6 +89,7 @@ export const storage = {
     currentTabId: setCurrentTabId,
     recordingTabId: setRecordingTabId,
     currentWindowId: setCurrentWindowId,
+    recordingWindowId: setRecordingWindowId,
     recordingInProgress: setRecordingInProgress,
     cameraBubbleVisible: setCameraBubbleVisible,
     microphoneAllowed: setMicrophoneAllowed,
@@ -86,6 +98,7 @@ export const storage = {
     currentTabId: getCurrentTabId,
     recordingTabId: getRecordingTabId,
     currentWindowId: getCurrentWindowId,
+    recordingWindowId: getRecordingWindowId,
     recordingInProgress: getRecordingInProgress,
     cameraBubbleVisible: getCameraBubbleVisible,
     microphoneAllowed: getMicrophoneAllowed,

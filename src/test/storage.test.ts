@@ -11,6 +11,7 @@ globalThis.chrome = {
         currentTabId: 1,
         recordingTabId: 2,
         currentWindowId: 3,
+        recordingWindowId: 4,
         recordingInProgress: true,
         cameraBubbleVisible: true,
         microphoneAllowed: false,
@@ -49,6 +50,16 @@ test("currentWindowId", async () => {
   await expect(storage.get.currentWindowId()).resolves.toBe(3);
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("currentWindowId");
+});
+
+test("recordignWindowId", async () => {
+  await storage.set.recordingWindowId(4);
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toBeCalledWith({ recordingWindowId: 4 });
+
+  await expect(storage.get.recordingWindowId()).resolves.toBe(4);
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.get).toHaveBeenCalledWith("recordingWindowId");
 });
 
 test("recordingInProgress", async () => {
