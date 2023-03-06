@@ -93,6 +93,15 @@ describe("builder", () => {
     } as Message);
   });
 
+  test("buildBrowserWindowChange", () => {
+    expect(builder.event.browserWindowChange(10)).toEqual({
+      method: Method.BrowserWindowChange,
+      args: {
+        newWindowId: 10,
+      },
+    } satisfies Message);
+  });
+
   test("buildBrowserTabUpdated", () => {
     expect(builder.event.browserTabUpdated()).toEqual({
       method: Method.BrowserTabUpdated,

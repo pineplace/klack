@@ -1,5 +1,6 @@
 import {
   BrowserTabChangeArgs,
+  BrowserWindowChangeArgs,
   DownloadRecordingArgs,
   MethodArgs,
   builder,
@@ -16,14 +17,12 @@ storage
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
 
-  const activeWindow = await chrome.windows.getCurrent();
-
   const tab = await chrome.tabs.create({
     active: false,
     url: chrome.runtime.getURL("./screen_sharing.html"),
   });
 
-  await chrome.windows.create({
+  const window = await chrome.windows.create({
     focused: true,
     tabId: tab.id,
     width: 650,
@@ -31,7 +30,7 @@ export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   });
 
   await storage.set.recordingTabId(tab.id as number);
-  await storage.set.currentWindowId(activeWindow.id as number);
+  await storage.set.recordingWindowId(window.id as number);
   await storage.set.recordingInProgress(true);
 }
 
@@ -107,6 +106,13 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
 
   args = args as BrowserTabChangeArgs;
 
+  /* NOTE: We need new to create a new tab where user can choose
+   *       screen sharing mode and we can run all necessary streams.
+   *       After that we return user back to last tab where user run
+   *       `startRecording` command.
+   *       That's why we ignoring new tab here if it's equals to
+   *       `recordingTabId`
+   */
   if ((await storage.get.recordingTabId()) === args.newTabId) {
     console.warn("Ignore tab change, because recording tab equals new tab");
     return;
@@ -127,6 +133,30 @@ export async function handleTabUpdated(_args: MethodArgs): Promise<void> {
   if (await storage.get.cameraBubbleVisible()) {
     await handleShowCameraBubble({});
   }
+}
+
+export async function handleWindowChange(args: MethodArgs): Promise<void> {
+  console.log(`handleWindowChange(args=${JSON.stringify(args)})`);
+
+  args = args as BrowserWindowChangeArgs;
+
+  if (args.newWindowId <= 0) {
+    console.warn(
+      `Ignore window change because newWindowId=${args.newWindowId}`
+    );
+    return;
+  }
+  // NOTE: Same reason as in `handleTabChange`
+  if ((await storage.get.recordingWindowId()) === args.newWindowId) {
+    console.warn(
+      `Ignore window change because newWindowId is a recordingWindowId`
+    );
+    return;
+  }
+
+  const tabs = await chrome.tabs.query({ active: true });
+  await handleTabChange({ newTabId: tabs[0].id as number });
+  await storage.set.currentWindowId(args.newWindowId);
 }
 
 export async function handleOpenUserActiveWindow(

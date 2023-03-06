@@ -3,6 +3,7 @@ import {
   onTabChange,
   onTabClosing,
   onTabUpdated,
+  onWindowChange,
 } from "./callbacks";
 import { Message } from "./messaging";
 
@@ -32,6 +33,12 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   onTabUpdated(tabId, changeInfo, tab).catch((err) => {
+    throw err;
+  });
+});
+
+chrome.windows.onFocusChanged.addListener((windowId) => {
+  onWindowChange(windowId).catch((err) => {
     throw err;
   });
 });

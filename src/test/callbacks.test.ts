@@ -26,6 +26,7 @@ import {
   onTabChange,
   onTabClosing,
   onTabUpdated,
+  onWindowChange,
 } from "../callbacks";
 import { builder, MessageResponse } from "../messaging";
 import {
@@ -41,6 +42,7 @@ import {
   handleTabChange,
   handleTabClosing,
   handleTabUpdated,
+  handleWindowChange,
 } from "../handlers";
 
 jest.mock("../handlers");
@@ -242,5 +244,13 @@ describe("onTabUpdated", () => {
     await onTabUpdated(0, {}, {});
 
     expect(handleTabUpdated).toHaveBeenCalled();
+  });
+});
+
+describe("onWindowChange", () => {
+  test("Correct message", async () => {
+    await onWindowChange(11);
+
+    expect(handleWindowChange).toHaveBeenCalledWith({ newWindowId: 11 });
   });
 });

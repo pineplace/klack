@@ -28,10 +28,11 @@ globalThis.chrome = {
     sendMessage: jest.fn(),
     create: jest.fn().mockResolvedValue({ id: 12 }),
     remove: jest.fn(),
+    query: jest.fn().mockResolvedValue([{ id: 111 }]),
   },
   // @ts-expect-error Chrome methods mocking
   windows: {
-    create: jest.fn(),
+    create: jest.fn().mockResolvedValue({ id: 777 }),
     getCurrent: jest.fn().mockResolvedValue({ id: 7 }),
     update: jest.fn(),
   },
@@ -49,6 +50,7 @@ import {
   handleStopRecording,
   handleTabChange,
   handleTabUpdated,
+  handleWindowChange,
 } from "../handlers";
 import { Method } from "../messaging";
 jest.mock("../storage", () => {
@@ -64,6 +66,7 @@ import { storage } from "../storage";
 
 beforeEach(() => {
   storage.set.currentTabId = jest.fn();
+  storage.set.recordingWindowId = jest.fn();
   storage.set.currentWindowId = jest.fn();
   storage.set.recordingTabId = jest.fn();
   storage.set.cameraBubbleVisible = jest.fn();
@@ -72,6 +75,7 @@ beforeEach(() => {
 
   storage.get.currentTabId = jest.fn().mockResolvedValue(1);
   storage.get.currentWindowId = jest.fn().mockResolvedValue(7);
+  storage.get.recordingWindowId = jest.fn().mockResolvedValue(8);
   storage.get.recordingTabId = jest.fn().mockResolvedValue(9);
   storage.get.cameraBubbleVisible = jest.fn().mockResolvedValue(false);
 });
@@ -79,7 +83,6 @@ beforeEach(() => {
 test("handleStartRecording", async () => {
   await handleStartRecording({});
 
-  expect(chrome.windows.getCurrent).toHaveBeenCalled();
   expect(chrome.tabs.create).toHaveBeenCalledWith({
     active: false,
     url: "chrome-extension://some-url",
@@ -91,7 +94,7 @@ test("handleStartRecording", async () => {
     height: 710,
   });
   expect(storage.set.recordingTabId).toHaveBeenCalledWith(12);
-  expect(storage.set.currentWindowId).toHaveBeenCalledWith(7);
+  expect(storage.set.recordingWindowId).toHaveBeenCalledWith(777);
   expect(storage.set.recordingInProgress).toHaveBeenCalledWith(true);
 });
 
@@ -182,8 +185,31 @@ test("handleTabUpdated", async () => {
 test("handleOpenUserActiveWindow", async () => {
   await handleOpenUserActiveWindow({});
 
-  expect(storage.get.currentWindowId).toHaveBeenCalledWith();
+  expect(storage.get.currentWindowId).toHaveBeenCalled();
   expect(chrome.windows.update).toHaveBeenCalledWith(7, {
     focused: true,
+  });
+});
+
+describe("handleWindowChange", () => {
+  test("Non recordingId or <= 0", async () => {
+    await handleWindowChange({ newWindowId: 10 });
+
+    expect(storage.get.recordingWindowId).toHaveBeenCalled();
+    expect(chrome.tabs.query).toHaveBeenCalled();
+    expect(storage.set.currentWindowId).toHaveBeenCalledWith(10);
+  });
+
+  test("newWindowId <= 0", async () => {
+    await handleWindowChange({ newWindowId: -1 });
+
+    expect(storage.get.recordingWindowId).not.toHaveBeenCalled();
+  });
+
+  test("newWindowId equals to recordingWindowId", async () => {
+    await handleWindowChange({ newWindowId: 8 });
+
+    expect(storage.get.recordingWindowId).toHaveBeenCalled();
+    expect(storage.set.currentWindowId).not.toHaveBeenCalled();
   });
 });

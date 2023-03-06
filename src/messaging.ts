@@ -15,11 +15,13 @@ export enum Method {
   BrowserTabUpdated,
   TabStopMediaRecorder,
   OpenUserActiveWindow,
+  BrowserWindowChange,
 }
 
 export type DownloadRecordingArgs = { downloadUrl: string };
 export type BrowserTabChangeArgs = { newTabId: number };
 export type BrowserTabClosingArgs = { closedTabId: number };
+export type BrowserWindowChangeArgs = { newWindowId: number };
 
 export type RecordingInProgressResult = boolean;
 export type IsCameraBubbleVisibleResult = boolean;
@@ -29,6 +31,7 @@ export type MethodArgs =
   | DownloadRecordingArgs
   | BrowserTabChangeArgs
   | BrowserTabClosingArgs
+  | BrowserWindowChangeArgs
   | Record<string, never>;
 
 export type MethodResult =
@@ -121,6 +124,15 @@ function buildBrowserTabUpdated(): Message {
   };
 }
 
+function buildBrowserWindowChange(newWindowId: number): Message {
+  return {
+    method: Method.BrowserWindowChange,
+    args: {
+      newWindowId,
+    },
+  };
+}
+
 function buildTabStopMediaRecorder(): Message {
   return {
     method: Method.TabStopMediaRecorder,
@@ -160,6 +172,7 @@ export const builder = {
     browserTabChange: buildBrowserTabChange,
     browserTabClosing: buildBrowserTabClosing,
     browserTabUpdated: buildBrowserTabUpdated,
+    browserWindowChange: buildBrowserWindowChange,
   },
   response: {
     ok: buildOkResponse,
