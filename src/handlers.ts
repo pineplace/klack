@@ -154,7 +154,10 @@ export async function handleWindowChange(args: MethodArgs): Promise<void> {
     return;
   }
 
-  const tabs = await chrome.tabs.query({ active: true });
+  const tabs = await chrome.tabs.query({
+    active: true,
+    windowId: args.newWindowId,
+  });
   await handleTabChange({ newTabId: tabs[0].id as number });
   await storage.set.currentWindowId(args.newWindowId);
 }

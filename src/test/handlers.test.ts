@@ -192,11 +192,14 @@ test("handleOpenUserActiveWindow", async () => {
 });
 
 describe("handleWindowChange", () => {
-  test("Non recordingId or <= 0", async () => {
+  test("Is not equals to recordingId and >= 0", async () => {
     await handleWindowChange({ newWindowId: 10 });
 
     expect(storage.get.recordingWindowId).toHaveBeenCalled();
-    expect(chrome.tabs.query).toHaveBeenCalled();
+    expect(chrome.tabs.query).toHaveBeenCalledWith({
+      active: true,
+      windowId: 10,
+    });
     expect(storage.set.currentWindowId).toHaveBeenCalledWith(10);
   });
 
