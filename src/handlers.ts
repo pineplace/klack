@@ -124,7 +124,13 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
 export async function handleTabClosing(args: MethodArgs): Promise<void> {
   console.log(`handleTabClosing(args=${JSON.stringify(args)})`);
 
-  await handleHideCameraBubble(args);
+  /* NOTE: We don't call `handleHideCameraBubble` because this method
+   *       tries to remove the script with camera bubble from current
+   *       tab, but at the time the close tab callback is called,
+   *       that tab is already closed and doesn't exist
+   */
+  await storage.set.cameraBubbleVisible(false);
+  await storage.set.recordingTabId(0);
 }
 
 export async function handleTabUpdated(_args: MethodArgs): Promise<void> {

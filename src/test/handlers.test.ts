@@ -49,6 +49,7 @@ import {
   handleStartRecording,
   handleStopRecording,
   handleTabChange,
+  handleTabClosing,
   handleTabUpdated,
   handleWindowChange,
 } from "../handlers";
@@ -174,6 +175,13 @@ describe("handleTabChange", () => {
 
     expect(storage.set.currentTabId).not.toHaveBeenCalled();
   });
+});
+
+test("handleTabClosing", async () => {
+  await handleTabClosing({ closedTabId: 12 });
+
+  expect(storage.set.cameraBubbleVisible).toHaveBeenCalledWith(false);
+  expect(storage.set.recordingTabId).toHaveBeenCalledWith(0);
 });
 
 test("handleTabUpdated", async () => {
