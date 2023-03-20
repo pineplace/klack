@@ -1,7 +1,7 @@
 {
   "name": "Rapidrec",
   "description": "Write me",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "manifest_version": 3,
   "action": {
     "default_popup": "./popup.html"
