@@ -111,7 +111,7 @@ class RecorderV2 {
   }
 }
 
-async function share(): Promise<void> {
+try {
   const streams: MediaStream[] = [];
 
   if (await storage.get.microphoneAllowed()) {
@@ -129,9 +129,7 @@ async function share(): Promise<void> {
   recorder.start();
 
   await sender.send(builder.openUserActiveWindow());
-}
-
-share().catch((err) => {
+} catch (err) {
   console.error(`Can't start screen sharing ${(err as Error).message}`);
-  sender.send(builder.cancelRecording()).catch((err) => console.error(err));
-});
+  await sender.send(builder.cancelRecording());
+}

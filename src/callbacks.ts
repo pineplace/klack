@@ -55,20 +55,20 @@ export async function onMessage(
   }
 }
 
-export async function onTabChange(
+export function onTabChange(
   newTabId: chrome.tabs.TabActiveInfo
 ): Promise<void> {
   return onMessage(builder.event.browserTabChange(newTabId.tabId));
 }
 
-export async function onTabClosing(
+export function onTabClosing(
   closedTabId: number,
   _removeInfo: { isWindowClosing: boolean; windowId: number }
 ): Promise<void> {
   return onMessage(builder.event.browserTabClosing(closedTabId));
 }
 
-export async function onTabUpdated(
+export function onTabUpdated(
   _tabId: number,
   _changeInfo: chrome.tabs.TabChangeInfo,
   _tab: chrome.tabs.Tab
@@ -76,6 +76,6 @@ export async function onTabUpdated(
   return onMessage(builder.event.browserTabUpdated());
 }
 
-export async function onWindowChange(windowId: number): Promise<void> {
+export function onWindowChange(windowId: number): Promise<void> {
   return onMessage(builder.event.browserWindowChange(windowId));
 }

@@ -2,23 +2,8 @@
  * @jest-environment jsdom
  */
 // NOTE: https://testing-library.com/docs/
-
-/*
- * NOTE: `handlers.ts` depends on `storage.ts` that initializes
- *       `chrome.storage.local` on import and test fails without
- *       this override
- */
-globalThis.chrome = {
-  storage: {
-    // @ts-expect-error Chrome methods mocking
-    local: {
-      set: jest.fn().mockResolvedValue({}),
-      get: jest.fn().mockResolvedValue({}),
-    },
-  },
-};
-
 import React from "react";
+import { jest } from "@jest/globals";
 import {
   act,
   fireEvent,
@@ -26,35 +11,64 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { builder, sender } from "../../messaging";
-import PopupMenu from "../popup_menu";
-import { storage } from "../../storage";
-
-jest.mock("../../storage");
-jest.mock("../../messaging", () => {
-  const mocked: object = jest.createMockFromModule("../../messaging");
+import type { Message, MessageResponse } from "../../messaging";
+jest.unstable_mockModule("../../storage", () => {
   return {
-    ...mocked,
-    builder: {
-      startRecording: jest.fn(),
-      stopRecording: jest.fn(),
-      showCameraBubble: jest.fn(),
-      hideCameraBubble: jest.fn(),
-      allowMicrophone: jest.fn(),
-      disallowMicrophone: jest.fn(),
-    },
-    sender: {
-      send: jest.fn().mockResolvedValue({ result: false }),
-    },
+    storage: {},
   };
 });
+const { storage: mockedStorage } = await import("../../storage");
+jest.unstable_mockModule("../../messaging", () => {
+  return {
+    builder: {},
+    sender: {},
+  };
+});
+const { builder: mockedBuilder, sender: mockedSender } = await import(
+  "../../messaging"
+);
+const { default: PopupMenu } = await import("../popup_menu");
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  mockedBuilder.startRecording = (
+    jest.fn() as jest.Mock<() => Message>
+  ).mockReturnValue({} as Message);
+  mockedBuilder.stopRecording = (
+    jest.fn() as jest.Mock<() => Message>
+  ).mockReturnValue({} as Message);
+  mockedBuilder.showCameraBubble = (
+    jest.fn() as jest.Mock<() => Message>
+  ).mockReturnValue({} as Message);
+  mockedBuilder.hideCameraBubble = (
+    jest.fn() as jest.Mock<() => Message>
+  ).mockReturnValue({} as Message);
+  mockedBuilder.allowMicrophone = (
+    jest.fn() as jest.Mock<() => Message>
+  ).mockReturnValue({} as Message);
+  mockedBuilder.disallowMicrophone = (
+    jest.fn() as jest.Mock<() => Message>
+  ).mockReturnValue({} as Message);
 
-  storage.get.cameraBubbleVisible = jest.fn().mockResolvedValue(false);
-  storage.get.microphoneAllowed = jest.fn().mockResolvedValue(true);
-  storage.get.recordingInProgress = jest.fn().mockResolvedValue(false);
+  mockedSender.send = (
+    jest.fn() as jest.Mock<
+      (message: Message, tabId?: number) => Promise<MessageResponse>
+    >
+  ).mockResolvedValue({ result: false });
+
+  // @ts-expect-error here we ignoring unused `storage` methods
+  mockedStorage.get = {
+    cameraBubbleVisible: (
+      jest.fn() as jest.Mock<() => Promise<boolean>>
+    ).mockResolvedValue(false),
+    recordingInProgress: (
+      jest.fn() as jest.Mock<() => Promise<boolean>>
+    ).mockResolvedValue(false),
+    microphoneAllowed: (
+      jest.fn() as jest.Mock<() => Promise<boolean>>
+    ).mockResolvedValue(true),
+  };
+
+  jest.useFakeTimers();
 });
 
 afterEach(() => {
@@ -70,23 +84,27 @@ test("ShowHideRecording switching", async () => {
   const button = screen.getByText("Show bubble");
 
   act(() => {
-    storage.get.cameraBubbleVisible = jest.fn().mockResolvedValue(true);
+    mockedStorage.get.cameraBubbleVisible = (
+      jest.fn() as jest.Mock<() => Promise<boolean>>
+    ).mockResolvedValue(true);
     fireEvent.click(button);
   });
 
-  expect(builder.showCameraBubble).toHaveBeenCalled();
-  expect(sender.send).toHaveBeenCalled();
+  expect(mockedBuilder.showCameraBubble).toHaveBeenCalled();
+  expect(mockedSender.send).toHaveBeenCalled();
   await waitFor(() => {
     expect(button.textContent).toEqual("Hide bubble");
   });
 
   act(() => {
-    storage.get.cameraBubbleVisible = jest.fn().mockResolvedValue(false);
+    mockedStorage.get.cameraBubbleVisible = (
+      jest.fn() as jest.Mock<() => Promise<boolean>>
+    ).mockResolvedValue(false);
     fireEvent.click(button);
   });
 
-  expect(builder.hideCameraBubble).toHaveBeenCalled();
-  expect(sender.send).toHaveBeenCalled();
+  expect(mockedBuilder.hideCameraBubble).toHaveBeenCalled();
+  expect(mockedSender.send).toHaveBeenCalled();
   await waitFor(() => {
     expect(button.textContent).toEqual("Show bubble");
   });
@@ -100,23 +118,24 @@ test("TurnOnTurnOffMic switching", async () => {
   const button = screen.getByText("Allow Mic");
 
   act(() => {
-    storage.get.microphoneAllowed = jest.fn().mockResolvedValue(true);
     fireEvent.click(button);
   });
 
-  expect(builder.allowMicrophone).toHaveBeenCalled();
-  expect(sender.send).toHaveBeenCalled();
+  expect(mockedBuilder.allowMicrophone).toHaveBeenCalled();
+  expect(mockedSender.send).toHaveBeenCalled();
   await waitFor(() => {
     expect(button.textContent).toEqual("Disallow Mic");
   });
 
   act(() => {
-    storage.get.microphoneAllowed = jest.fn().mockResolvedValue(false);
+    mockedStorage.get.microphoneAllowed = (
+      jest.fn() as jest.Mock<() => Promise<boolean>>
+    ).mockResolvedValue(false);
     fireEvent.click(button);
   });
 
-  expect(builder.disallowMicrophone).toHaveBeenCalled();
-  expect(sender.send).toHaveBeenCalled();
+  expect(mockedBuilder.disallowMicrophone).toHaveBeenCalled();
+  expect(mockedSender.send).toHaveBeenCalled();
   await waitFor(() => {
     expect(button.textContent).toEqual("Allow Mic");
   });
@@ -130,23 +149,27 @@ test("StartStopRecording switching", async () => {
   const button = screen.getByText("Start");
 
   act(() => {
-    storage.get.recordingInProgress = jest.fn().mockResolvedValue(true);
+    mockedStorage.get.recordingInProgress = (
+      jest.fn() as jest.Mock<() => Promise<boolean>>
+    ).mockResolvedValue(true);
     fireEvent.click(button);
   });
 
-  expect(builder.startRecording).toHaveBeenCalled();
-  expect(sender.send).toHaveBeenCalled();
+  expect(mockedBuilder.startRecording).toHaveBeenCalled();
+  expect(mockedSender.send).toHaveBeenCalled();
   await waitFor(() => {
     expect(button.textContent).toEqual("Stop");
   });
 
   act(() => {
-    storage.get.recordingInProgress = jest.fn().mockResolvedValue(false);
+    mockedStorage.get.recordingInProgress = (
+      jest.fn() as jest.Mock<() => Promise<boolean>>
+    ).mockResolvedValue(false);
     fireEvent.click(button);
   });
 
-  expect(builder.stopRecording).toHaveBeenCalled();
-  expect(sender.send).toHaveBeenCalled();
+  expect(mockedBuilder.stopRecording).toHaveBeenCalled();
+  expect(mockedSender.send).toHaveBeenCalled();
   await waitFor(() => {
     expect(button.textContent).toEqual("Start");
   });

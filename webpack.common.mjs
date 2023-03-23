@@ -1,7 +1,10 @@
-const path = require("path");
-const ESLintPlugin = require("eslint-webpack-plugin");
+import path from "path";
+import { fileURLToPath } from "url";
+import ESLintPlugin from "eslint-webpack-plugin";
 
-module.exports = {
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default {
   entry: {
     background: "./src/background.ts",
     popup: "./src/popup.tsx",
@@ -57,5 +60,8 @@ module.exports = {
         use: "ts-loader",
       },
     ],
+  },
+  experiments: {
+    topLevelAwait: true,
   },
 };

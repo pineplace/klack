@@ -1,12 +1,10 @@
-/*
- * NOTE: `storage.ts` initializes `chrome.storage.local`
- *       on import and test fails without this override
- */
+import { jest } from "@jest/globals";
 globalThis.chrome = {
   storage: {
-    // @ts-expect-error Chrome methods mocking
     local: {
+      // @ts-expect-error Chrome methods mocking
       set: jest.fn().mockResolvedValue({}),
+      // @ts-expect-error Chrome methods mocking
       get: jest.fn().mockResolvedValue({
         currentTabId: 1,
         recordingTabId: 2,
@@ -19,8 +17,7 @@ globalThis.chrome = {
     },
   },
 };
-
-import { storage } from "../storage";
+const { storage } = await import("../storage");
 
 test("currentTabId", async () => {
   await storage.set.currentTabId(1);
