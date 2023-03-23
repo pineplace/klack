@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 const CameraBubbleStream = () => {
   const [source, setSource] = useState<MediaStream | undefined>();
 
-  const createCameraStream = async () => {
-    return await navigator.mediaDevices.getUserMedia({
+  const createCameraStream = () => {
+    return navigator.mediaDevices.getUserMedia({
       video: {
         width: 200,
         height: 200,

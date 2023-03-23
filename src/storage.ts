@@ -10,8 +10,8 @@ interface Context {
   microphoneAllowed: boolean;
 }
 
-async function setCurrentTabId(tabId: number): Promise<void> {
-  await storageImpl.set({ currentTabId: tabId } satisfies Partial<Context>);
+function setCurrentTabId(tabId: number): Promise<void> {
+  return storageImpl.set({ currentTabId: tabId } satisfies Partial<Context>);
 }
 
 async function getCurrentTabId(): Promise<number> {
@@ -19,8 +19,8 @@ async function getCurrentTabId(): Promise<number> {
   return currentTabId as number;
 }
 
-async function setRecordingTabId(tabId: number): Promise<void> {
-  await storageImpl.set({ recordingTabId: tabId } satisfies Partial<Context>);
+function setRecordingTabId(tabId: number): Promise<void> {
+  return storageImpl.set({ recordingTabId: tabId } satisfies Partial<Context>);
 }
 
 async function getRecordingTabId(): Promise<number> {
@@ -28,8 +28,8 @@ async function getRecordingTabId(): Promise<number> {
   return recordingTabId as number;
 }
 
-async function setCurrentWindowId(windowId: number): Promise<void> {
-  await storageImpl.set({
+function setCurrentWindowId(windowId: number): Promise<void> {
+  return storageImpl.set({
     currentWindowId: windowId,
   } satisfies Partial<Context>);
 }
@@ -39,8 +39,8 @@ async function getCurrentWindowId(): Promise<number> {
   return currentWindowId as number;
 }
 
-async function setRecordingWindowId(windowId: number): Promise<void> {
-  await storageImpl.set({
+function setRecordingWindowId(windowId: number): Promise<void> {
+  return storageImpl.set({
     recordingWindowId: windowId,
   } satisfies Partial<Context>);
 }
@@ -50,8 +50,8 @@ async function getRecordingWindowId(): Promise<number> {
   return recordingWindowId as number;
 }
 
-async function setRecordingInProgress(value: boolean): Promise<void> {
-  await storageImpl.set({
+function setRecordingInProgress(value: boolean): Promise<void> {
+  return storageImpl.set({
     recordingInProgress: value,
   } satisfies Partial<Context>);
 }
@@ -61,8 +61,8 @@ async function getRecordingInProgress(): Promise<boolean> {
   return recordingInProgress as boolean;
 }
 
-async function setCameraBubbleVisible(value: boolean): Promise<void> {
-  await storageImpl.set({
+function setCameraBubbleVisible(value: boolean): Promise<void> {
+  return storageImpl.set({
     cameraBubbleVisible: value,
   } satisfies Partial<Context>);
 }
@@ -72,8 +72,8 @@ async function getCameraBubbleVisible(): Promise<boolean> {
   return cameraBubbleVisible as boolean;
 }
 
-async function setMicrophoneAllowed(value: boolean): Promise<void> {
-  await storageImpl.set({
+function setMicrophoneAllowed(value: boolean): Promise<void> {
+  return storageImpl.set({
     microphoneAllowed: value,
   } satisfies Partial<Context>);
 }
