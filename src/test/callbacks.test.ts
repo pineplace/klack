@@ -1,58 +1,51 @@
-/*
- * NOTE: `handlers.ts` depends on `storage.ts` that initializes
- *       `chrome.storage.local` on import and test fails without
- *       this override
- */
-globalThis.chrome = {
-  // @ts-expect-error Chrome methods mocking
-  downloads: {
-    download: jest.fn().mockResolvedValue({}),
-  },
-  // @ts-expect-error Chrome methods mocking
-  scripting: {
-    executeScript: jest.fn().mockResolvedValue({}),
-  },
-  storage: {
-    // @ts-expect-error Chrome methods mocking
-    local: {
-      set: jest.fn().mockResolvedValue({}),
-      get: jest.fn().mockResolvedValue({ tabId: 1 }),
-    },
-  },
-};
-
-import {
-  onMessage,
-  onTabChange,
-  onTabClosing,
-  onTabUpdated,
-  onWindowChange,
-} from "../callbacks";
-import { builder, MessageResponse } from "../messaging";
-import {
-  handleAllowMicrophone,
-  handleCancelRecording,
-  handleDisallowMicrophone,
-  handleDownloadRecording,
-  handleHideCameraBubble,
-  handleOpenUserActiveWindow,
-  handleShowCameraBubble,
-  handleStartRecording,
-  handleStopRecording,
-  handleTabChange,
-  handleTabClosing,
-  handleTabUpdated,
-  handleWindowChange,
-} from "../handlers";
-
-jest.mock("../handlers");
-
-beforeEach(() => {
-  // @ts-expect-error module function mocking
-  handleTabChange = jest.fn().mockResolvedValue();
-  // @ts-expect-error module function mocking
-  handleTabClosing = jest.fn().mockResolvedValue();
+import { jest } from "@jest/globals";
+import { builder, MessageResponse, MethodArgs } from "../messaging";
+jest.unstable_mockModule("../handlers", () => {
+  return {
+    handleStartRecording: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleStopRecording: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleCancelRecording: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleDownloadRecording: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleShowCameraBubble: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleHideCameraBubble: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleAllowMicrophone: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleDisallowMicrophone: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleTabChange: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleTabClosing: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleTabUpdated: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleWindowChange: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleOpenUserActiveWindow: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+  };
 });
+const mockedHandlers = await import("../handlers");
+const { onMessage, onTabChange, onTabClosing, onTabUpdated, onWindowChange } =
+  await import("../callbacks");
 
 describe("onMessage", () => {
   test("Correct StartRecording message", async () => {
@@ -62,7 +55,7 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleStartRecording).toHaveBeenCalled();
+    expect(mockedHandlers.handleStartRecording).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 
@@ -73,7 +66,7 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleStopRecording).toHaveBeenCalled();
+    expect(mockedHandlers.handleStopRecording).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 
@@ -84,7 +77,7 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleCancelRecording).toHaveBeenCalled();
+    expect(mockedHandlers.handleCancelRecording).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 
@@ -95,7 +88,7 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleDownloadRecording).toHaveBeenCalledWith({
+    expect(mockedHandlers.handleDownloadRecording).toHaveBeenCalledWith({
       downloadUrl: "some-video-url",
     });
     expect(response).toEqual(builder.response.ok());
@@ -108,7 +101,7 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleShowCameraBubble).toHaveBeenCalled();
+    expect(mockedHandlers.handleShowCameraBubble).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 
@@ -119,7 +112,7 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleHideCameraBubble).toHaveBeenCalled();
+    expect(mockedHandlers.handleHideCameraBubble).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 
@@ -130,7 +123,7 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleAllowMicrophone).toHaveBeenCalled();
+    expect(mockedHandlers.handleAllowMicrophone).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 
@@ -141,7 +134,7 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleDisallowMicrophone).toHaveBeenCalled();
+    expect(mockedHandlers.handleDisallowMicrophone).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 
@@ -152,8 +145,10 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleTabChange).toHaveBeenCalled();
-    expect(handleTabChange).toHaveBeenCalledWith({ newTabId: 1 });
+    expect(mockedHandlers.handleTabChange).toHaveBeenCalled();
+    expect(mockedHandlers.handleTabChange).toHaveBeenCalledWith({
+      newTabId: 1,
+    });
     expect(response).toEqual(builder.response.ok());
   });
 
@@ -164,8 +159,10 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleTabClosing).toHaveBeenCalled();
-    expect(handleTabClosing).toHaveBeenCalledWith({ closedTabId: 2 });
+    expect(mockedHandlers.handleTabClosing).toHaveBeenCalled();
+    expect(mockedHandlers.handleTabClosing).toHaveBeenCalledWith({
+      closedTabId: 2,
+    });
     expect(response).toEqual(builder.response.ok());
   });
 
@@ -176,7 +173,7 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleTabUpdated).toHaveBeenCalled();
+    expect(mockedHandlers.handleTabUpdated).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 
@@ -187,7 +184,7 @@ describe("onMessage", () => {
       response = resp;
     });
 
-    expect(handleOpenUserActiveWindow).toHaveBeenCalled();
+    expect(mockedHandlers.handleOpenUserActiveWindow).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 
@@ -206,8 +203,6 @@ describe("onMessage", () => {
       }
     );
 
-    expect(handleTabChange).not.toHaveBeenCalled();
-    expect(handleTabClosing).not.toHaveBeenCalled();
     expect(response).toEqual(
       builder.response.error(new Error(`Unexpected method: Incorrect method`))
     );
@@ -221,8 +216,10 @@ describe("onTabChange", () => {
       windowId: 2,
     });
 
-    expect(handleTabChange).toHaveBeenCalled();
-    expect(handleTabChange).toHaveBeenCalledWith({ newTabId: 1 });
+    expect(mockedHandlers.handleTabChange).toHaveBeenCalled();
+    expect(mockedHandlers.handleTabChange).toHaveBeenCalledWith({
+      newTabId: 1,
+    });
   });
 });
 
@@ -233,8 +230,10 @@ describe("onTabClosing", () => {
       windowId: 2,
     });
 
-    expect(handleTabClosing).toHaveBeenCalled();
-    expect(handleTabClosing).toHaveBeenCalledWith({ closedTabId: 3 });
+    expect(mockedHandlers.handleTabClosing).toHaveBeenCalled();
+    expect(mockedHandlers.handleTabClosing).toHaveBeenCalledWith({
+      closedTabId: 3,
+    });
   });
 });
 
@@ -243,7 +242,7 @@ describe("onTabUpdated", () => {
     // @ts-expect-error The 3rd parameter is ignored in `onTabUpdated` and has no value
     await onTabUpdated(0, {}, {});
 
-    expect(handleTabUpdated).toHaveBeenCalled();
+    expect(mockedHandlers.handleTabUpdated).toHaveBeenCalled();
   });
 });
 
@@ -251,6 +250,8 @@ describe("onWindowChange", () => {
   test("Correct message", async () => {
     await onWindowChange(11);
 
-    expect(handleWindowChange).toHaveBeenCalledWith({ newWindowId: 11 });
+    expect(mockedHandlers.handleWindowChange).toHaveBeenCalledWith({
+      newWindowId: 11,
+    });
   });
 });

@@ -1,3 +1,4 @@
+import { jest } from "@jest/globals";
 import {
   builder,
   Message,
@@ -7,17 +8,13 @@ import {
 } from "../messaging";
 
 beforeEach(() => {
-  /*
-   * NOTE: `handlers.ts` initializes `chrome.storage.local` on import
-   * and test fails without this override
-   */
   globalThis.chrome = {
-    // @ts-expect-error Chrome methods mocking
     runtime: {
+      // @ts-expect-error Chrome methods mocking
       sendMessage: jest.fn(),
     },
-    // @ts-expect-error Chrome methods mocking
     tabs: {
+      // @ts-expect-error Chrome methods mocking
       sendMessage: jest.fn(),
     },
   };
