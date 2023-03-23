@@ -3,21 +3,25 @@
  */
 // NOTE: https://testing-library.com/docs/
 import React from "react";
+import { jest } from "@jest/globals";
 import { act, render } from "@testing-library/react";
-import CameraBubbleStream from "../camera_bubble_stream";
+const { default: CameraBubbleStream } = await import("../camera_bubble_stream");
 
 beforeAll(() => {
   Object.defineProperty(navigator, "mediaDevices", {
     value: {
+      // @ts-expect-error Mock `navigator` object which isn't in jest environment
       getUserMedia: jest.fn().mockResolvedValue({}),
     },
   });
 });
 
 test("Rendering", async () => {
-  const { container } = await act(() => {
+  const { container, debug } = await act(() => {
     return render(<CameraBubbleStream />);
   });
 
-  expect(container.getElementsByTagName("video")).toBeDefined();
+  debug();
+
+  expect(container.querySelector("video")).not.toBeNull();
 });

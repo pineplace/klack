@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Draggable from "react-draggable";
 import { ButtonGroup, IconButton, Stack } from "@mui/material";
-import PlayCircleFilledRounded from "@mui/icons-material/PlayCircleFilledRounded";
-import StopCircleRoundedIcon from "@mui/icons-material/StopCircleRounded";
+import {
+  PlayCircleFilledRounded,
+  StopCircleRounded,
+} from "@mui/icons-material";
 import { builder, sender } from "../messaging";
 import { storage } from "../storage";
 
@@ -53,7 +55,7 @@ const StartStopRecording = () => {
           .catch((err) => console.error(err));
       }}
     >
-      {inProgress ? <StopCircleRoundedIcon /> : <PlayCircleFilledRounded />}
+      {inProgress ? <StopCircleRounded /> : <PlayCircleFilledRounded />}
     </IconButton>
   );
 };
@@ -88,4 +90,4 @@ const CameraBubble = () => {
   );
 };
 
-export { CameraBubble as default };
+export default CameraBubble;
