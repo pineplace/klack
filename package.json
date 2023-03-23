@@ -7,15 +7,12 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --silent",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-    "test:storybook": "NODE_OPTIONS=--experimental-vm-modules jest --silent --rootDir='./src/components' --json --outputFile='.jest-test-results.json'",
     "build": "webpack --progress --config webpack.prod.mjs",
     "dev": "webpack --progress --watch --config webpack.dev.mjs",
     "clean": "rm -rf ./ext/*.mjs* ./coverage .jest-test-results.json",
     "lint": "eslint --ext .mjs --ext .ts --ext .tsx .",
     "fmt": "prettier --write .",
-    "fmt:check": "prettier --check .",
-    "storybook": "npm run test:storybook && start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "fmt:check": "prettier --check ."
   },
   "repository": {
     "type": "git",
@@ -55,27 +52,13 @@
     "webpack-cli": "^5.0.1"
   },
   "devDependencies": {
-    "@mdx-js/react": "^2.3.0",
-    "@storybook/addon-actions": "^6.5.16",
-    "@storybook/addon-essentials": "^6.5.16",
-    "@storybook/addon-interactions": "^6.5.16",
-    "@storybook/addon-jest": "^6.5.16",
-    "@storybook/addon-links": "^6.5.16",
-    "@storybook/builder-webpack4": "^6.5.16",
-    "@storybook/builder-webpack5": "^6.5.16",
-    "@storybook/manager-webpack4": "^6.5.16",
-    "@storybook/manager-webpack5": "^6.5.16",
-    "@storybook/react": "^6.5.16",
-    "@storybook/testing-library": "^0.0.13",
     "@testing-library/react": "^14.0.0",
     "@types/chrome": "^0.0.224",
     "@types/jest": "^29.5.0",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
-    "eslint-plugin-storybook": "^0.6.11",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
-    "storybook": "^6.5.16",
     "ts-jest": "^29.0.5"
   }
 }
