@@ -8,11 +8,17 @@ import {
 } from "./messaging";
 import { storage } from "./storage";
 
-storage
-  .reset()
-  .catch((err) =>
-    console.error(`Can't reset storage values ${(err as Error).message}`)
-  );
+async function setStorageDefaultValues() {
+  await storage.set.currentTabId(0);
+  await storage.set.recordingTabId(0);
+  await storage.set.currentWindowId(0);
+  await storage.set.recordingWindowId(0);
+  await storage.set.recordingInProgress(false);
+  await storage.set.cameraBubbleVisible(false);
+  await storage.set.microphoneAllowed(true);
+}
+
+await setStorageDefaultValues();
 
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
@@ -106,7 +112,7 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
 
   args = args as BrowserTabChangeArgs;
 
-  /* NOTE: We need new to create a new tab where user can choose
+  /* NOTE: We need to create a new tab where user can choose
    *       screen sharing mode and we can run all necessary streams.
    *       After that we return user back to last tab where user run
    *       `startRecording` command.

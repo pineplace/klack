@@ -3,8 +3,29 @@ import { Method } from "../messaging";
 jest.unstable_mockModule("../storage", () => {
   return {
     storage: {
-      reset: (jest.fn() as jest.Mock<() => Promise<void>>).mockResolvedValue(),
-      set: {},
+      set: {
+        currentTabId: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
+        recordingTabId: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
+        currentWindowId: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
+        recordingWindowId: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
+        recordingInProgress: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
+        cameraBubbleVisible: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
+        microphoneAllowed: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
+      },
       get: {},
     },
   };
