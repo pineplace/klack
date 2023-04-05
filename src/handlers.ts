@@ -10,6 +10,7 @@ import { storage } from "./storage";
 
 async function setStorageDefaultValues() {
   await storage.set.currentTabId(0);
+  await storage.set.cameraBubbleTabId(0);
   await storage.set.recordingTabId(0);
   await storage.set.currentWindowId(0);
   await storage.set.recordingWindowId(0);
@@ -74,10 +75,12 @@ export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
 export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
   console.log("handleShowCameraBubble");
 
+  const currentTabId = await storage.get.currentTabId();
   await chrome.scripting.executeScript({
-    target: { tabId: await storage.get.currentTabId() },
+    target: { tabId: currentTabId },
     files: ["./cameraBubble.bundle.mjs"],
   });
+  await storage.set.cameraBubbleTabId(currentTabId);
   await storage.set.cameraBubbleVisible(true);
 }
 
@@ -85,11 +88,12 @@ export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
   console.log("handleHideCameraBubble");
 
   await chrome.scripting.executeScript({
-    target: { tabId: await storage.get.currentTabId() },
+    target: { tabId: await storage.get.cameraBubbleTabId() },
     func: () => {
       document.getElementById("rapidrec-camera-bubble")?.remove();
     },
   });
+  await storage.set.cameraBubbleTabId(0);
   await storage.set.cameraBubbleVisible(false);
 }
 

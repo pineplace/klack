@@ -7,6 +7,9 @@ jest.unstable_mockModule("../storage", () => {
         currentTabId: (
           jest.fn() as jest.Mock<() => Promise<void>>
         ).mockResolvedValue(),
+        cameraBubbleTabId: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
         recordingTabId: (
           jest.fn() as jest.Mock<() => Promise<void>>
         ).mockResolvedValue(),
@@ -47,6 +50,15 @@ const {
   handleWindowChange,
 } = await import("../handlers");
 
+const defaultValues = {
+  currentTabId: 1,
+  cameraBubbleTabId: 2,
+  recordingTabId: 3,
+  currentWindowId: 4,
+  recordingWindowId: 5,
+  cameraBubbleVisible: false,
+};
+
 beforeEach(() => {
   globalThis.chrome = {
     downloads: {
@@ -86,28 +98,35 @@ beforeEach(() => {
   ).mockResolvedValue();
   mockedStorage.get.currentTabId = (
     jest.fn() as jest.Mock<() => Promise<number>>
-  ).mockResolvedValue(1);
+  ).mockResolvedValue(defaultValues.currentTabId);
+
+  mockedStorage.set.cameraBubbleTabId = (
+    jest.fn() as jest.Mock<(tabId: number) => Promise<void>>
+  ).mockResolvedValue();
+  mockedStorage.get.cameraBubbleTabId = (
+    jest.fn() as jest.Mock<() => Promise<number>>
+  ).mockResolvedValue(defaultValues.cameraBubbleTabId);
 
   mockedStorage.set.recordingTabId = (
     jest.fn() as jest.Mock<(tabId: number) => Promise<void>>
   ).mockResolvedValue();
   mockedStorage.get.recordingTabId = (
     jest.fn() as jest.Mock<() => Promise<number>>
-  ).mockResolvedValue(2);
+  ).mockResolvedValue(defaultValues.recordingTabId);
 
   mockedStorage.set.currentWindowId = (
     jest.fn() as jest.Mock<(windowId: number) => Promise<void>>
   ).mockResolvedValue();
   mockedStorage.get.currentWindowId = (
     jest.fn() as jest.Mock<() => Promise<number>>
-  ).mockResolvedValue(3);
+  ).mockResolvedValue(defaultValues.currentWindowId);
 
   mockedStorage.set.recordingWindowId = (
     jest.fn() as jest.Mock<(windowId: number) => Promise<void>>
   ).mockResolvedValue();
   mockedStorage.get.recordingWindowId = (
     jest.fn() as jest.Mock<() => Promise<number>>
-  ).mockResolvedValue(4);
+  ).mockResolvedValue(defaultValues.recordingWindowId);
 
   mockedStorage.set.recordingInProgress = (
     jest.fn() as jest.Mock<(value: boolean) => Promise<void>>
@@ -118,7 +137,7 @@ beforeEach(() => {
   ).mockResolvedValue();
   mockedStorage.get.cameraBubbleVisible = (
     jest.fn() as jest.Mock<() => Promise<boolean>>
-  ).mockResolvedValue(false);
+  ).mockResolvedValue(defaultValues.cameraBubbleVisible);
 
   mockedStorage.set.microphoneAllowed = (
     jest.fn() as jest.Mock<(value: boolean) => Promise<void>>
@@ -147,9 +166,12 @@ test("handleStopRecording", async () => {
   await handleStopRecording({});
 
   expect(mockedStorage.get.recordingTabId).toHaveBeenCalled();
-  expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(2, {
-    method: Method.TabStopMediaRecorder,
-  });
+  expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+    defaultValues.recordingTabId,
+    {
+      method: Method.TabStopMediaRecorder,
+    }
+  );
 });
 
 test("handleCancelRecording", async () => {
@@ -167,7 +189,7 @@ test("handleDownloadRecording", async () => {
   });
 
   expect(mockedStorage.get.recordingTabId).toHaveBeenCalled();
-  expect(chrome.tabs.remove).toHaveBeenCalledWith(2);
+  expect(chrome.tabs.remove).toHaveBeenCalledWith(defaultValues.recordingTabId);
   expect(mockedStorage.set.recordingInProgress).toHaveBeenCalledWith(false);
   expect(mockedStorage.set.recordingTabId).toHaveBeenCalledWith(0);
 });
@@ -177,19 +199,25 @@ test("handleShowCameraBubble", async () => {
 
   expect(mockedStorage.get.currentTabId).toHaveBeenCalled();
   expect(chrome.scripting.executeScript).toHaveBeenCalledWith({
-    target: { tabId: 1 },
+    target: { tabId: defaultValues.currentTabId },
     files: ["./cameraBubble.bundle.mjs"],
   });
+  expect(mockedStorage.set.cameraBubbleTabId).toHaveBeenCalledWith(
+    defaultValues.currentTabId
+  );
+  expect(mockedStorage.set.cameraBubbleVisible).toHaveBeenCalledWith(true);
 });
 
 test("handleHideCameraBubble", async () => {
   await handleHideCameraBubble({});
 
-  expect(mockedStorage.get.currentTabId).toHaveBeenCalled();
+  expect(mockedStorage.get.cameraBubbleTabId).toHaveBeenCalled();
   expect(chrome.scripting.executeScript).toHaveBeenCalledWith({
-    target: { tabId: 1 },
+    target: { tabId: defaultValues.cameraBubbleTabId },
     func: expect.any(Function) as () => void,
   });
+  expect(mockedStorage.set.cameraBubbleTabId).toHaveBeenCalledWith(0);
+  expect(mockedStorage.set.cameraBubbleVisible).toHaveBeenCalledWith(false);
 });
 
 test("handleAllowMicrophone", async () => {
@@ -206,14 +234,16 @@ test("handleDisallowMicrophone", async () => {
 
 describe("handleTabChange", () => {
   test("`newTabId` is different from `screenRecordingTabId`", async () => {
-    await handleTabChange({ newTabId: 3 });
+    await handleTabChange({ newTabId: defaultValues.currentTabId + 1 });
 
     expect(mockedStorage.get.recordingTabId).toHaveBeenCalled();
-    expect(mockedStorage.set.currentTabId).toHaveBeenCalledWith(3);
+    expect(mockedStorage.set.currentTabId).toHaveBeenCalledWith(
+      defaultValues.currentTabId + 1
+    );
   });
 
   test("`newTabId` is the same as `screenRecordingTabId`", async () => {
-    await handleTabChange({ newTabId: 2 });
+    await handleTabChange({ newTabId: defaultValues.recordingTabId });
 
     expect(mockedStorage.set.currentTabId).not.toHaveBeenCalled();
   });
@@ -236,9 +266,12 @@ test("handleOpenUserActiveWindow", async () => {
   await handleOpenUserActiveWindow({});
 
   expect(mockedStorage.get.currentWindowId).toHaveBeenCalled();
-  expect(chrome.windows.update).toHaveBeenCalledWith(3, {
-    focused: true,
-  });
+  expect(chrome.windows.update).toHaveBeenCalledWith(
+    defaultValues.currentWindowId,
+    {
+      focused: true,
+    }
+  );
 });
 
 describe("handleWindowChange", () => {
@@ -260,7 +293,7 @@ describe("handleWindowChange", () => {
   });
 
   test("newWindowId equals to recordingWindowId", async () => {
-    await handleWindowChange({ newWindowId: 4 });
+    await handleWindowChange({ newWindowId: defaultValues.recordingWindowId });
 
     expect(mockedStorage.get.recordingWindowId).toHaveBeenCalled();
     expect(mockedStorage.set.currentWindowId).not.toHaveBeenCalled();
