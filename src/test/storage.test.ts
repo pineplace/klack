@@ -1,4 +1,16 @@
 import { jest } from "@jest/globals";
+
+const defaultValues = {
+  currentTabId: 1,
+  cameraBubbleTabId: 2,
+  recordingTabId: 3,
+  currentWindowId: 4,
+  recordingWindowId: 5,
+  recordingInProgress: true,
+  cameraBubbleVisible: true,
+  microphoneAllowed: false,
+};
+
 globalThis.chrome = {
   storage: {
     local: {
@@ -6,13 +18,14 @@ globalThis.chrome = {
       set: jest.fn().mockResolvedValue({}),
       // @ts-expect-error Chrome methods mocking
       get: jest.fn().mockResolvedValue({
-        currentTabId: 1,
-        recordingTabId: 2,
-        currentWindowId: 3,
-        recordingWindowId: 4,
-        recordingInProgress: true,
-        cameraBubbleVisible: true,
-        microphoneAllowed: false,
+        currentTabId: defaultValues.currentTabId,
+        cameraBubbleTabId: defaultValues.cameraBubbleTabId,
+        recordingTabId: defaultValues.recordingTabId,
+        currentWindowId: defaultValues.currentWindowId,
+        recordingWindowId: defaultValues.recordingWindowId,
+        recordingInProgress: defaultValues.recordingInProgress,
+        cameraBubbleVisible: defaultValues.cameraBubbleVisible,
+        microphoneAllowed: defaultValues.microphoneAllowed,
       }),
     },
   },
@@ -20,77 +33,113 @@ globalThis.chrome = {
 const { storage } = await import("../storage");
 
 test("currentTabId", async () => {
-  await storage.set.currentTabId(1);
+  await storage.set.currentTabId(defaultValues.currentTabId);
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.set).toBeCalledWith({ currentTabId: 1 });
+  expect(chrome.storage.local.set).toBeCalledWith({
+    currentTabId: defaultValues.currentTabId,
+  });
 
-  await expect(storage.get.currentTabId()).resolves.toBe(1);
+  await expect(storage.get.currentTabId()).resolves.toBe(
+    defaultValues.currentTabId
+  );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("currentTabId");
 });
 
-test("recordingTabId", async () => {
-  await storage.set.recordingTabId(2);
+test("cameraBubbleTabId", async () => {
+  await storage.set.cameraBubbleTabId(defaultValues.cameraBubbleTabId);
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.set).toBeCalledWith({ recordingTabId: 2 });
+  expect(chrome.storage.local.set).toBeCalledWith({
+    cameraBubbleTabId: defaultValues.cameraBubbleTabId,
+  });
 
-  await expect(storage.get.recordingTabId()).resolves.toBe(2);
+  await expect(storage.get.cameraBubbleTabId()).resolves.toBe(
+    defaultValues.cameraBubbleTabId
+  );
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.get).toHaveBeenCalledWith("cameraBubbleTabId");
+});
+
+test("recordingTabId", async () => {
+  await storage.set.recordingTabId(defaultValues.recordingTabId);
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toBeCalledWith({
+    recordingTabId: defaultValues.recordingTabId,
+  });
+
+  await expect(storage.get.recordingTabId()).resolves.toBe(
+    defaultValues.recordingTabId
+  );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("recordingTabId");
 });
 
 test("currentWindowId", async () => {
-  await storage.set.currentWindowId(3);
+  await storage.set.currentWindowId(defaultValues.currentWindowId);
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.set).toBeCalledWith({ currentWindowId: 3 });
+  expect(chrome.storage.local.set).toBeCalledWith({
+    currentWindowId: defaultValues.currentWindowId,
+  });
 
-  await expect(storage.get.currentWindowId()).resolves.toBe(3);
+  await expect(storage.get.currentWindowId()).resolves.toBe(
+    defaultValues.currentWindowId
+  );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("currentWindowId");
 });
 
 test("recordignWindowId", async () => {
-  await storage.set.recordingWindowId(4);
+  await storage.set.recordingWindowId(defaultValues.recordingWindowId);
   // eslint-disable-next-line @typescript-eslint/unbound-method
-  expect(chrome.storage.local.set).toBeCalledWith({ recordingWindowId: 4 });
+  expect(chrome.storage.local.set).toBeCalledWith({
+    recordingWindowId: defaultValues.recordingWindowId,
+  });
 
-  await expect(storage.get.recordingWindowId()).resolves.toBe(4);
+  await expect(storage.get.recordingWindowId()).resolves.toBe(
+    defaultValues.recordingWindowId
+  );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("recordingWindowId");
 });
 
 test("recordingInProgress", async () => {
-  await storage.set.recordingInProgress(true);
+  await storage.set.recordingInProgress(defaultValues.recordingInProgress);
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.set).toBeCalledWith({
-    recordingInProgress: true,
+    recordingInProgress: defaultValues.recordingInProgress,
   });
 
-  await expect(storage.get.recordingInProgress()).resolves.toBe(true);
+  await expect(storage.get.recordingInProgress()).resolves.toBe(
+    defaultValues.recordingInProgress
+  );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("recordingInProgress");
 });
 
 test("cameraBubbleVisible", async () => {
-  await storage.set.cameraBubbleVisible(true);
+  await storage.set.cameraBubbleVisible(defaultValues.cameraBubbleVisible);
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.set).toBeCalledWith({
-    cameraBubbleVisible: true,
+    cameraBubbleVisible: defaultValues.cameraBubbleVisible,
   });
 
-  await expect(storage.get.cameraBubbleVisible()).resolves.toBe(true);
+  await expect(storage.get.cameraBubbleVisible()).resolves.toBe(
+    defaultValues.cameraBubbleVisible
+  );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("cameraBubbleVisible");
 });
 
 test("microphoneAllowed", async () => {
-  await storage.set.microphoneAllowed(false);
+  await storage.set.microphoneAllowed(defaultValues.microphoneAllowed);
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.set).toBeCalledWith({
-    microphoneAllowed: false,
+    microphoneAllowed: defaultValues.microphoneAllowed,
   });
 
-  await expect(storage.get.microphoneAllowed()).resolves.toBe(false);
+  await expect(storage.get.microphoneAllowed()).resolves.toBe(
+    defaultValues.microphoneAllowed
+  );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("microphoneAllowed");
 });

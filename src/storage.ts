@@ -2,6 +2,7 @@ const storageImpl = chrome.storage.local;
 
 interface Context {
   currentTabId: number;
+  cameraBubbleTabId: number;
   recordingTabId: number;
   currentWindowId: number;
   recordingWindowId: number;
@@ -17,6 +18,17 @@ function setCurrentTabId(tabId: number): Promise<void> {
 async function getCurrentTabId(): Promise<number> {
   const { currentTabId } = await storageImpl.get("currentTabId");
   return currentTabId as number;
+}
+
+function setCameraBubbleTabId(tabId: number): Promise<void> {
+  return storageImpl.set({
+    cameraBubbleTabId: tabId,
+  } satisfies Partial<Context>);
+}
+
+async function getCameraBubbleTabId(): Promise<number> {
+  const { cameraBubbleTabId } = await storageImpl.get("cameraBubbleTabId");
+  return cameraBubbleTabId as number;
 }
 
 function setRecordingTabId(tabId: number): Promise<void> {
@@ -86,6 +98,7 @@ async function getMicrophoneAllowed(): Promise<boolean> {
 export const storage = {
   set: {
     currentTabId: setCurrentTabId,
+    cameraBubbleTabId: setCameraBubbleTabId,
     recordingTabId: setRecordingTabId,
     currentWindowId: setCurrentWindowId,
     recordingWindowId: setRecordingWindowId,
@@ -95,6 +108,7 @@ export const storage = {
   },
   get: {
     currentTabId: getCurrentTabId,
+    cameraBubbleTabId: getCameraBubbleTabId,
     recordingTabId: getRecordingTabId,
     currentWindowId: getCurrentWindowId,
     recordingWindowId: getRecordingWindowId,
