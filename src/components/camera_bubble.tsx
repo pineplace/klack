@@ -39,7 +39,14 @@ const StartStopRecording = () => {
         .then((value: boolean) => {
           setInProgress(value);
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          if ((err as Error).message != "Extension context invalidated.") {
+            console.error(err);
+            return;
+          }
+          clearInterval(interval);
+          console.log("Looks like extension was disabled, interval removed");
+        });
     }, 500);
 
     return () => {

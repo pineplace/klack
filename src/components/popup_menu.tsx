@@ -11,7 +11,14 @@ const ShowHideCameraBubble = () => {
       storage.get
         .cameraBubbleVisible()
         .then(setIsVisible)
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          if ((err as Error).message != "Extension context invalidated.") {
+            console.error(err);
+            return;
+          }
+          clearInterval(interval);
+          console.log("Looks like extension was disabled, interval removed");
+        });
     }, 500);
 
     return () => {
@@ -42,7 +49,14 @@ const TurnOnTurnOffMic = () => {
       storage.get
         .microphoneAllowed()
         .then(setMicAllowed)
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          if ((err as Error).message != "Extension context invalidated.") {
+            console.error(err);
+            return;
+          }
+          clearInterval(interval);
+          console.log("Looks like extension was disabled, interval removed");
+        });
     }, 500);
 
     return () => {
@@ -75,7 +89,14 @@ const StartStopRecording = () => {
       storage.get
         .recordingInProgress()
         .then(setInProgress)
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          if ((err as Error).message != "Extension context invalidated.") {
+            console.error(err);
+            return;
+          }
+          clearInterval(interval);
+          console.log("Looks like extension was disabled, interval removed");
+        });
     }, 500);
 
     return () => {
