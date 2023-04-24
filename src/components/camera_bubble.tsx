@@ -4,9 +4,32 @@ import { ButtonGroup, IconButton, Stack } from "@mui/material";
 import {
   PlayCircleFilledRounded,
   StopCircleRounded,
+  Close,
 } from "@mui/icons-material";
 import { builder, sender } from "../messaging";
 import { storage } from "../storage";
+
+const CloseCameraBubble = () => {
+  return (
+    <IconButton
+      onClick={() => {
+        sender
+          .send(builder.hideCameraBubble())
+          .catch((err) => console.error(err));
+      }}
+    >
+      <Close />
+    </IconButton>
+  );
+};
+
+const CameraBubbleControl = () => {
+  return (
+    <ButtonGroup>
+      <CloseCameraBubble />
+    </ButtonGroup>
+  );
+};
 
 const CameraBubbleFrame = () => {
   return (
@@ -90,6 +113,7 @@ const CameraBubble = () => {
         justifyContent="center"
         spacing={1}
       >
+        <CameraBubbleControl />
         <CameraBubbleFrame />
         <RecordingControl />
       </Stack>
