@@ -4,7 +4,12 @@
 // NOTE: https://testing-library.com/docs/
 import React from "react";
 import { jest } from "@jest/globals";
-import { act, fireEvent, render, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import type { Message, MessageResponse } from "../../messaging";
 jest.unstable_mockModule("../../storage", () => {
   return {
@@ -37,6 +42,9 @@ beforeEach(() => {
   mockedBuilder.stopRecording = (
     jest.fn() as jest.Mock<() => Message>
   ).mockReturnValue({} as Message);
+  mockedBuilder.hideCameraBubble = (
+    jest.fn() as jest.Mock<() => Message>
+  ).mockReturnValue({} as Message);
 
   mockedSender.send = (
     jest.fn() as jest.Mock<
@@ -48,7 +56,7 @@ beforeEach(() => {
   mockedStorage.get = {
     recordingInProgress: (
       jest.fn() as jest.Mock<() => Promise<boolean>>
-    ).mockResolvedValue(false),
+    ).mockResolvedValue(true),
   };
 
   jest.useFakeTimers();
@@ -59,56 +67,75 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-test("CameraBubbleFrame", async () => {
-  const { container, debug } = await act(() => {
+test("CloseCameraBubble", async () => {
+  const { container, debug: _debug } = await act(() => {
     return render(<CameraBubble />);
   });
 
-  debug();
+  // debug();
+
+  const closeCameraBubbleBtn = container.querySelector(
+    '[data-testid="CloseIcon"]'
+  );
+
+  expect(closeCameraBubbleBtn).not.toBeNull();
+
+  act(() => {
+    fireEvent.click(closeCameraBubbleBtn as Element);
+  });
+
+  expect(mockedBuilder.hideCameraBubble).toHaveBeenCalled();
+  expect(mockedSender.send).toHaveBeenCalled();
+});
+
+test("CameraBubbleFrame", async () => {
+  const { container, debug: _debug } = await act(() => {
+    return render(<CameraBubble />);
+  });
+
+  // debug();
 
   expect(container.querySelector("iframe")).not.toBeNull();
 });
 
 test("StartStopRecording", async () => {
-  const { container, debug } = await act(() => {
+  const { container, debug: _debug } = await act(() => {
     return render(<CameraBubble />);
   });
 
-  debug();
+  // debug();
 
-  const buttonGroup = container.getElementsByClassName(
-    "MuiButtonGroup-root"
-  )[0];
-  const [startStopRecording] =
-    buttonGroup.getElementsByClassName("MuiButtonBase-root") ?? [];
+  const playBtn = container.querySelector(
+    '[data-testid="PlayCircleFilledRoundedIcon"]'
+  );
 
+  expect(playBtn).not.toBeNull();
   act(() => {
     mockedStorage.get.recordingInProgress = (
       jest.fn() as jest.Mock<() => Promise<boolean>>
     ).mockResolvedValue(true);
-    fireEvent.click(startStopRecording);
+    fireEvent.click(playBtn as Element);
   });
-
   expect(mockedBuilder.startRecording).toHaveBeenCalled();
-  expect(mockedSender.send).toHaveBeenCalled();
-  await waitFor(() => {
-    expect(
-      startStopRecording.firstElementChild?.getAttribute("data-testid")
-    ).toEqual("StopCircleRoundedIcon");
-  });
+  expect(mockedSender.send).toHaveBeenCalledTimes(1);
+  await waitForElementToBeRemoved(playBtn);
 
+  const stopBtn = container.querySelector(
+    '[data-testid="StopCircleRoundedIcon"]'
+  );
+
+  expect(stopBtn).not.toBeNull();
   act(() => {
     mockedStorage.get.recordingInProgress = (
       jest.fn() as jest.Mock<() => Promise<boolean>>
     ).mockResolvedValue(false);
-    fireEvent.click(startStopRecording);
+    fireEvent.click(stopBtn as Element);
   });
-
   expect(mockedBuilder.stopRecording).toHaveBeenCalled();
-  expect(mockedSender.send).toHaveBeenCalled();
-  await waitFor(() => {
-    expect(
-      startStopRecording.firstElementChild?.getAttribute("data-testid")
-    ).toEqual("PlayCircleFilledRoundedIcon");
-  });
+  expect(mockedSender.send).toHaveBeenCalledTimes(2);
+  await waitForElementToBeRemoved(stopBtn);
+
+  expect(
+    container.querySelector('[data-testid="PlayCircleFilledRoundedIcon"]')
+  ).not.toBeNull();
 });
