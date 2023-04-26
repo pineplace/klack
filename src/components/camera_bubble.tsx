@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Draggable from "react-draggable";
-import { ButtonGroup, IconButton, Stack } from "@mui/material";
+import { ButtonGroup, IconButton, Radio, Stack } from "@mui/material";
 import {
   PlayCircleFilledRounded,
   StopCircleRounded,
@@ -8,6 +8,64 @@ import {
 } from "@mui/icons-material";
 import { builder, sender } from "../messaging";
 import { storage } from "../storage";
+
+const useCameraBubbleSize = () => {
+  const [size, setSize] = useState<{ width: number; height: number }>({
+    width: 200,
+    height: 200,
+  });
+
+  useEffect(() => {
+    const checkSizeUpdate = async () => {
+      const newSize = await storage.get.cameraBubbleSize();
+
+      if (newSize.width === size.width && newSize.height === size.height) {
+        setTimeout(() => {
+          checkSizeUpdate().catch((err) => console.error(err));
+        });
+        return;
+      }
+
+      setSize({ ...newSize });
+    };
+
+    checkSizeUpdate().catch((err) => console.error(err));
+  }, [size]);
+
+  return size;
+};
+
+const SizeSelector = () => {
+  const [selectedValue, setSelectedValue] = useState("200x200");
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const [width, height] = event.target.value
+      .split("x")
+      .map((value) => Number(value));
+    if (selectedValue !== event.target.value) {
+      storage.set
+        .cameraBubbleSize({ width, height })
+        .catch((err) => console.error(err));
+    }
+    setSelectedValue(event.target.value);
+  };
+
+  return (
+    <ButtonGroup>
+      <Radio
+        value="200x200"
+        checked={selectedValue === "200x200"}
+        onChange={handleChange}
+        size="small"
+      />
+      <Radio
+        value="300x300"
+        checked={selectedValue === "300x300"}
+        onChange={handleChange}
+      />
+    </ButtonGroup>
+  );
+};
 
 const CloseCameraBubble = () => {
   return (
@@ -25,23 +83,29 @@ const CloseCameraBubble = () => {
 
 const CameraBubbleControl = () => {
   return (
-    <ButtonGroup>
+    <Stack
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
+    >
       <CloseCameraBubble />
-    </ButtonGroup>
+      <SizeSelector />
+    </Stack>
   );
 };
 
 const CameraBubbleFrame = () => {
+  const size = useCameraBubbleSize();
+
   return (
     <iframe
       style={{
         pointerEvents: "none",
-        width: 200,
-        height: 200,
         border: 0,
         display: "block",
         overflow: "hidden",
         borderRadius: "50%",
+        ...size,
       }}
       allow="camera"
       src={chrome.runtime.getURL("camera_bubble_stream.html")}
