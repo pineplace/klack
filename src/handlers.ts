@@ -159,6 +159,27 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
   }
 
   await storage.set.currentTabId(args.newTabId);
+
+  const cameraBubbleTabId = await storage.get.cameraBubbleTabId();
+  if (!cameraBubbleTabId) {
+    return;
+  }
+
+  try {
+    await handleHideCameraBubble(args);
+    await handleShowCameraBubble(args);
+  } catch (err) {
+    console.warn(
+      `Can't show camera bubble on current tab ${(err as Error).message}`
+    );
+
+    await chrome.scripting.executeScript({
+      target: { tabId: cameraBubbleTabId },
+      files: ["./cameraBubble.bundle.mjs"],
+    });
+
+    await storage.set.cameraBubbleTabId(cameraBubbleTabId);
+  }
 }
 
 export async function handleTabClosing(args: MethodArgs): Promise<void> {
