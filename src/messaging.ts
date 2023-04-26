@@ -1,6 +1,7 @@
 export enum Method {
   StartRecording,
   StopRecording,
+  DeleteRecording,
   CancelRecording,
   DownloadRecording,
 
@@ -21,6 +22,7 @@ export enum Method {
 export type DownloadRecordingArgs = { downloadUrl: string };
 export type BrowserTabChangeArgs = { newTabId: number };
 export type BrowserTabClosingArgs = { closedTabId: number };
+export type TabStopMediaRecorderArgs = { downloadRecording: boolean };
 export type BrowserWindowChangeArgs = { newWindowId: number };
 
 export type RecordingInProgressResult = boolean;
@@ -31,6 +33,7 @@ export type MethodArgs =
   | DownloadRecordingArgs
   | BrowserTabChangeArgs
   | BrowserTabClosingArgs
+  | TabStopMediaRecorderArgs
   | BrowserWindowChangeArgs
   | Record<string, never>;
 
@@ -58,6 +61,12 @@ function buildStartRecording(): Message {
 function buildStopRecording(): Message {
   return {
     method: Method.StopRecording,
+  };
+}
+
+function buildDeleteRecording(): Message {
+  return {
+    method: Method.DeleteRecording,
   };
 }
 
@@ -133,9 +142,12 @@ function buildBrowserWindowChange(newWindowId: number): Message {
   };
 }
 
-function buildTabStopMediaRecorder(): Message {
+function buildTabStopMediaRecorder(downloadRecording: boolean): Message {
   return {
     method: Method.TabStopMediaRecorder,
+    args: {
+      downloadRecording,
+    },
   };
 }
 
@@ -160,6 +172,7 @@ function buildErrorResponse(err: Error): MessageResponse {
 export const builder = {
   startRecording: buildStartRecording,
   stopRecording: buildStopRecording,
+  deleteRecording: buildDeleteRecording,
   cancelRecording: buildCancelRecording,
   downloadRecording: buildDownloadRecording,
   showCameraBubble: buildShowCameraBubble,

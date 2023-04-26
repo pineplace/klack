@@ -46,7 +46,16 @@ export async function handleStopRecording(_args: MethodArgs): Promise<void> {
   console.log("handleStopRecording()");
 
   await sender.send(
-    builder.tabStopMediaRecorder(),
+    builder.tabStopMediaRecorder(true),
+    await storage.get.recordingTabId()
+  );
+}
+
+export async function handleDeleteRecording(_args: MethodArgs): Promise<void> {
+  console.log("handleDeleteRecording");
+
+  await sender.send(
+    builder.tabStopMediaRecorder(false),
     await storage.get.recordingTabId()
   );
 }
@@ -54,6 +63,7 @@ export async function handleStopRecording(_args: MethodArgs): Promise<void> {
 export async function handleCancelRecording(_args: MethodArgs): Promise<void> {
   console.log("handleCancelRecording()");
 
+  await chrome.tabs.remove(await storage.get.recordingTabId());
   await storage.set.recordingTabId(0);
   await storage.set.recordingInProgress(false);
 }

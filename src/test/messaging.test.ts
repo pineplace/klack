@@ -24,19 +24,25 @@ describe("builder", () => {
   test("buildStartRecording", () => {
     expect(builder.startRecording()).toEqual({
       method: Method.StartRecording,
-    } as Message);
+    } satisfies Message);
   });
 
   test("buildStopRecording", () => {
     expect(builder.stopRecording()).toEqual({
       method: Method.StopRecording,
-    } as Message);
+    } satisfies Message);
+  });
+
+  test("buildDeleteRecording", () => {
+    expect(builder.deleteRecording()).toEqual({
+      method: Method.DeleteRecording,
+    } satisfies Message);
   });
 
   test("buildCancelRecording", () => {
     expect(builder.cancelRecording()).toEqual({
       method: Method.CancelRecording,
-    } as Message);
+    } satisfies Message);
   });
 
   test("buildDownloadRecording", () => {
@@ -45,31 +51,31 @@ describe("builder", () => {
       args: {
         downloadUrl: "some-recording-url",
       },
-    } as Message);
+    } satisfies Message);
   });
 
   test("buildShowCameraBubble", () => {
     expect(builder.showCameraBubble()).toEqual({
       method: Method.ShowCameraBubble,
-    } as Message);
+    } satisfies Message);
   });
 
   test("buildHideCameraBubble", () => {
     expect(builder.hideCameraBubble()).toEqual({
       method: Method.HideCameraBubble,
-    } as Message);
+    } satisfies Message);
   });
 
   test("buildAllowMicrophone", () => {
     expect(builder.allowMicrophone()).toEqual({
       method: Method.AllowMicrophone,
-    } as Message);
+    } satisfies Message);
   });
 
   test("buildDisallowMicrophone", () => {
     expect(builder.disallowMicrophone()).toEqual({
       method: Method.DisallowMicrophone,
-    } as Message);
+    } satisfies Message);
   });
 
   test("buildBrowserTabChange", () => {
@@ -78,7 +84,7 @@ describe("builder", () => {
       args: {
         newTabId: 10,
       },
-    } as Message);
+    } satisfies Message);
   });
 
   test("buildBrowserTabClosing", () => {
@@ -87,7 +93,7 @@ describe("builder", () => {
       args: {
         closedTabId: 11,
       },
-    } as Message);
+    } satisfies Message);
   });
 
   test("buildBrowserWindowChange", () => {
@@ -106,8 +112,11 @@ describe("builder", () => {
   });
 
   test("buildTabStopMediaRecorder", () => {
-    expect(builder.tabStopMediaRecorder()).toEqual({
+    expect(builder.tabStopMediaRecorder(true)).toEqual({
       method: Method.TabStopMediaRecorder,
+      args: {
+        downloadRecording: true,
+      },
     });
   });
 
@@ -121,24 +130,24 @@ describe("builder", () => {
     test("OK", () => {
       expect(builder.response.ok()).toEqual({
         result: "OK",
-      } as MessageResponse);
+      } satisfies MessageResponse);
     });
 
     test("RecordingInProgressResult", () => {
       expect(builder.response.ok(true)).toEqual({
         result: true,
-      } as MessageResponse);
+      } satisfies MessageResponse);
 
       expect(builder.response.ok(false)).toEqual({
         result: false,
-      } as MessageResponse);
+      } satisfies MessageResponse);
     });
   });
 
   test("buildErrorResponse", () => {
     expect(builder.response.error(new Error("Some error"))).toEqual({
       error: "Some error",
-    } as MessageResponse);
+    } satisfies MessageResponse);
   });
 });
 
