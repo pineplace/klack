@@ -53,10 +53,22 @@ beforeEach(() => {
   ).mockResolvedValue({ result: "OK" });
 
   // @ts-expect-error here we ignoring unused `storage` methods
+  mockedStorage.set = {
+    cameraBubbleSize: (
+      jest.fn() as jest.Mock<
+        (size: { width: number; height: number }) => Promise<void>
+      >
+    ).mockResolvedValue(),
+  };
+
+  // @ts-expect-error here we ignoring unused `storage` methods
   mockedStorage.get = {
     recordingInProgress: (
       jest.fn() as jest.Mock<() => Promise<boolean>>
     ).mockResolvedValue(true),
+    cameraBubbleSize: (
+      jest.fn() as jest.Mock<() => Promise<{ width: number; height: number }>>
+    ).mockResolvedValue({ width: 200, height: 200 }),
   };
 
   jest.useFakeTimers();
@@ -138,4 +150,35 @@ test("StartStopRecording", async () => {
   expect(
     container.querySelector('[data-testid="PlayCircleFilledRoundedIcon"]')
   ).not.toBeNull();
+});
+
+test("Resize camera bubble", async () => {
+  const { container, debug: _debug } = await act(() => {
+    return render(<CameraBubble />);
+  });
+
+  // debug();
+
+  const iframe = container.querySelector("iframe");
+
+  expect(iframe).not.toBeNull();
+  expect(iframe?.style.width).toEqual("200px");
+  expect(iframe?.style.height).toEqual("200px");
+
+  const smallSizeBtn = container.querySelector('input[value="200x200"]');
+  const mediumSizeBtn = container.querySelector('input[value="300x300"]');
+
+  expect(smallSizeBtn).not.toBeNull();
+  expect(smallSizeBtn?.hasAttribute("checked")).toEqual(true);
+  expect(mediumSizeBtn).not.toBeNull();
+  expect(mediumSizeBtn?.hasAttribute("checked")).toEqual(false);
+
+  act(() => {
+    fireEvent.click(mediumSizeBtn as Element);
+  });
+
+  expect(mockedStorage.set.cameraBubbleSize).toHaveBeenCalledWith({
+    width: 300,
+    height: 300,
+  });
 });

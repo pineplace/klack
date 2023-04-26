@@ -28,6 +28,9 @@ jest.unstable_mockModule("../storage", () => {
         microphoneAllowed: (
           jest.fn() as jest.Mock<() => Promise<void>>
         ).mockResolvedValue(),
+        cameraBubbleSize: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
       },
       get: {},
     },
@@ -218,6 +221,10 @@ test("handleHideCameraBubble", async () => {
   });
   expect(mockedStorage.set.cameraBubbleTabId).toHaveBeenCalledWith(0);
   expect(mockedStorage.set.cameraBubbleVisible).toHaveBeenCalledWith(false);
+  expect(mockedStorage.set.cameraBubbleSize).toHaveBeenCalledWith({
+    width: 200,
+    height: 200,
+  });
 });
 
 test("handleAllowMicrophone", async () => {

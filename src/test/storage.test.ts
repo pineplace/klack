@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import type { Context } from "../storage";
 
 const defaultValues = {
   currentTabId: 1,
@@ -9,7 +10,8 @@ const defaultValues = {
   recordingInProgress: true,
   cameraBubbleVisible: true,
   microphoneAllowed: false,
-};
+  cameraBubbleSize: { width: 200, height: 200 },
+} satisfies Context;
 
 globalThis.chrome = {
   storage: {
@@ -26,11 +28,29 @@ globalThis.chrome = {
         recordingInProgress: defaultValues.recordingInProgress,
         cameraBubbleVisible: defaultValues.cameraBubbleVisible,
         microphoneAllowed: defaultValues.microphoneAllowed,
-      }),
+        cameraBubbleSize: defaultValues.cameraBubbleSize,
+      } satisfies Context),
     },
   },
 };
 const { storage } = await import("../storage");
+
+beforeEach(() => {
+  // @ts-expect-error Chrome methods mocking
+  globalThis.chrome.storage.local.set = jest.fn().mockResolvedValue({});
+  // @ts-expect-error Chrome methods mocking
+  globalThis.chrome.storage.local.get = jest.fn().mockResolvedValue({
+    currentTabId: defaultValues.currentTabId,
+    cameraBubbleTabId: defaultValues.cameraBubbleTabId,
+    recordingTabId: defaultValues.recordingTabId,
+    currentWindowId: defaultValues.currentWindowId,
+    recordingWindowId: defaultValues.recordingWindowId,
+    recordingInProgress: defaultValues.recordingInProgress,
+    cameraBubbleVisible: defaultValues.cameraBubbleVisible,
+    microphoneAllowed: defaultValues.microphoneAllowed,
+    cameraBubbleSize: defaultValues.cameraBubbleSize,
+  } satisfies Context);
+});
 
 test("currentTabId", async () => {
   await storage.set.currentTabId(defaultValues.currentTabId);
@@ -142,4 +162,21 @@ test("microphoneAllowed", async () => {
   );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("microphoneAllowed");
+});
+
+test("cameraBubbleSize", async () => {
+  await storage.set.cameraBubbleSize({ width: 100, height: 100 });
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toBeCalledWith({
+    cameraBubbleSize: {
+      width: 100,
+      height: 100,
+    },
+  });
+
+  await expect(storage.get.cameraBubbleSize()).resolves.toBe(
+    defaultValues.cameraBubbleSize
+  );
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.get).toHaveBeenCalledWith("cameraBubbleSize");
 });
