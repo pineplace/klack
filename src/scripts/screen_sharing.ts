@@ -1,4 +1,5 @@
 import { Message, Method, builder, sender } from "../messaging";
+import type { TabStopMediaRecorderArgs } from "../messaging";
 import { storage } from "../storage";
 
 class RecorderV2 {
@@ -9,6 +10,8 @@ class RecorderV2 {
   #audioTracks: MediaStreamTrack[];
   #videoTrack?: MediaStreamTrack;
   #mediaRecorder: MediaRecorder;
+
+  #downloadOnStop = true;
 
   constructor(streams: MediaStream[], outputType = "video/webm") {
     this.#outputType = outputType;
@@ -39,6 +42,8 @@ class RecorderV2 {
       if (message.method !== Method.TabStopMediaRecorder) {
         return;
       }
+      const args = message.args as TabStopMediaRecorderArgs;
+      this.#downloadOnStop = args.downloadRecording;
       this.stop();
     });
 
@@ -83,6 +88,13 @@ class RecorderV2 {
   }
 
   #onStop() {
+    if (!this.#downloadOnStop) {
+      console.log(
+        "Recording isn't downloaded because the user decided to delete it"
+      );
+      sender.send(builder.cancelRecording()).catch((err) => console.error(err));
+      return;
+    }
     const downloadUrl = URL.createObjectURL(
       new Blob(this.#mediaChunks, {
         type: this.#outputType,

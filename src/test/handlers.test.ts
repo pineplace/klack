@@ -47,6 +47,7 @@ const {
   handleShowCameraBubble,
   handleStartRecording,
   handleStopRecording,
+  handleDeleteRecording,
   handleTabChange,
   handleTabClosing,
   handleTabUpdated,
@@ -173,6 +174,24 @@ test("handleStopRecording", async () => {
     defaultValues.recordingTabId,
     {
       method: Method.TabStopMediaRecorder,
+      args: {
+        downloadRecording: true,
+      },
+    }
+  );
+});
+
+test("handleDeleteRecording", async () => {
+  await handleDeleteRecording({});
+
+  expect(mockedStorage.get.recordingTabId).toHaveBeenCalled();
+  expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+    defaultValues.recordingTabId,
+    {
+      method: Method.TabStopMediaRecorder,
+      args: {
+        downloadRecording: false,
+      },
     }
   );
 });

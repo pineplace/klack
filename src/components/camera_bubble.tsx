@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Draggable from "react-draggable";
 import { ButtonGroup, IconButton, Radio, Stack } from "@mui/material";
 import {
+  Delete,
   PlayCircleFilledRounded,
   StopCircleRounded,
   Close,
@@ -116,7 +117,7 @@ const CameraBubbleFrame = () => {
   );
 };
 
-const StartStopRecording = () => {
+const RecordingControl = () => {
   const [inProgress, setInProgress] = useState(false);
 
   useEffect(() => {
@@ -142,22 +143,29 @@ const StartStopRecording = () => {
   });
 
   return (
-    <IconButton
-      onClick={() => {
-        sender
-          .send(inProgress ? builder.stopRecording() : builder.startRecording())
-          .catch((err) => console.error(err));
-      }}
-    >
-      {inProgress ? <StopCircleRounded /> : <PlayCircleFilledRounded />}
-    </IconButton>
-  );
-};
-
-const RecordingControl = () => {
-  return (
     <ButtonGroup>
-      <StartStopRecording />
+      <IconButton
+        onClick={() => {
+          sender
+            .send(
+              inProgress ? builder.stopRecording() : builder.startRecording()
+            )
+            .catch((err) => console.error(err));
+        }}
+      >
+        {inProgress ? <StopCircleRounded /> : <PlayCircleFilledRounded />}
+      </IconButton>
+      {inProgress && (
+        <IconButton
+          onClick={() => {
+            sender
+              .send(builder.deleteRecording())
+              .catch((err) => console.error(err));
+          }}
+        >
+          <Delete />
+        </IconButton>
+      )}
     </ButtonGroup>
   );
 };

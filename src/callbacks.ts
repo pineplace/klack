@@ -1,6 +1,7 @@
 import {
   handleAllowMicrophone,
   handleCancelRecording,
+  handleDeleteRecording,
   handleDisallowMicrophone,
   handleDownloadRecording,
   handleHideCameraBubble,
@@ -25,6 +26,7 @@ export async function onMessage(
   const methods = new Map([
     [Method.StartRecording, handleStartRecording],
     [Method.StopRecording, handleStopRecording],
+    [Method.DeleteRecording, handleDeleteRecording],
     [Method.CancelRecording, handleCancelRecording],
     [Method.DownloadRecording, handleDownloadRecording],
 

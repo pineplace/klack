@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Stack } from "@mui/material";
+import { Button, ButtonGroup, Stack } from "@mui/material";
 import { builder, sender } from "../messaging";
 import { storage } from "../storage";
 
@@ -81,7 +81,7 @@ const TurnOnTurnOffMic = () => {
   );
 };
 
-const StartStopRecording = () => {
+const RecordingControl = () => {
   const [inProgress, setInProgress] = useState(false);
 
   useEffect(() => {
@@ -105,15 +105,30 @@ const StartStopRecording = () => {
   });
 
   return (
-    <Button
-      onClick={() => {
-        sender
-          .send(inProgress ? builder.stopRecording() : builder.startRecording())
-          .catch((err) => console.error(err));
-      }}
-    >
-      {inProgress ? "Stop" : "Start"}
-    </Button>
+    <ButtonGroup>
+      <Button
+        onClick={() => {
+          sender
+            .send(
+              inProgress ? builder.stopRecording() : builder.startRecording()
+            )
+            .catch((err) => console.error(err));
+        }}
+      >
+        {inProgress ? "Stop" : "Start"}
+      </Button>
+      {inProgress && (
+        <Button
+          onClick={() => {
+            sender
+              .send(builder.deleteRecording())
+              .catch((err) => console.error(err));
+          }}
+        >
+          Delete
+        </Button>
+      )}
+    </ButtonGroup>
   );
 };
 
@@ -127,7 +142,7 @@ const PopupMenu = () => {
     >
       <ShowHideCameraBubble />
       <TurnOnTurnOffMic />
-      <StartStopRecording />
+      <RecordingControl />
     </Stack>
   );
 };

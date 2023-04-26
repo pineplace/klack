@@ -36,6 +36,9 @@ beforeEach(() => {
   mockedBuilder.stopRecording = (
     jest.fn() as jest.Mock<() => Message>
   ).mockReturnValue({} as Message);
+  mockedBuilder.deleteRecording = (
+    jest.fn() as jest.Mock<() => Message>
+  ).mockReturnValue({} as Message);
   mockedBuilder.showCameraBubble = (
     jest.fn() as jest.Mock<() => Message>
   ).mockReturnValue({} as Message);
@@ -141,36 +144,76 @@ test("TurnOnTurnOffMic switching", async () => {
   });
 });
 
-test("StartStopRecording switching", async () => {
-  act(() => {
-    render(<PopupMenu />);
+describe("RecordingControl", () => {
+  test("Start and Stop recording", async () => {
+    act(() => {
+      render(<PopupMenu />);
+    });
+
+    const button = screen.getByText("Start");
+
+    act(() => {
+      mockedStorage.get.recordingInProgress = (
+        jest.fn() as jest.Mock<() => Promise<boolean>>
+      ).mockResolvedValue(true);
+      fireEvent.click(button);
+    });
+
+    expect(mockedBuilder.startRecording).toHaveBeenCalled();
+    expect(mockedSender.send).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(button.textContent).toEqual("Stop");
+    });
+
+    act(() => {
+      mockedStorage.get.recordingInProgress = (
+        jest.fn() as jest.Mock<() => Promise<boolean>>
+      ).mockResolvedValue(false);
+      fireEvent.click(button);
+    });
+
+    expect(mockedBuilder.stopRecording).toHaveBeenCalled();
+    expect(mockedSender.send).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(button.textContent).toEqual("Start");
+    });
   });
 
-  const button = screen.getByText("Start");
+  test("Start and Delete recording", async () => {
+    act(() => {
+      render(<PopupMenu />);
+    });
 
-  act(() => {
-    mockedStorage.get.recordingInProgress = (
-      jest.fn() as jest.Mock<() => Promise<boolean>>
-    ).mockResolvedValue(true);
-    fireEvent.click(button);
-  });
+    const button = screen.getByText("Start");
 
-  expect(mockedBuilder.startRecording).toHaveBeenCalled();
-  expect(mockedSender.send).toHaveBeenCalled();
-  await waitFor(() => {
-    expect(button.textContent).toEqual("Stop");
-  });
+    act(() => {
+      mockedStorage.get.recordingInProgress = (
+        jest.fn() as jest.Mock<() => Promise<boolean>>
+      ).mockResolvedValue(true);
+      fireEvent.click(button);
+    });
 
-  act(() => {
-    mockedStorage.get.recordingInProgress = (
-      jest.fn() as jest.Mock<() => Promise<boolean>>
-    ).mockResolvedValue(false);
-    fireEvent.click(button);
-  });
+    expect(mockedBuilder.startRecording).toHaveBeenCalled();
+    expect(mockedSender.send).toHaveBeenCalledTimes(1);
 
-  expect(mockedBuilder.stopRecording).toHaveBeenCalled();
-  expect(mockedSender.send).toHaveBeenCalled();
-  await waitFor(() => {
-    expect(button.textContent).toEqual("Start");
+    await waitFor(() => {
+      expect(screen.getByText("Delete")).not.toBeNull();
+    });
+
+    const deleteBtn = screen.getByText("Delete");
+
+    act(() => {
+      mockedStorage.get.recordingInProgress = (
+        jest.fn() as jest.Mock<() => Promise<boolean>>
+      ).mockResolvedValue(false);
+      fireEvent.click(deleteBtn);
+    });
+
+    expect(mockedBuilder.deleteRecording).toHaveBeenCalled();
+    expect(mockedSender.send).toHaveBeenCalledTimes(2);
+
+    await waitFor(() => {
+      expect(button.textContent).toEqual("Start");
+    });
   });
 });
