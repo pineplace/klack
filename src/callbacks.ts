@@ -9,6 +9,8 @@ import {
   handleShowCameraBubble,
   handleStartRecording,
   handleStopRecording,
+  handlePauseRecording,
+  handleResumeRecording,
   handleTabChange,
   handleTabClosing,
   handleTabUpdated,
@@ -26,6 +28,8 @@ export async function onMessage(
   const methods = new Map([
     [Method.StartRecording, handleStartRecording],
     [Method.StopRecording, handleStopRecording],
+    [Method.PauseRecording, handlePauseRecording],
+    [Method.ResumeRecording, handleResumeRecording],
     [Method.DeleteRecording, handleDeleteRecording],
     [Method.CancelRecording, handleCancelRecording],
     [Method.DownloadRecording, handleDownloadRecording],

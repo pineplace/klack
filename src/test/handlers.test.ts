@@ -22,6 +22,9 @@ jest.unstable_mockModule("../storage", () => {
         recordingInProgress: (
           jest.fn() as jest.Mock<() => Promise<void>>
         ).mockResolvedValue(),
+        recordingOnPause: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
         cameraBubbleVisible: (
           jest.fn() as jest.Mock<() => Promise<void>>
         ).mockResolvedValue(),
@@ -47,6 +50,8 @@ const {
   handleShowCameraBubble,
   handleStartRecording,
   handleStopRecording,
+  handlePauseRecording,
+  handleResumeRecording,
   handleDeleteRecording,
   handleTabChange,
   handleTabClosing,
@@ -136,6 +141,10 @@ beforeEach(() => {
     jest.fn() as jest.Mock<(value: boolean) => Promise<void>>
   ).mockResolvedValue();
 
+  mockedStorage.set.recordingOnPause = (
+    jest.fn() as jest.Mock<(value: boolean) => Promise<void>>
+  ).mockResolvedValue();
+
   mockedStorage.set.cameraBubbleVisible = (
     jest.fn() as jest.Mock<(value: boolean) => Promise<void>>
   ).mockResolvedValue();
@@ -181,6 +190,30 @@ test("handleStopRecording", async () => {
   );
 });
 
+test("handlePauseRecording", async () => {
+  await handlePauseRecording({});
+
+  expect(mockedStorage.set.recordingOnPause).toHaveBeenCalledWith(true);
+  expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+    defaultValues.recordingTabId,
+    {
+      method: Method.TabPauseMediaRecorder,
+    }
+  );
+});
+
+test("handleResumeRecording", async () => {
+  await handleResumeRecording({});
+
+  expect(mockedStorage.set.recordingOnPause).toHaveBeenCalledWith(false);
+  expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+    defaultValues.recordingTabId,
+    {
+      method: Method.TabResumeMediaRecorder,
+    }
+  );
+});
+
 test("handleDeleteRecording", async () => {
   await handleDeleteRecording({});
 
@@ -199,8 +232,10 @@ test("handleDeleteRecording", async () => {
 test("handleCancelRecording", async () => {
   await handleCancelRecording({});
 
+  expect(chrome.tabs.remove).toHaveBeenCalledWith(defaultValues.recordingTabId);
   expect(mockedStorage.set.recordingTabId).toHaveBeenCalledWith(0);
   expect(mockedStorage.set.recordingInProgress).toHaveBeenCalledWith(false);
+  expect(mockedStorage.set.recordingOnPause).toHaveBeenCalledWith(false);
 });
 
 test("handleDownloadRecording", async () => {
@@ -214,6 +249,7 @@ test("handleDownloadRecording", async () => {
   expect(chrome.tabs.remove).toHaveBeenCalledWith(defaultValues.recordingTabId);
   expect(mockedStorage.set.recordingInProgress).toHaveBeenCalledWith(false);
   expect(mockedStorage.set.recordingTabId).toHaveBeenCalledWith(0);
+  expect(mockedStorage.set.recordingOnPause).toHaveBeenCalledWith(false);
 });
 
 test("handleShowCameraBubble", async () => {

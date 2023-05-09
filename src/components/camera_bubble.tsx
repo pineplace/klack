@@ -6,6 +6,7 @@ import {
   PlayCircleFilledRounded,
   StopCircleRounded,
   Close,
+  PauseCircleFilledRounded,
 } from "@mui/icons-material";
 import { builder, sender } from "../messaging";
 import { storage } from "../storage";
@@ -119,6 +120,7 @@ const CameraBubbleFrame = () => {
 
 const RecordingControl = () => {
   const [inProgress, setInProgress] = useState(false);
+  const [onPause, setOnPause] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -142,19 +144,62 @@ const RecordingControl = () => {
     };
   });
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      storage.get
+        .recordingOnPause()
+        .then((value: boolean) => {
+          setOnPause(value);
+        })
+        .catch((err) => {
+          if ((err as Error).message != "Extension context invalidated.") {
+            console.error(err);
+            return;
+          }
+          clearInterval(interval);
+          console.log("Looks like extension was disabled, interval removed");
+        });
+    }, 500);
+
+    return () => {
+      clearInterval(interval);
+    };
+  });
+
   return (
     <ButtonGroup>
       <IconButton
         onClick={() => {
+          if (!inProgress) {
+            sender
+              .send(builder.startRecording())
+              .catch((err) => console.error(err));
+            return;
+          }
           sender
             .send(
-              inProgress ? builder.stopRecording() : builder.startRecording()
+              onPause ? builder.resumeRecording() : builder.pauseRecording()
             )
             .catch((err) => console.error(err));
         }}
       >
-        {inProgress ? <StopCircleRounded /> : <PlayCircleFilledRounded />}
+        {inProgress && !onPause ? (
+          <PauseCircleFilledRounded />
+        ) : (
+          <PlayCircleFilledRounded />
+        )}
       </IconButton>
+      {inProgress && (
+        <IconButton
+          onClick={() => {
+            sender
+              .send(builder.stopRecording())
+              .catch((err) => console.error(err));
+          }}
+        >
+          <StopCircleRounded />
+        </IconButton>
+      )}
       {inProgress && (
         <IconButton
           onClick={() => {

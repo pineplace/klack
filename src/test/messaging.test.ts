@@ -33,6 +33,18 @@ describe("builder", () => {
     } satisfies Message);
   });
 
+  test("buildPauseRecording", () => {
+    expect(builder.pauseRecording()).toEqual({
+      method: Method.PauseRecording,
+    } satisfies Message);
+  });
+
+  test("buildResumeRecording", () => {
+    expect(builder.resumeRecording()).toEqual({
+      method: Method.ResumeRecording,
+    } satisfies Message);
+  });
+
   test("buildDeleteRecording", () => {
     expect(builder.deleteRecording()).toEqual({
       method: Method.DeleteRecording,
@@ -120,6 +132,18 @@ describe("builder", () => {
     });
   });
 
+  test("buildTabPauseMediaRecorder", () => {
+    expect(builder.tabPauseMediaRecorder()).toEqual({
+      method: Method.TabPauseMediaRecorder,
+    });
+  });
+
+  test("buildTabResumeMediaRecorder", () => {
+    expect(builder.tabResumeMediaRecorder()).toEqual({
+      method: Method.TabResumeMediaRecorder,
+    });
+  });
+
   test("buildOpenUserActiveWindow", () => {
     expect(builder.openUserActiveWindow()).toEqual({
       method: Method.OpenUserActiveWindow,
@@ -130,16 +154,6 @@ describe("builder", () => {
     test("OK", () => {
       expect(builder.response.ok()).toEqual({
         result: "OK",
-      } satisfies MessageResponse);
-    });
-
-    test("RecordingInProgressResult", () => {
-      expect(builder.response.ok(true)).toEqual({
-        result: true,
-      } satisfies MessageResponse);
-
-      expect(builder.response.ok(false)).toEqual({
-        result: false,
       } satisfies MessageResponse);
     });
   });

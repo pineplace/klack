@@ -7,6 +7,7 @@ export interface Context {
   currentWindowId: number;
   recordingWindowId: number;
   recordingInProgress: boolean;
+  recordingOnPause: boolean;
   cameraBubbleVisible: boolean;
   microphoneAllowed: boolean;
   cameraBubbleSize: { width: number; height: number };
@@ -74,6 +75,17 @@ async function getRecordingInProgress(): Promise<boolean> {
   return recordingInProgress as boolean;
 }
 
+function setRecordingOnPause(value: boolean): Promise<void> {
+  return storageImpl.set({
+    recordingOnPause: value,
+  } satisfies Partial<Context>);
+}
+
+async function getRecordingOnPause(): Promise<boolean> {
+  const { recordingOnPause } = await storageImpl.get("recordingOnPause");
+  return recordingOnPause as boolean;
+}
+
 function setCameraBubbleVisible(value: boolean): Promise<void> {
   return storageImpl.set({
     cameraBubbleVisible: value,
@@ -121,6 +133,7 @@ export const storage = {
     currentWindowId: setCurrentWindowId,
     recordingWindowId: setRecordingWindowId,
     recordingInProgress: setRecordingInProgress,
+    recordingOnPause: setRecordingOnPause,
     cameraBubbleVisible: setCameraBubbleVisible,
     microphoneAllowed: setMicrophoneAllowed,
     cameraBubbleSize: setCameraBubbleSize,
@@ -132,6 +145,7 @@ export const storage = {
     currentWindowId: getCurrentWindowId,
     recordingWindowId: getRecordingWindowId,
     recordingInProgress: getRecordingInProgress,
+    recordingOnPause: getRecordingOnPause,
     cameraBubbleVisible: getCameraBubbleVisible,
     microphoneAllowed: getMicrophoneAllowed,
     cameraBubbleSize: getCameraBubbleSize,

@@ -8,6 +8,7 @@ import {
   act,
   fireEvent,
   render,
+  waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import type { Message, MessageResponse } from "../../messaging";
@@ -42,6 +43,12 @@ beforeEach(() => {
   mockedBuilder.stopRecording = (
     jest.fn() as jest.Mock<() => Message>
   ).mockReturnValue({} as Message);
+  mockedBuilder.pauseRecording = (
+    jest.fn() as jest.Mock<() => Message>
+  ).mockReturnValue({} as Message);
+  mockedBuilder.resumeRecording = (
+    jest.fn() as jest.Mock<() => Message>
+  ).mockReturnValue({} as Message);
   mockedBuilder.deleteRecording = (
     jest.fn() as jest.Mock<() => Message>
   ).mockReturnValue({} as Message);
@@ -69,6 +76,9 @@ beforeEach(() => {
     recordingInProgress: (
       jest.fn() as jest.Mock<() => Promise<boolean>>
     ).mockResolvedValue(true),
+    recordingOnPause: (
+      jest.fn() as jest.Mock<() => Promise<boolean>>
+    ).mockResolvedValue(false),
     cameraBubbleSize: (
       jest.fn() as jest.Mock<() => Promise<{ width: number; height: number }>>
     ).mockResolvedValue({ width: 200, height: 200 }),
@@ -195,6 +205,50 @@ describe("RecordingControl", () => {
     expect(
       container.querySelector('[data-testid="PlayCircleFilledRoundedIcon"]')
     ).not.toBeNull();
+  });
+
+  test("Start, Pause and Resume recording", async () => {
+    const { container, debug: _debug } = await act(() => {
+      return render(<CameraBubble />);
+    });
+
+    const playBtn = container.querySelector(
+      '[data-testid="PlayCircleFilledRoundedIcon"]'
+    );
+
+    act(() => {
+      mockedStorage.get.recordingInProgress = (
+        jest.fn() as jest.Mock<() => Promise<boolean>>
+      ).mockResolvedValue(true);
+      fireEvent.click(playBtn as Element);
+    });
+
+    expect(mockedBuilder.startRecording).toHaveBeenCalled();
+    expect(mockedSender.send).toHaveBeenCalledTimes(1);
+
+    await waitForElementToBeRemoved(playBtn);
+
+    const pauseBtn = container.querySelector(
+      '[data-testid="PauseCircleFilledRoundedIcon"]'
+    );
+
+    expect(pauseBtn).not.toBeNull();
+
+    act(() => {
+      mockedStorage.get.recordingOnPause = (
+        jest.fn() as jest.Mock<() => Promise<boolean>>
+      ).mockResolvedValue(true);
+      fireEvent.click(pauseBtn as Element);
+    });
+
+    expect(mockedBuilder.pauseRecording).toHaveBeenCalled();
+    expect(mockedSender.send).toHaveBeenCalledTimes(2);
+
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-testid="PlayCircleFilledRoundedIcon"]')
+      ).not.toBeNull();
+    });
   });
 });
 

@@ -8,6 +8,12 @@ jest.unstable_mockModule("../handlers", () => {
     handleStopRecording: (
       jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
     ).mockResolvedValue(),
+    handlePauseRecording: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
+    handleResumeRecording: (
+      jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
+    ).mockResolvedValue(),
     handleDeleteRecording: (
       jest.fn() as jest.Mock<(args: MethodArgs) => Promise<void>>
     ).mockResolvedValue(),
@@ -70,6 +76,28 @@ describe("onMessage", () => {
     });
 
     expect(mockedHandlers.handleStopRecording).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
+  test("Correct PauseRecording message", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.pauseRecording(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(mockedHandlers.handlePauseRecording).toHaveBeenCalled();
+    expect(response).toEqual(builder.response.ok());
+  });
+
+  test("Correct ResumeRecording message", async () => {
+    let response: MessageResponse | undefined;
+
+    await onMessage(builder.resumeRecording(), {}, (resp) => {
+      response = resp;
+    });
+
+    expect(mockedHandlers.handleResumeRecording).toHaveBeenCalled();
     expect(response).toEqual(builder.response.ok());
   });
 

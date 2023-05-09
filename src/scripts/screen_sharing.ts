@@ -39,12 +39,35 @@ class RecorderV2 {
     );
 
     chrome.runtime.onMessage.addListener((message: Message) => {
-      if (message.method !== Method.TabStopMediaRecorder) {
+      const methods = new Map([
+        [
+          Method.TabStopMediaRecorder,
+          () => {
+            const args = message.args as TabStopMediaRecorderArgs;
+            this.#downloadOnStop = args.downloadRecording;
+            this.stop();
+          },
+        ],
+        [
+          Method.TabPauseMediaRecorder,
+          () => {
+            this.pause();
+          },
+        ],
+        [
+          Method.TabResumeMediaRecorder,
+          () => {
+            this.resume();
+          },
+        ],
+      ]);
+
+      const method = methods.get(message.method);
+
+      if (!method) {
         return;
       }
-      const args = message.args as TabStopMediaRecorderArgs;
-      this.#downloadOnStop = args.downloadRecording;
-      this.stop();
+      method();
     });
 
     this.#videoTrack.addEventListener("ended", () => {
@@ -112,6 +135,14 @@ class RecorderV2 {
 
   start() {
     this.#mediaRecorder.start();
+  }
+
+  pause() {
+    this.#mediaRecorder.pause();
+  }
+
+  resume() {
+    this.#mediaRecorder.resume();
   }
 
   stop() {
