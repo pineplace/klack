@@ -15,6 +15,7 @@ async function setStorageDefaultValues() {
   await storage.set.currentWindowId(0);
   await storage.set.recordingWindowId(0);
   await storage.set.recordingInProgress(false);
+  await storage.set.recordingOnPause(false);
   await storage.set.cameraBubbleVisible(false);
   await storage.set.microphoneAllowed(true);
   await storage.set.cameraBubbleSize({ width: 200, height: 200 });
@@ -51,6 +52,28 @@ export async function handleStopRecording(_args: MethodArgs): Promise<void> {
   );
 }
 
+export async function handlePauseRecording(_args: MethodArgs): Promise<void> {
+  console.log("handlePauseRecording()");
+
+  await storage.set.recordingOnPause(true);
+
+  await sender.send(
+    builder.tabPauseMediaRecorder(),
+    await storage.get.recordingTabId()
+  );
+}
+
+export async function handleResumeRecording(_args: MethodArgs): Promise<void> {
+  console.log("handleResumeRecording");
+
+  await storage.set.recordingOnPause(false);
+
+  await sender.send(
+    builder.tabResumeMediaRecorder(),
+    await storage.get.recordingTabId()
+  );
+}
+
 export async function handleDeleteRecording(_args: MethodArgs): Promise<void> {
   console.log("handleDeleteRecording");
 
@@ -66,6 +89,7 @@ export async function handleCancelRecording(_args: MethodArgs): Promise<void> {
   await chrome.tabs.remove(await storage.get.recordingTabId());
   await storage.set.recordingTabId(0);
   await storage.set.recordingInProgress(false);
+  await storage.set.recordingOnPause(false);
 }
 
 export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
@@ -81,6 +105,7 @@ export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
 
   await storage.set.recordingTabId(0);
   await storage.set.recordingInProgress(false);
+  await storage.set.recordingOnPause(false);
 }
 
 export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {

@@ -8,6 +8,7 @@ const defaultValues = {
   currentWindowId: 4,
   recordingWindowId: 5,
   recordingInProgress: true,
+  recordingOnPause: false,
   cameraBubbleVisible: true,
   microphoneAllowed: false,
   cameraBubbleSize: { width: 200, height: 200 },
@@ -26,6 +27,7 @@ globalThis.chrome = {
         currentWindowId: defaultValues.currentWindowId,
         recordingWindowId: defaultValues.recordingWindowId,
         recordingInProgress: defaultValues.recordingInProgress,
+        recordingOnPause: defaultValues.recordingOnPause,
         cameraBubbleVisible: defaultValues.cameraBubbleVisible,
         microphoneAllowed: defaultValues.microphoneAllowed,
         cameraBubbleSize: defaultValues.cameraBubbleSize,
@@ -46,6 +48,7 @@ beforeEach(() => {
     currentWindowId: defaultValues.currentWindowId,
     recordingWindowId: defaultValues.recordingWindowId,
     recordingInProgress: defaultValues.recordingInProgress,
+    recordingOnPause: defaultValues.recordingOnPause,
     cameraBubbleVisible: defaultValues.cameraBubbleVisible,
     microphoneAllowed: defaultValues.microphoneAllowed,
     cameraBubbleSize: defaultValues.cameraBubbleSize,
@@ -134,6 +137,20 @@ test("recordingInProgress", async () => {
   );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("recordingInProgress");
+});
+
+test("recordingOnPause", async () => {
+  await storage.set.recordingOnPause(true);
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toHaveBeenCalledWith({
+    recordingOnPause: true,
+  });
+
+  await expect(storage.get.recordingOnPause()).resolves.toBe(
+    defaultValues.recordingOnPause
+  );
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.get).toHaveBeenCalledWith("recordingOnPause");
 });
 
 test("cameraBubbleVisible", async () => {

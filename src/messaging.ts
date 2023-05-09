@@ -1,6 +1,8 @@
 export enum Method {
   StartRecording,
   StopRecording,
+  PauseRecording,
+  ResumeRecording,
   DeleteRecording,
   CancelRecording,
   DownloadRecording,
@@ -15,6 +17,8 @@ export enum Method {
   BrowserTabClosing,
   BrowserTabUpdated,
   TabStopMediaRecorder,
+  TabPauseMediaRecorder,
+  TabResumeMediaRecorder,
   OpenUserActiveWindow,
   BrowserWindowChange,
 }
@@ -25,10 +29,6 @@ export type BrowserTabClosingArgs = { closedTabId: number };
 export type TabStopMediaRecorderArgs = { downloadRecording: boolean };
 export type BrowserWindowChangeArgs = { newWindowId: number };
 
-export type RecordingInProgressResult = boolean;
-export type IsCameraBubbleVisibleResult = boolean;
-export type IsMicrophoneAllowedResult = boolean;
-
 export type MethodArgs =
   | DownloadRecordingArgs
   | BrowserTabChangeArgs
@@ -37,11 +37,7 @@ export type MethodArgs =
   | BrowserWindowChangeArgs
   | Record<string, never>;
 
-export type MethodResult =
-  | RecordingInProgressResult
-  | IsCameraBubbleVisibleResult
-  | IsMicrophoneAllowedResult
-  | "OK";
+export type MethodResult = "OK";
 
 export interface Message {
   method: Method;
@@ -61,6 +57,18 @@ function buildStartRecording(): Message {
 function buildStopRecording(): Message {
   return {
     method: Method.StopRecording,
+  };
+}
+
+function buildPauseRecording(): Message {
+  return {
+    method: Method.PauseRecording,
+  };
+}
+
+function buildResumeRecording(): Message {
+  return {
+    method: Method.ResumeRecording,
   };
 }
 
@@ -151,6 +159,18 @@ function buildTabStopMediaRecorder(downloadRecording: boolean): Message {
   };
 }
 
+function buildTabPauseMediaRecorder(): Message {
+  return {
+    method: Method.TabPauseMediaRecorder,
+  };
+}
+
+function buildTabResumeMediaRecorder(): Message {
+  return {
+    method: Method.TabResumeMediaRecorder,
+  };
+}
+
 function buildOpenUserActiveWindow(): Message {
   return {
     method: Method.OpenUserActiveWindow,
@@ -172,6 +192,8 @@ function buildErrorResponse(err: Error): MessageResponse {
 export const builder = {
   startRecording: buildStartRecording,
   stopRecording: buildStopRecording,
+  pauseRecording: buildPauseRecording,
+  resumeRecording: buildResumeRecording,
   deleteRecording: buildDeleteRecording,
   cancelRecording: buildCancelRecording,
   downloadRecording: buildDownloadRecording,
@@ -180,6 +202,8 @@ export const builder = {
   allowMicrophone: buildAllowMicrophone,
   disallowMicrophone: buildDisallowMicrophone,
   tabStopMediaRecorder: buildTabStopMediaRecorder,
+  tabPauseMediaRecorder: buildTabPauseMediaRecorder,
+  tabResumeMediaRecorder: buildTabResumeMediaRecorder,
   openUserActiveWindow: buildOpenUserActiveWindow,
   event: {
     browserTabChange: buildBrowserTabChange,

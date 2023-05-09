@@ -83,12 +83,33 @@ const TurnOnTurnOffMic = () => {
 
 const RecordingControl = () => {
   const [inProgress, setInProgress] = useState(false);
+  const [onPause, setOnPause] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
       storage.get
         .recordingInProgress()
         .then(setInProgress)
+        .catch((err) => {
+          if ((err as Error).message != "Extension context invalidated.") {
+            console.error(err);
+            return;
+          }
+          clearInterval(interval);
+          console.log("Looks like extension was disabled, interval removed");
+        });
+    }, 500);
+
+    return () => {
+      clearInterval(interval);
+    };
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      storage.get
+        .recordingOnPause()
+        .then(setOnPause)
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
             console.error(err);
@@ -117,6 +138,19 @@ const RecordingControl = () => {
       >
         {inProgress ? "Stop" : "Start"}
       </Button>
+      {inProgress && (
+        <Button
+          onClick={() => {
+            sender
+              .send(
+                onPause ? builder.resumeRecording() : builder.pauseRecording()
+              )
+              .catch((err) => console.error(err));
+          }}
+        >
+          {onPause ? "Resume" : "Pause"}
+        </Button>
+      )}
       {inProgress && (
         <Button
           onClick={() => {
