@@ -82,6 +82,9 @@ beforeEach(() => {
     cameraBubbleSize: (
       jest.fn() as jest.Mock<() => Promise<{ width: number; height: number }>>
     ).mockResolvedValue({ width: 200, height: 200 }),
+    cameraBubblePosition: (
+      jest.fn() as jest.Mock<() => Promise<{ x: number; y: number }>>
+    ).mockResolvedValue({ x: 0, y: 0 }),
   };
 
   jest.useFakeTimers();

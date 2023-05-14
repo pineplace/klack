@@ -34,6 +34,9 @@ jest.unstable_mockModule("../storage", () => {
         cameraBubbleSize: (
           jest.fn() as jest.Mock<() => Promise<void>>
         ).mockResolvedValue(),
+        cameraBubblePosition: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
       },
       get: {},
     },
