@@ -11,6 +11,7 @@ export interface Context {
   cameraBubbleVisible: boolean;
   microphoneAllowed: boolean;
   cameraBubbleSize: { width: number; height: number };
+  cameraBubblePosition: { x: number; y: number };
 }
 
 function setCurrentTabId(tabId: number): Promise<void> {
@@ -125,6 +126,25 @@ async function getCameraBubbleSize(): Promise<{
   return cameraBubbleSize as { width: number; height: number };
 }
 
+function setCameraBubblePosition(cameraBubblePosition: {
+  x: number;
+  y: number;
+}): Promise<void> {
+  return storageImpl.set({
+    cameraBubblePosition,
+  });
+}
+
+async function getCameraBubblePosition(): Promise<{
+  x: number;
+  y: number;
+}> {
+  const { cameraBubblePosition } = await storageImpl.get(
+    "cameraBubblePosition"
+  );
+  return cameraBubblePosition as { x: number; y: number };
+}
+
 export const storage = {
   set: {
     currentTabId: setCurrentTabId,
@@ -137,6 +157,7 @@ export const storage = {
     cameraBubbleVisible: setCameraBubbleVisible,
     microphoneAllowed: setMicrophoneAllowed,
     cameraBubbleSize: setCameraBubbleSize,
+    cameraBubblePosition: setCameraBubblePosition,
   },
   get: {
     currentTabId: getCurrentTabId,
@@ -149,5 +170,6 @@ export const storage = {
     cameraBubbleVisible: getCameraBubbleVisible,
     microphoneAllowed: getMicrophoneAllowed,
     cameraBubbleSize: getCameraBubbleSize,
+    cameraBubblePosition: getCameraBubblePosition,
   },
 };

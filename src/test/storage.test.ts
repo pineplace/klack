@@ -12,6 +12,7 @@ const defaultValues = {
   cameraBubbleVisible: true,
   microphoneAllowed: false,
   cameraBubbleSize: { width: 200, height: 200 },
+  cameraBubblePosition: { x: 0, y: 0 },
 } satisfies Context;
 
 globalThis.chrome = {
@@ -31,6 +32,7 @@ globalThis.chrome = {
         cameraBubbleVisible: defaultValues.cameraBubbleVisible,
         microphoneAllowed: defaultValues.microphoneAllowed,
         cameraBubbleSize: defaultValues.cameraBubbleSize,
+        cameraBubblePosition: { x: 0, y: 0 },
       } satisfies Context),
     },
   },
@@ -52,6 +54,7 @@ beforeEach(() => {
     cameraBubbleVisible: defaultValues.cameraBubbleVisible,
     microphoneAllowed: defaultValues.microphoneAllowed,
     cameraBubbleSize: defaultValues.cameraBubbleSize,
+    cameraBubblePosition: { x: 0, y: 0 },
   } satisfies Context);
 });
 
@@ -196,4 +199,21 @@ test("cameraBubbleSize", async () => {
   );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("cameraBubbleSize");
+});
+
+test("cameraBubblePosition", async () => {
+  await storage.set.cameraBubblePosition({ x: 10, y: 350 });
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toBeCalledWith({
+    cameraBubblePosition: {
+      x: 10,
+      y: 350,
+    },
+  });
+
+  await expect(storage.get.cameraBubblePosition()).resolves.toStrictEqual(
+    defaultValues.cameraBubblePosition
+  );
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.get).toHaveBeenCalledWith("cameraBubblePosition");
 });

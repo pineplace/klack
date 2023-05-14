@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Draggable from "react-draggable";
 import { ButtonGroup, IconButton, Radio, Stack } from "@mui/material";
 import {
@@ -216,12 +216,43 @@ const RecordingControl = () => {
 };
 
 const CameraBubble = () => {
+  const [currentPos, setCurrentPos] = useState({
+    x: 0,
+    y: 0,
+  });
+
+  const refStack = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    storage.get
+      .cameraBubblePosition()
+      .then(setCurrentPos)
+      .catch((err) => console.error(err));
+  }, []);
+
   return (
-    <Draggable>
+    <Draggable
+      onStop={() => {
+        if (!refStack.current) {
+          return;
+        }
+
+        const boundingRect = refStack.current.getBoundingClientRect();
+
+        storage.set
+          .cameraBubblePosition({
+            x: boundingRect.x,
+            y: boundingRect.y,
+          })
+          .catch((err) => console.error(err));
+      }}
+    >
       <Stack
+        ref={refStack}
         sx={{
           position: "fixed",
-          bottom: "100px",
+          left: currentPos.x,
+          top: currentPos.y,
           zIndex: 2147483647,
           userSelect: "none",
         }}
