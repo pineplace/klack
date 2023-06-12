@@ -23,6 +23,7 @@ export enum Method {
   BrowserWindowChange,
 }
 
+export type CancelRecordingArgs = { reason: string };
 export type DownloadRecordingArgs = { downloadUrl: string };
 export type BrowserTabChangeArgs = { newTabId: number };
 export type BrowserTabClosingArgs = { closedTabId: number };
@@ -30,6 +31,7 @@ export type TabStopMediaRecorderArgs = { downloadRecording: boolean };
 export type BrowserWindowChangeArgs = { newWindowId: number };
 
 export type MethodArgs =
+  | CancelRecordingArgs
   | DownloadRecordingArgs
   | BrowserTabChangeArgs
   | BrowserTabClosingArgs
@@ -78,9 +80,12 @@ function buildDeleteRecording(): Message {
   };
 }
 
-function buildCancelRecording(): Message {
+function buildCancelRecording(reason: string): Message {
   return {
     method: Method.CancelRecording,
+    args: {
+      reason,
+    },
   };
 }
 

@@ -1,6 +1,7 @@
 import {
   BrowserTabChangeArgs,
   BrowserWindowChangeArgs,
+  CancelRecordingArgs,
   DownloadRecordingArgs,
   MethodArgs,
   builder,
@@ -84,8 +85,10 @@ export async function handleDeleteRecording(_args: MethodArgs): Promise<void> {
   );
 }
 
-export async function handleCancelRecording(_args: MethodArgs): Promise<void> {
-  console.log("handleCancelRecording()");
+export async function handleCancelRecording(args: MethodArgs): Promise<void> {
+  args = args as CancelRecordingArgs;
+
+  console.log(`handleCancelRecording, reason: ${args.reason}`);
 
   await chrome.tabs.remove(await storage.get.recordingTabId());
   await storage.set.recordingTabId(0);

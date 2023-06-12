@@ -112,10 +112,9 @@ class RecorderV2 {
 
   #onStop() {
     if (!this.#downloadOnStop) {
-      console.log(
-        "Recording isn't downloaded because the user decided to delete it"
-      );
-      sender.send(builder.cancelRecording()).catch((err) => console.error(err));
+      sender
+        .send(builder.cancelRecording("User decided to delete recording"))
+        .catch((err) => console.error(err));
       return;
     }
     const downloadUrl = URL.createObjectURL(
@@ -173,6 +172,5 @@ try {
 
   await sender.send(builder.openUserActiveWindow());
 } catch (err) {
-  console.error(`Can't start screen sharing ${(err as Error).message}`);
-  await sender.send(builder.cancelRecording());
+  await sender.send(builder.cancelRecording((err as Error).message));
 }

@@ -115,7 +115,7 @@ describe("onMessage", () => {
   test("Correct CancelRecording message", async () => {
     let response: MessageResponse | undefined;
 
-    await onMessage(builder.cancelRecording(), {}, (resp) => {
+    await onMessage(builder.cancelRecording("some reason"), {}, (resp) => {
       response = resp;
     });
 

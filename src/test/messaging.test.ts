@@ -52,8 +52,11 @@ describe("builder", () => {
   });
 
   test("buildCancelRecording", () => {
-    expect(builder.cancelRecording()).toEqual({
+    expect(builder.cancelRecording("some reason")).toEqual({
       method: Method.CancelRecording,
+      args: {
+        reason: "some reason",
+      },
     } satisfies Message);
   });
 
