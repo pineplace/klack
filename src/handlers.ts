@@ -263,6 +263,13 @@ export async function handleOpenUserActiveWindow(
 ): Promise<void> {
   console.log("handleOpenUserActiveWindow()");
 
+  const currentWindowId = await storage.get.currentWindowId();
+  if (currentWindowId <= 0) {
+    console.warn(
+      "No data on the last window opened, most likely because the extension was recently reloaded"
+    );
+    return;
+  }
   await chrome.windows.update(await storage.get.currentWindowId(), {
     focused: true,
   });

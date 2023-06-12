@@ -359,16 +359,29 @@ test("handleTabUpdated", async () => {
   expect(mockedStorage.get.cameraBubbleVisible).toHaveBeenCalled();
 });
 
-test("handleOpenUserActiveWindow", async () => {
-  await handleOpenUserActiveWindow({});
+describe("handleOpenUserActiveWindow", () => {
+  test("currentWindowId > 0", async () => {
+    await handleOpenUserActiveWindow({});
 
-  expect(mockedStorage.get.currentWindowId).toHaveBeenCalled();
-  expect(chrome.windows.update).toHaveBeenCalledWith(
-    defaultValues.currentWindowId,
-    {
-      focused: true,
-    }
-  );
+    expect(mockedStorage.get.currentWindowId).toHaveBeenCalled();
+    expect(chrome.windows.update).toHaveBeenCalledWith(
+      defaultValues.currentWindowId,
+      {
+        focused: true,
+      }
+    );
+  });
+
+  test("currentWindowId <= 0", async () => {
+    mockedStorage.get.currentWindowId = (
+      jest.fn() as jest.Mock<() => Promise<number>>
+    ).mockResolvedValue(-1);
+
+    await handleOpenUserActiveWindow({});
+
+    expect(mockedStorage.get.currentWindowId).toHaveBeenCalled();
+    expect(chrome.windows.update).not.toHaveBeenCalled();
+  });
 });
 
 describe("handleWindowChange", () => {
