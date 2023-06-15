@@ -399,6 +399,15 @@ describe("handleWindowChange", () => {
   test("newWindowId <= 0", async () => {
     await handleWindowChange({ newWindowId: -1 });
 
+    expect(mockedStorage.get.currentWindowId).not.toHaveBeenCalled();
+    expect(mockedStorage.get.recordingWindowId).not.toHaveBeenCalled();
+  });
+
+  test("newWindowId equals to currentWindowId", async () => {
+    await handleWindowChange({ newWindowId: defaultValues.currentWindowId });
+
+    expect(mockedStorage.get.currentWindowId).toHaveBeenCalled();
+    expect(mockedStorage.get.recordingWindowId).not.toHaveBeenCalled();
     expect(mockedStorage.get.recordingWindowId).not.toHaveBeenCalled();
   });
 
@@ -406,6 +415,7 @@ describe("handleWindowChange", () => {
     await handleWindowChange({ newWindowId: defaultValues.recordingWindowId });
 
     expect(mockedStorage.get.recordingWindowId).toHaveBeenCalled();
+    expect(mockedStorage.get.currentWindowId).toHaveBeenCalled();
     expect(mockedStorage.set.currentWindowId).not.toHaveBeenCalled();
   });
 });
