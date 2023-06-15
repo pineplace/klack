@@ -242,10 +242,18 @@ export async function handleWindowChange(args: MethodArgs): Promise<void> {
     );
     return;
   }
+
+  if (args.newWindowId == (await storage.get.currentWindowId())) {
+    console.warn(
+      "Ignore window change because newWindowId is a currentWindowId"
+    );
+    return;
+  }
+
   // NOTE: Same reason as in `handleTabChange`
   if ((await storage.get.recordingWindowId()) === args.newWindowId) {
     console.warn(
-      `Ignore window change because newWindowId is a recordingWindowId`
+      "Ignore window change because newWindowId is a recordingWindowId"
     );
     return;
   }
