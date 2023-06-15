@@ -20,8 +20,7 @@ globalThis.chrome = {
     local: {
       // @ts-expect-error Chrome methods mocking
       set: jest.fn().mockResolvedValue({}),
-      // @ts-expect-error Chrome methods mocking
-      get: jest.fn().mockResolvedValue({
+      get: (jest.fn() as jest.Mock<() => Promise<Context>>).mockResolvedValue({
         currentTabId: defaultValues.currentTabId,
         cameraBubbleTabId: defaultValues.cameraBubbleTabId,
         recordingTabId: defaultValues.recordingTabId,
@@ -42,8 +41,9 @@ const { storage } = await import("../storage");
 beforeEach(() => {
   // @ts-expect-error Chrome methods mocking
   globalThis.chrome.storage.local.set = jest.fn().mockResolvedValue({});
-  // @ts-expect-error Chrome methods mocking
-  globalThis.chrome.storage.local.get = jest.fn().mockResolvedValue({
+  globalThis.chrome.storage.local.get = (
+    jest.fn() as jest.Mock<() => Promise<Context>>
+  ).mockResolvedValue({
     currentTabId: defaultValues.currentTabId,
     cameraBubbleTabId: defaultValues.cameraBubbleTabId,
     recordingTabId: defaultValues.recordingTabId,
