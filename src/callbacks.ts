@@ -21,7 +21,7 @@ import { builder, Message, MessageResponse, Method } from "./messaging";
 export async function onMessage(
   message: Message,
   _sender?: chrome.runtime.MessageSender,
-  sendResponse?: (response?: MessageResponse) => void
+  sendResponse?: (response?: MessageResponse) => void,
 ): Promise<void> {
   console.log(`onMessage ${JSON.stringify(message)}`);
 
@@ -62,14 +62,14 @@ export async function onMessage(
 }
 
 export function onTabChange(
-  newTabId: chrome.tabs.TabActiveInfo
+  newTabId: chrome.tabs.TabActiveInfo,
 ): Promise<void> {
   return onMessage(builder.event.browserTabChange(newTabId.tabId));
 }
 
 export function onTabClosing(
   closedTabId: number,
-  _removeInfo: { isWindowClosing: boolean; windowId: number }
+  _removeInfo: { isWindowClosing: boolean; windowId: number },
 ): Promise<void> {
   return onMessage(builder.event.browserTabClosing(closedTabId));
 }
@@ -77,7 +77,7 @@ export function onTabClosing(
 export function onTabUpdated(
   _tabId: number,
   _changeInfo: chrome.tabs.TabChangeInfo,
-  _tab: chrome.tabs.Tab
+  _tab: chrome.tabs.Tab,
 ): Promise<void> {
   return onMessage(builder.event.browserTabUpdated());
 }

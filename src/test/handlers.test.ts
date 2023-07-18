@@ -189,7 +189,7 @@ test("handleStopRecording", async () => {
       args: {
         downloadRecording: true,
       },
-    }
+    },
   );
 });
 
@@ -201,7 +201,7 @@ test("handlePauseRecording", async () => {
     defaultValues.recordingTabId,
     {
       method: Method.TabPauseMediaRecorder,
-    }
+    },
   );
 });
 
@@ -213,7 +213,7 @@ test("handleResumeRecording", async () => {
     defaultValues.recordingTabId,
     {
       method: Method.TabResumeMediaRecorder,
-    }
+    },
   );
 });
 
@@ -228,7 +228,7 @@ test("handleDeleteRecording", async () => {
       args: {
         downloadRecording: false,
       },
-    }
+    },
   );
 });
 
@@ -264,7 +264,7 @@ test("handleShowCameraBubble", async () => {
     files: ["./cameraBubble.bundle.mjs"],
   });
   expect(mockedStorage.set.cameraBubbleTabId).toHaveBeenCalledWith(
-    defaultValues.currentTabId
+    defaultValues.currentTabId,
   );
   expect(mockedStorage.set.cameraBubbleVisible).toHaveBeenCalledWith(true);
 });
@@ -307,7 +307,7 @@ describe("handleTabChange", () => {
 
     expect(mockedStorage.get.recordingTabId).toHaveBeenCalled();
     expect(mockedStorage.set.currentTabId).toHaveBeenCalledWith(
-      defaultValues.currentTabId + 1
+      defaultValues.currentTabId + 1,
     );
 
     expect(chrome.scripting.executeScript).not.toBeCalled();
@@ -330,7 +330,7 @@ describe("handleTabChange", () => {
 
     expect(mockedStorage.get.recordingTabId).toHaveBeenCalled();
     expect(mockedStorage.set.currentTabId).toHaveBeenCalledWith(
-      defaultValues.currentTabId + 1
+      defaultValues.currentTabId + 1,
     );
 
     // NOTE: From `handleTabChange` and `handleHideCameraBubble`
@@ -368,7 +368,7 @@ describe("handleOpenUserActiveWindow", () => {
       defaultValues.currentWindowId,
       {
         focused: true,
-      }
+      },
     );
   });
 

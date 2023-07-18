@@ -44,7 +44,7 @@ test("Rendering", async () => {
 
   await waitFor(() => {
     expect(
-      container.querySelector('[data-testid="WithStream"]')
+      container.querySelector('[data-testid="WithStream"]'),
     ).not.toBeNull();
   });
 

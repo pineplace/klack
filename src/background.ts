@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener(
     });
     // NOTE: We need to return `true`, because we using `sendResponse` asynchronously
     return true;
-  }
+  },
 );
 
 chrome.tabs.onActivated.addListener((activeTabInfo) => {

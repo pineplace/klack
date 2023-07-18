@@ -50,7 +50,7 @@ export async function handleStopRecording(_args: MethodArgs): Promise<void> {
 
   await sender.send(
     builder.tabStopMediaRecorder(true),
-    await storage.get.recordingTabId()
+    await storage.get.recordingTabId(),
   );
 }
 
@@ -61,7 +61,7 @@ export async function handlePauseRecording(_args: MethodArgs): Promise<void> {
 
   await sender.send(
     builder.tabPauseMediaRecorder(),
-    await storage.get.recordingTabId()
+    await storage.get.recordingTabId(),
   );
 }
 
@@ -72,7 +72,7 @@ export async function handleResumeRecording(_args: MethodArgs): Promise<void> {
 
   await sender.send(
     builder.tabResumeMediaRecorder(),
-    await storage.get.recordingTabId()
+    await storage.get.recordingTabId(),
   );
 }
 
@@ -81,7 +81,7 @@ export async function handleDeleteRecording(_args: MethodArgs): Promise<void> {
 
   await sender.send(
     builder.tabStopMediaRecorder(false),
-    await storage.get.recordingTabId()
+    await storage.get.recordingTabId(),
   );
 }
 
@@ -162,7 +162,7 @@ export async function handleAllowMicrophone(_args: MethodArgs): Promise<void> {
 }
 
 export async function handleDisallowMicrophone(
-  _args: MethodArgs
+  _args: MethodArgs,
 ): Promise<void> {
   console.log("handleDisallowMicrophone");
 
@@ -198,7 +198,7 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
     await handleShowCameraBubble(args);
   } catch (err) {
     console.warn(
-      `Can't show camera bubble on current tab ${(err as Error).message}`
+      `Can't show camera bubble on current tab ${(err as Error).message}`,
     );
 
     await chrome.scripting.executeScript({
@@ -237,14 +237,14 @@ export async function handleWindowChange(args: MethodArgs): Promise<void> {
 
   if (args.newWindowId <= 0) {
     console.warn(
-      `Ignore window change because newWindowId=${args.newWindowId}`
+      `Ignore window change because newWindowId=${args.newWindowId}`,
     );
     return;
   }
 
   if (args.newWindowId == (await storage.get.currentWindowId())) {
     console.warn(
-      "Ignore window change because newWindowId is a currentWindowId"
+      "Ignore window change because newWindowId is a currentWindowId",
     );
     return;
   }
@@ -252,7 +252,7 @@ export async function handleWindowChange(args: MethodArgs): Promise<void> {
   // NOTE: Same reason as in `handleTabChange`
   if ((await storage.get.recordingWindowId()) === args.newWindowId) {
     console.warn(
-      "Ignore window change because newWindowId is a recordingWindowId"
+      "Ignore window change because newWindowId is a recordingWindowId",
     );
     return;
   }
@@ -266,14 +266,14 @@ export async function handleWindowChange(args: MethodArgs): Promise<void> {
 }
 
 export async function handleOpenUserActiveWindow(
-  _args: MethodArgs
+  _args: MethodArgs,
 ): Promise<void> {
   console.log("handleOpenUserActiveWindow()");
 
   const currentWindowId = await storage.get.currentWindowId();
   if (currentWindowId <= 0) {
     console.warn(
-      "No data on the last window opened, most likely because the extension was recently reloaded"
+      "No data on the last window opened, most likely because the extension was recently reloaded",
     );
     return;
   }

@@ -189,7 +189,7 @@ const RecordingControl = () => {
           }
           sender
             .send(
-              onPause ? builder.resumeRecording() : builder.pauseRecording()
+              onPause ? builder.resumeRecording() : builder.pauseRecording(),
             )
             .catch((err) => console.error(err));
         }}
