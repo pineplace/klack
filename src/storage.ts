@@ -140,7 +140,7 @@ async function getCameraBubblePosition(): Promise<{
   y: number;
 }> {
   const { cameraBubblePosition } = await storageImpl.get(
-    "cameraBubblePosition"
+    "cameraBubblePosition",
   );
   return cameraBubblePosition as { x: number; y: number };
 }

@@ -103,7 +103,7 @@ test("CloseCameraBubble", async () => {
   // debug();
 
   const closeCameraBubbleBtn = container.querySelector(
-    '[data-testid="CloseIcon"]'
+    '[data-testid="CloseIcon"]',
   );
 
   expect(closeCameraBubbleBtn).not.toBeNull();
@@ -135,7 +135,7 @@ describe("RecordingControl", () => {
     // debug();
 
     const playBtn = container.querySelector(
-      '[data-testid="PlayCircleFilledRoundedIcon"]'
+      '[data-testid="PlayCircleFilledRoundedIcon"]',
     );
 
     expect(playBtn).not.toBeNull();
@@ -150,7 +150,7 @@ describe("RecordingControl", () => {
     await waitForElementToBeRemoved(playBtn);
 
     const stopBtn = container.querySelector(
-      '[data-testid="StopCircleRoundedIcon"]'
+      '[data-testid="StopCircleRoundedIcon"]',
     );
 
     expect(stopBtn).not.toBeNull();
@@ -165,7 +165,7 @@ describe("RecordingControl", () => {
     await waitForElementToBeRemoved(stopBtn);
 
     expect(
-      container.querySelector('[data-testid="PlayCircleFilledRoundedIcon"]')
+      container.querySelector('[data-testid="PlayCircleFilledRoundedIcon"]'),
     ).not.toBeNull();
   });
 
@@ -175,7 +175,7 @@ describe("RecordingControl", () => {
     });
 
     const playBtn = container.querySelector(
-      '[data-testid="PlayCircleFilledRoundedIcon"]'
+      '[data-testid="PlayCircleFilledRoundedIcon"]',
     );
 
     act(() => {
@@ -206,7 +206,7 @@ describe("RecordingControl", () => {
     await waitForElementToBeRemoved(deleteBtn);
 
     expect(
-      container.querySelector('[data-testid="PlayCircleFilledRoundedIcon"]')
+      container.querySelector('[data-testid="PlayCircleFilledRoundedIcon"]'),
     ).not.toBeNull();
   });
 
@@ -216,7 +216,7 @@ describe("RecordingControl", () => {
     });
 
     const playBtn = container.querySelector(
-      '[data-testid="PlayCircleFilledRoundedIcon"]'
+      '[data-testid="PlayCircleFilledRoundedIcon"]',
     );
 
     act(() => {
@@ -232,7 +232,7 @@ describe("RecordingControl", () => {
     await waitForElementToBeRemoved(playBtn);
 
     const pauseBtn = container.querySelector(
-      '[data-testid="PauseCircleFilledRoundedIcon"]'
+      '[data-testid="PauseCircleFilledRoundedIcon"]',
     );
 
     expect(pauseBtn).not.toBeNull();
@@ -249,7 +249,7 @@ describe("RecordingControl", () => {
 
     await waitFor(() => {
       expect(
-        container.querySelector('[data-testid="PlayCircleFilledRoundedIcon"]')
+        container.querySelector('[data-testid="PlayCircleFilledRoundedIcon"]'),
       ).not.toBeNull();
     });
   });

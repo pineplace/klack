@@ -35,7 +35,7 @@ class RecorderV2 {
           ? this.#audioDestination.stream.getAudioTracks()
           : []),
       ]),
-      { mimeType: this.#outputType }
+      { mimeType: this.#outputType },
     );
 
     chrome.runtime.onMessage.addListener((message: Message) => {
@@ -98,7 +98,7 @@ class RecorderV2 {
     if (stream.getVideoTracks().length) {
       if (this.#videoTrack) {
         throw new Error(
-          "Recorder already has video track, you can't add another"
+          "Recorder already has video track, you can't add another",
         );
       }
 
@@ -120,7 +120,7 @@ class RecorderV2 {
     const downloadUrl = URL.createObjectURL(
       new Blob(this.#mediaChunks, {
         type: this.#outputType,
-      })
+      }),
     );
 
     sender
@@ -164,7 +164,7 @@ try {
     await navigator.mediaDevices.getDisplayMedia({
       audio: true,
       video: true,
-    })
+    }),
   );
 
   const recorder = new RecorderV2(streams);

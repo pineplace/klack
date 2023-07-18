@@ -242,11 +242,11 @@ describe("onMessage", () => {
       {},
       (resp) => {
         response = resp;
-      }
+      },
     );
 
     expect(response).toEqual(
-      builder.response.error(new Error(`Unexpected method: Incorrect method`))
+      builder.response.error(new Error(`Unexpected method: Incorrect method`)),
     );
   });
 });

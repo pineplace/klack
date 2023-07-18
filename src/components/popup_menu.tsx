@@ -31,7 +31,7 @@ const ShowHideCameraBubble = () => {
       onClick={() => {
         sender
           .send(
-            isVisible ? builder.hideCameraBubble() : builder.showCameraBubble()
+            isVisible ? builder.hideCameraBubble() : builder.showCameraBubble(),
           )
           .catch((err) => console.error(err));
       }}
@@ -71,7 +71,7 @@ const TurnOnTurnOffMic = () => {
           .send(
             micAllowed
               ? builder.disallowMicrophone()
-              : builder.allowMicrophone()
+              : builder.allowMicrophone(),
           )
           .catch((err) => console.error(err));
       }}
@@ -131,7 +131,7 @@ const RecordingControl = () => {
         onClick={() => {
           sender
             .send(
-              inProgress ? builder.stopRecording() : builder.startRecording()
+              inProgress ? builder.stopRecording() : builder.startRecording(),
             )
             .catch((err) => console.error(err));
         }}
@@ -143,7 +143,7 @@ const RecordingControl = () => {
           onClick={() => {
             sender
               .send(
-                onPause ? builder.resumeRecording() : builder.pauseRecording()
+                onPause ? builder.resumeRecording() : builder.pauseRecording(),
               )
               .catch((err) => console.error(err));
           }}
