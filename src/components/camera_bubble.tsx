@@ -11,34 +11,19 @@ import {
 import { builder, sender } from "../messaging";
 import { storage } from "../storage";
 
-const useCameraBubbleSize = () => {
-  const [size, setSize] = useState<{ width: number; height: number }>({
-    width: 200,
-    height: 200,
-  });
-
-  useEffect(() => {
-    const checkSizeUpdate = async () => {
-      const newSize = await storage.get.cameraBubbleSize();
-
-      if (newSize.width === size.width && newSize.height === size.height) {
-        setTimeout(() => {
-          checkSizeUpdate().catch((err) => console.error(err));
-        });
-        return;
-      }
-
-      setSize({ ...newSize });
-    };
-
-    checkSizeUpdate().catch((err) => console.error(err));
-  }, [size]);
-
-  return size;
-};
-
 const SizeSelector = () => {
   const [selectedValue, setSelectedValue] = useState("200x200");
+
+  useEffect(() => {
+    storage.get
+      .cameraBubbleSize()
+      .then((size) => {
+        setSelectedValue(`${size.width}x${size.height}`);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const [width, height] = event.target.value
@@ -97,7 +82,33 @@ const CameraBubbleControl = () => {
 };
 
 const CameraBubbleFrame = () => {
-  const size = useCameraBubbleSize();
+  const [size, setSize] = useState<{ width: number; height: number }>({
+    width: 200,
+    height: 200,
+  });
+
+  useEffect(() => {
+    const checkSizeUpdate = async () => {
+      const newSize = await storage.get.cameraBubbleSize();
+
+      if (newSize.width === size.width && newSize.height === size.height) {
+        return;
+      }
+
+      setSize({ ...newSize });
+    };
+
+    const interval = setInterval(() => {
+      checkSizeUpdate().catch((err) => {
+        console.error(err);
+        clearInterval(interval);
+      });
+    });
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [size]);
 
   return (
     <iframe
