@@ -153,7 +153,6 @@ export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
   });
   await storage.set.cameraBubbleTabId(0);
   await storage.set.cameraBubbleVisible(false);
-  await storage.set.cameraBubbleSize({ width: 200, height: 200 });
 }
 
 export async function handleAllowMicrophone(_args: MethodArgs): Promise<void> {
