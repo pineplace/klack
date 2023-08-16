@@ -125,6 +125,9 @@ class RecorderV2 {
 
     sender
       .send(builder.downloadRecording(downloadUrl))
+      .then(() => {
+        URL.revokeObjectURL(downloadUrl);
+      })
       .catch((err) => console.error(err));
   }
 
