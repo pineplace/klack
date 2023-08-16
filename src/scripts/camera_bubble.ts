@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import CameraBubble from "../components/camera_bubble";
+import { storage } from "../storage";
 
 if (!document.getElementById("rapidrec-camera-bubble")) {
   /* NOTE: `@emotion/react` library used by `@mui` as a style library sets the value in
@@ -24,8 +25,14 @@ if (!document.getElementById("rapidrec-camera-bubble")) {
     globalThis[emotionKey] = false;
   }
 
+  const cameraBubblePosition = await storage.get.cameraBubblePosition();
+
   const div = document.createElement("div");
   div.id = "rapidrec-camera-bubble";
   document.body.append(div);
-  ReactDOM.createRoot(div).render(React.createElement(CameraBubble));
+  ReactDOM.createRoot(div).render(
+    React.createElement(CameraBubble, {
+      cameraBubblePosition,
+    }),
+  );
 }

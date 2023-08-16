@@ -97,7 +97,7 @@ afterEach(() => {
 
 test("CloseCameraBubble", async () => {
   const { container, debug: _debug } = await act(() => {
-    return render(<CameraBubble />);
+    return render(<CameraBubble cameraBubblePosition={{ x: 0, y: 0 }} />);
   });
 
   // debug();
@@ -118,7 +118,7 @@ test("CloseCameraBubble", async () => {
 
 test("CameraBubbleFrame", async () => {
   const { container, debug: _debug } = await act(() => {
-    return render(<CameraBubble />);
+    return render(<CameraBubble cameraBubblePosition={{ x: 0, y: 0 }} />);
   });
 
   // debug();
@@ -129,7 +129,7 @@ test("CameraBubbleFrame", async () => {
 describe("RecordingControl", () => {
   test("Start and Stop recording", async () => {
     const { container, debug: _debug } = await act(() => {
-      return render(<CameraBubble />);
+      return render(<CameraBubble cameraBubblePosition={{ x: 0, y: 0 }} />);
     });
 
     // debug();
@@ -171,7 +171,7 @@ describe("RecordingControl", () => {
 
   test("Start and Delete recording", async () => {
     const { container, debug: _debug } = await act(() => {
-      return render(<CameraBubble />);
+      return render(<CameraBubble cameraBubblePosition={{ x: 0, y: 0 }} />);
     });
 
     const playBtn = container.querySelector(
@@ -212,7 +212,7 @@ describe("RecordingControl", () => {
 
   test("Start, Pause and Resume recording", async () => {
     const { container, debug: _debug } = await act(() => {
-      return render(<CameraBubble />);
+      return render(<CameraBubble cameraBubblePosition={{ x: 0, y: 0 }} />);
     });
 
     const playBtn = container.querySelector(
@@ -257,7 +257,7 @@ describe("RecordingControl", () => {
 
 test("Resize camera bubble", async () => {
   const { container, debug: _debug } = await act(() => {
-    return render(<CameraBubble />);
+    return render(<CameraBubble cameraBubblePosition={{ x: 0, y: 0 }} />);
   });
 
   // debug();

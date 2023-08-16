@@ -226,10 +226,13 @@ const RecordingControl = () => {
   );
 };
 
-const CameraBubble = () => {
+interface CameraBubbleProps {
+  cameraBubblePosition: { x: number; y: number };
+}
+
+const CameraBubble = (props: CameraBubbleProps) => {
   const [currentPos, setCurrentPos] = useState({
-    x: 0,
-    y: 0,
+    ...props.cameraBubblePosition,
   });
 
   const refStack = useRef<HTMLDivElement | null>(null);
