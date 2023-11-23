@@ -160,13 +160,21 @@ try {
   const streams: MediaStream[] = [];
 
   if (await storage.get.microphoneAllowed()) {
-    streams.push(await navigator.mediaDevices.getUserMedia({ audio: true }));
+    streams.push(
+      await navigator.mediaDevices.getUserMedia({
+        audio: {
+          deviceId: await storage.get.microphoneDeviceId(),
+        },
+      }),
+    );
   }
 
   streams.push(
     await navigator.mediaDevices.getDisplayMedia({
       audio: true,
-      video: true,
+      video: {
+        deviceId: await storage.get.cameraDeviceId(),
+      },
     }),
   );
 
