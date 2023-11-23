@@ -10,8 +10,10 @@ export interface Context {
   recordingOnPause: boolean;
   cameraBubbleVisible: boolean;
   microphoneAllowed: boolean;
+  microphoneDeviceId: string;
   cameraBubbleSize: { width: number; height: number };
   cameraBubblePosition: { x: number; y: number };
+  cameraDeviceId: string;
 }
 
 function setCurrentTabId(tabId: number): Promise<void> {
@@ -109,6 +111,17 @@ async function getMicrophoneAllowed(): Promise<boolean> {
   return microphoneAllowed as boolean;
 }
 
+function setMicrophoneDeviceId(microphoneDeviceId: string): Promise<void> {
+  return storageImpl.set({
+    microphoneDeviceId,
+  } satisfies Partial<Context>);
+}
+
+async function getMicrophoneDeviceId(): Promise<string> {
+  const { microphoneDeviceId } = await storageImpl.get("microphoneDeviceId");
+  return microphoneDeviceId as string;
+}
+
 function setCameraBubbleSize(cameraBubbleSize: {
   width: number;
   height: number;
@@ -145,6 +158,17 @@ async function getCameraBubblePosition(): Promise<{
   return cameraBubblePosition as { x: number; y: number };
 }
 
+function setCameraDeviceId(cameraDeviceId: string): Promise<void> {
+  return storageImpl.set({
+    cameraDeviceId,
+  } satisfies Partial<Context>);
+}
+
+async function getCameraDeviceId(): Promise<string> {
+  const { cameraDeviceId } = await storageImpl.get("cameraDeviceId");
+  return cameraDeviceId as string;
+}
+
 export const storage = {
   set: {
     currentTabId: setCurrentTabId,
@@ -156,8 +180,10 @@ export const storage = {
     recordingOnPause: setRecordingOnPause,
     cameraBubbleVisible: setCameraBubbleVisible,
     microphoneAllowed: setMicrophoneAllowed,
+    microphoneDeviceId: setMicrophoneDeviceId,
     cameraBubbleSize: setCameraBubbleSize,
     cameraBubblePosition: setCameraBubblePosition,
+    cameraDeviceId: setCameraDeviceId,
   },
   get: {
     currentTabId: getCurrentTabId,
@@ -169,7 +195,9 @@ export const storage = {
     recordingOnPause: getRecordingOnPause,
     cameraBubbleVisible: getCameraBubbleVisible,
     microphoneAllowed: getMicrophoneAllowed,
+    microphoneDeviceId: getMicrophoneDeviceId,
     cameraBubbleSize: getCameraBubbleSize,
     cameraBubblePosition: getCameraBubblePosition,
+    cameraDeviceId: getCameraDeviceId,
   },
 };

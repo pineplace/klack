@@ -78,6 +78,12 @@ beforeEach(() => {
     microphoneAllowed: (
       jest.fn() as jest.Mock<() => Promise<boolean>>
     ).mockResolvedValue(true),
+    microphoneDeviceId: (
+      jest.fn() as jest.Mock<() => Promise<string>>
+    ).mockResolvedValue("test-microphone-device-id"),
+    cameraDeviceId: (
+      jest.fn() as jest.Mock<() => Promise<string>>
+    ).mockResolvedValue("test-camera-device-id"),
   };
 
   jest.useFakeTimers();
