@@ -8,6 +8,7 @@ import {
   sender,
 } from "./messaging";
 import { storage } from "./storage";
+import { debounce } from "./utils";
 
 async function setStorageDefaultValues() {
   await storage.set.currentTabId(0);
@@ -226,7 +227,9 @@ export async function handleTabUpdated(_args: MethodArgs): Promise<void> {
   console.log("handleTabUpdated()");
 
   if (await storage.get.cameraBubbleVisible()) {
-    await handleShowCameraBubble({});
+    debounce(() => {
+      handleShowCameraBubble({}).catch((err) => console.error(err));
+    }, 2 * 1000);
   }
 }
 
