@@ -11,6 +11,7 @@ export default {
     cameraBubble: "./src/scripts/camera_bubble.ts",
     cameraBubbleStream: "./src/scripts/camera_bubble_stream.ts",
     screenSharing: "./src/scripts/screen_sharing.ts",
+    recordingStartCountdown: "./src/scripts/recording_start_countdown.ts",
   },
   output: {
     path: path.join(__dirname, "./ext"),

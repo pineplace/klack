@@ -29,21 +29,39 @@ await setStorageDefaultValues();
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
 
-  const tab = await chrome.tabs.create({
-    active: false,
-    url: chrome.runtime.getURL("./screen_sharing.html"),
+  const currentTab = await storage.get.currentTabId();
+  await chrome.scripting.executeScript({
+    target: { tabId: currentTab },
+    files: ["recordingStartCountdown.bundle.mjs"],
   });
 
-  const window = await chrome.windows.create({
-    focused: true,
-    tabId: tab.id,
-    width: 650,
-    height: 710,
-  });
+  console.log("handleStartRecording(), 3 seconds countdown has been started");
 
-  await storage.set.recordingTabId(tab.id as number);
-  await storage.set.recordingWindowId(window.id as number);
-  await storage.set.recordingInProgress(true);
+  const start = async () => {
+    const tab = await chrome.tabs.create({
+      active: false,
+      url: chrome.runtime.getURL("./screen_sharing.html"),
+    });
+
+    const window = await chrome.windows.create({
+      focused: true,
+      tabId: tab.id,
+      width: 650,
+      height: 710,
+    });
+
+    await storage.set.recordingTabId(tab.id as number);
+    await storage.set.recordingWindowId(window.id as number);
+    await storage.set.recordingInProgress(true);
+
+    console.log("handleStartRecording(), recording has been started");
+  };
+
+  setTimeout(() => {
+    start().catch((err) => {
+      console.error(err);
+    });
+  }, 3 * 1000);
 }
 
 export async function handleStopRecording(_args: MethodArgs): Promise<void> {
