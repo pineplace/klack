@@ -161,7 +161,12 @@ beforeEach(() => {
 });
 
 test("handleStartRecording", async () => {
+  jest.useFakeTimers();
+
   await handleStartRecording({});
+
+  jest.advanceTimersByTime(5 * 1000);
+  await jest.runOnlyPendingTimersAsync();
 
   expect(chrome.tabs.create).toHaveBeenCalledWith({
     active: false,
