@@ -3,6 +3,8 @@ import type { TabStopMediaRecorderArgs } from "../messaging";
 import { storage } from "../storage";
 
 class RecorderV2 {
+  #recordingDurationInterval: number;
+  #recordingDurationSeconds: number;
   #outputType: string;
   #mediaChunks: BlobPart[];
   #audioContext: AudioContext;
@@ -14,6 +16,8 @@ class RecorderV2 {
   #downloadOnStop = true;
 
   constructor(streams: MediaStream[], outputType = "video/webm") {
+    this.#recordingDurationInterval = 0;
+    this.#recordingDurationSeconds = 0;
     this.#outputType = outputType;
     this.#mediaChunks = [];
     this.#audioContext = new AudioContext();
@@ -107,7 +111,20 @@ class RecorderV2 {
   }
 
   #onStart() {
-    //
+    storage.set.recordingDuration(0).catch((err) => {
+      console.error(err);
+    });
+
+    this.#recordingDurationInterval = self.setInterval(() => {
+      if (this.#mediaRecorder.state !== "recording") {
+        return;
+      }
+      storage.set
+        .recordingDuration(++this.#recordingDurationSeconds)
+        .catch((err) => {
+          console.error(err);
+        });
+    }, 1 * 1000);
   }
 
   #onStop() {
