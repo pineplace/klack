@@ -22,6 +22,7 @@ async function setStorageDefaultValues() {
   await storage.set.microphoneAllowed(true);
   await storage.set.cameraBubbleSize({ width: 200, height: 200 });
   await storage.set.cameraBubblePosition({ x: 0, y: 0 });
+  await storage.set.recordingDuration(0);
 }
 
 await setStorageDefaultValues();

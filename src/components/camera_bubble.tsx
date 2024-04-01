@@ -1,6 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Draggable from "react-draggable";
-import { ButtonGroup, IconButton, Radio, Stack } from "@mui/material";
+import {
+  ButtonGroup,
+  IconButton,
+  Radio,
+  Stack,
+  Typography,
+} from "@mui/material";
 import {
   Delete,
   PlayCircleFilledRounded,
@@ -226,6 +232,56 @@ const RecordingControl = () => {
   );
 };
 
+const RecordingDuration = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState("00:00");
+
+  const updateRecordingDuration = useCallback(async () => {
+    const recordingDurationInSeconds = await storage.get.recordingDuration();
+
+    const seconds = recordingDurationInSeconds % 60;
+    const minutes = Math.floor(recordingDurationInSeconds / 60);
+
+    const secondsString =
+      seconds.toString().length < 2 ? `0${seconds}` : seconds;
+    const minutesString =
+      minutes.toString().length < 2 ? `0${minutes}` : minutes;
+
+    setRecordingDuration(`${minutesString}:${secondsString}`);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      storage.get
+        .recordingInProgress()
+        .then((res) => setIsVisible(res))
+        .catch((err) => console.error(err));
+    }, 500);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      updateRecordingDuration().catch((err) => {
+        console.error(err);
+      });
+    }, 500);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [updateRecordingDuration]);
+
+  return isVisible ? (
+    <Typography variant="h6">{recordingDuration}</Typography>
+  ) : (
+    <></>
+  );
+};
+
 interface CameraBubbleProps {
   cameraBubblePosition: { x: number; y: number };
 }
@@ -278,6 +334,7 @@ const CameraBubble = (props: CameraBubbleProps) => {
         <CameraBubbleControl />
         <CameraBubbleFrame />
         <RecordingControl />
+        <RecordingDuration />
       </Stack>
     </Draggable>
   );

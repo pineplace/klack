@@ -14,6 +14,7 @@ export interface Context {
   cameraBubbleSize: { width: number; height: number };
   cameraBubblePosition: { x: number; y: number };
   cameraDeviceId: string;
+  recordingDuration: number;
 }
 
 function setCurrentTabId(tabId: number): Promise<void> {
@@ -169,6 +170,17 @@ async function getCameraDeviceId(): Promise<string> {
   return cameraDeviceId as string;
 }
 
+function setRecordingDuration(durationInSeconds: number): Promise<void> {
+  return storageImpl.set({
+    recordingDuration: durationInSeconds,
+  } satisfies Partial<Context>);
+}
+
+async function getRecordingDuration(): Promise<number> {
+  const { recordingDuration } = await storageImpl.get("recordingDuration");
+  return recordingDuration as number;
+}
+
 export const storage = {
   set: {
     currentTabId: setCurrentTabId,
@@ -184,6 +196,7 @@ export const storage = {
     cameraBubbleSize: setCameraBubbleSize,
     cameraBubblePosition: setCameraBubblePosition,
     cameraDeviceId: setCameraDeviceId,
+    recordingDuration: setRecordingDuration,
   },
   get: {
     currentTabId: getCurrentTabId,
@@ -199,5 +212,6 @@ export const storage = {
     cameraBubbleSize: getCameraBubbleSize,
     cameraBubblePosition: getCameraBubblePosition,
     cameraDeviceId: getCameraDeviceId,
+    recordingDuration: getRecordingDuration,
   },
 };

@@ -15,6 +15,7 @@ const defaultValues = {
   cameraBubbleSize: { width: 200, height: 200 },
   cameraBubblePosition: { x: 0, y: 0 },
   cameraDeviceId: "aabbccdd321",
+  recordingDuration: 0,
 } satisfies Context;
 
 globalThis.chrome = {
@@ -36,6 +37,7 @@ globalThis.chrome = {
         cameraBubbleSize: defaultValues.cameraBubbleSize,
         cameraBubblePosition: { x: 0, y: 0 },
         cameraDeviceId: "aabbccdd321",
+        recordingDuration: 0,
       } satisfies Context),
     },
   },
@@ -61,6 +63,7 @@ beforeEach(() => {
     cameraBubbleSize: defaultValues.cameraBubbleSize,
     cameraBubblePosition: { x: 0, y: 0 },
     cameraDeviceId: "aabbccdd321",
+    recordingDuration: 0,
   } satisfies Context);
 });
 
@@ -250,4 +253,18 @@ test("cameraDeviceId", async () => {
   );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("cameraDeviceId");
+});
+
+test("recordingDuration", async () => {
+  await storage.set.recordingDuration(defaultValues.recordingDuration);
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toBeCalledWith({
+    recordingDuration: defaultValues.recordingDuration,
+  });
+
+  await expect(storage.get.recordingDuration()).resolves.toStrictEqual(
+    defaultValues.recordingDuration,
+  );
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.get).toHaveBeenCalledWith("recordingDuration");
 });
