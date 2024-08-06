@@ -31,6 +31,9 @@ jest.unstable_mockModule("../storage", () => {
         microphoneAllowed: (
           jest.fn() as jest.Mock<() => Promise<void>>
         ).mockResolvedValue(),
+        microphoneVolumeLevel: (
+          jest.fn() as jest.Mock<() => Promise<void>>
+        ).mockResolvedValue(),
         cameraBubbleSize: (
           jest.fn() as jest.Mock<() => Promise<void>>
         ).mockResolvedValue(),

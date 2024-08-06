@@ -2,6 +2,51 @@ import { Message, Method, builder, sender } from "../messaging";
 import type { TabStopMediaRecorderArgs } from "../messaging";
 import { storage } from "../storage";
 
+class VolumeLevelHandler {
+  #audioContext: AudioContext;
+  #mediaSourceNode: MediaStreamAudioSourceNode;
+  #analyserNode: AnalyserNode;
+  // #volumeLevelInterval: number;
+
+  constructor(microphoneDeviceStream: MediaStream) {
+    console.log("VolumeLevelHandler::constructor  ()");
+    this.#audioContext = new AudioContext();
+    this.#mediaSourceNode = this.#audioContext.createMediaStreamSource(
+      microphoneDeviceStream,
+    );
+    this.#analyserNode = this.#audioContext.createAnalyser();
+    this.#analyserNode.fftSize = 2048;
+
+    this.#mediaSourceNode
+      .connect(this.#analyserNode)
+      .connect(this.#audioContext.destination);
+  }
+
+  async start() {
+    console.log("VolumeLevelHandler::start()");
+    await this.#audioContext.resume();
+    /* this.#volumeLevelInterval =  */ self.setInterval(() => {
+      const dataArray = new Uint8Array(this.#analyserNode.fftSize);
+      this.#analyserNode.getByteFrequencyData(dataArray);
+      let sum = 0;
+      for (const value of dataArray) {
+        sum += value;
+      }
+      const averageMicrophoneVolumeLevel = sum / dataArray.length;
+      storage.set
+        .microphoneVolumeLevel(Math.floor(averageMicrophoneVolumeLevel))
+        .catch((err) => {
+          console.error(err);
+        });
+    });
+  }
+
+  async stop() {
+    console.log("VolumeLevelHandler::stop()");
+    await this.#audioContext.close();
+  }
+}
+
 class RecorderV2 {
   #recordingDurationInterval: number;
   #recordingDurationSeconds: number;
@@ -174,16 +219,17 @@ class RecorderV2 {
 }
 
 try {
+  let microphoneVolumeHandler: VolumeLevelHandler | null = null;
   const streams: MediaStream[] = [];
 
   if (await storage.get.microphoneAllowed()) {
-    streams.push(
-      await navigator.mediaDevices.getUserMedia({
-        audio: {
-          deviceId: await storage.get.microphoneDeviceId(),
-        },
-      }),
-    );
+    const microphoneStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        deviceId: await storage.get.microphoneDeviceId(),
+      },
+    });
+    streams.push(microphoneStream);
+    microphoneVolumeHandler = new VolumeLevelHandler(microphoneStream);
   }
 
   streams.push(
@@ -197,6 +243,7 @@ try {
 
   const recorder = new RecorderV2(streams);
   recorder.start();
+  await microphoneVolumeHandler?.start();
 
   await sender.send(builder.openUserActiveWindow());
 } catch (err) {

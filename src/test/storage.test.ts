@@ -12,6 +12,7 @@ const defaultValues = {
   cameraBubbleVisible: true,
   microphoneAllowed: false,
   microphoneDeviceId: "aabbccdd123",
+  microphoneVolumeLevel: 0,
   cameraBubbleSize: { width: 200, height: 200 },
   cameraBubblePosition: { x: 0, y: 0 },
   cameraDeviceId: "aabbccdd321",
@@ -34,6 +35,7 @@ globalThis.chrome = {
         cameraBubbleVisible: defaultValues.cameraBubbleVisible,
         microphoneAllowed: defaultValues.microphoneAllowed,
         microphoneDeviceId: "aabbccdd123",
+        microphoneVolumeLevel: 0,
         cameraBubbleSize: defaultValues.cameraBubbleSize,
         cameraBubblePosition: { x: 0, y: 0 },
         cameraDeviceId: "aabbccdd321",
@@ -60,6 +62,7 @@ beforeEach(() => {
     cameraBubbleVisible: defaultValues.cameraBubbleVisible,
     microphoneAllowed: defaultValues.microphoneAllowed,
     microphoneDeviceId: "aabbccdd123",
+    microphoneVolumeLevel: 0,
     cameraBubbleSize: defaultValues.cameraBubbleSize,
     cameraBubblePosition: { x: 0, y: 0 },
     cameraDeviceId: "aabbccdd321",
@@ -205,6 +208,22 @@ test("microphoneDeviceId", async () => {
   );
   // eslint-disable-next-line @typescript-eslint/unbound-method
   expect(chrome.storage.local.get).toHaveBeenCalledWith("microphoneDeviceId");
+});
+
+test("microphoneVolumeLevel", async () => {
+  await storage.set.microphoneVolumeLevel(defaultValues.microphoneVolumeLevel);
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.set).toHaveBeenCalledWith({
+    microphoneVolumeLevel: defaultValues.microphoneVolumeLevel,
+  });
+
+  await expect(storage.get.microphoneVolumeLevel()).resolves.toBe(
+    defaultValues.microphoneVolumeLevel,
+  );
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  expect(chrome.storage.local.get).toHaveBeenCalledWith(
+    "microphoneVolumeLevel",
+  );
 });
 
 test("cameraBubbleSize", async () => {

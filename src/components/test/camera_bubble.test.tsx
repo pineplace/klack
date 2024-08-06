@@ -85,6 +85,9 @@ beforeEach(() => {
     cameraBubblePosition: (
       jest.fn() as jest.Mock<() => Promise<{ x: number; y: number }>>
     ).mockResolvedValue({ x: 0, y: 0 }),
+    microphoneVolumeLevel: (
+      jest.fn() as jest.Mock<() => Promise<number>>
+    ).mockResolvedValue(0),
   };
 
   jest.useFakeTimers();

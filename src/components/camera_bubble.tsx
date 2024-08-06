@@ -290,6 +290,7 @@ const CameraBubble = (props: CameraBubbleProps) => {
   const [currentPos, setCurrentPos] = useState({
     ...props.cameraBubblePosition,
   });
+  const [microphoneLevel, setMicrophoneLevel] = useState(0);
 
   const refStack = useRef<HTMLDivElement | null>(null);
 
@@ -298,6 +299,22 @@ const CameraBubble = (props: CameraBubbleProps) => {
       .cameraBubblePosition()
       .then(setCurrentPos)
       .catch((err) => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      storage.get
+        .microphoneVolumeLevel()
+        .then((microphoneLevel) => {
+          console.log("Set microphone level", microphoneLevel);
+          setMicrophoneLevel(microphoneLevel);
+        })
+        .catch((err) => console.error(err));
+    });
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -335,6 +352,7 @@ const CameraBubble = (props: CameraBubbleProps) => {
         <CameraBubbleFrame />
         <RecordingControl />
         <RecordingDuration />
+        <Typography>Microphone indication: {microphoneLevel}</Typography>
       </Stack>
     </Draggable>
   );

@@ -11,6 +11,7 @@ export interface Context {
   cameraBubbleVisible: boolean;
   microphoneAllowed: boolean;
   microphoneDeviceId: string;
+  microphoneVolumeLevel: number;
   cameraBubbleSize: { width: number; height: number };
   cameraBubblePosition: { x: number; y: number };
   cameraDeviceId: string;
@@ -123,6 +124,21 @@ async function getMicrophoneDeviceId(): Promise<string> {
   return microphoneDeviceId as string;
 }
 
+function setMicrophoneVolumeLevel(
+  microphoneVolumeLevel: number,
+): Promise<void> {
+  return storageImpl.set({
+    microphoneVolumeLevel,
+  } satisfies Partial<Context>);
+}
+
+async function getMicrophoneVolumeLevel(): Promise<number> {
+  const { microphoneVolumeLevel } = await storageImpl.get(
+    "microphoneVolumeLevel",
+  );
+  return microphoneVolumeLevel as number;
+}
+
 function setCameraBubbleSize(cameraBubbleSize: {
   width: number;
   height: number;
@@ -193,6 +209,7 @@ export const storage = {
     cameraBubbleVisible: setCameraBubbleVisible,
     microphoneAllowed: setMicrophoneAllowed,
     microphoneDeviceId: setMicrophoneDeviceId,
+    microphoneVolumeLevel: setMicrophoneVolumeLevel,
     cameraBubbleSize: setCameraBubbleSize,
     cameraBubblePosition: setCameraBubblePosition,
     cameraDeviceId: setCameraDeviceId,
@@ -209,6 +226,7 @@ export const storage = {
     cameraBubbleVisible: getCameraBubbleVisible,
     microphoneAllowed: getMicrophoneAllowed,
     microphoneDeviceId: getMicrophoneDeviceId,
+    microphoneVolumeLevel: getMicrophoneVolumeLevel,
     cameraBubbleSize: getCameraBubbleSize,
     cameraBubblePosition: getCameraBubblePosition,
     cameraDeviceId: getCameraDeviceId,
