@@ -151,7 +151,7 @@ export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
   await chrome.scripting.executeScript({
     target: { tabId: await storage.get.cameraBubbleTabId() },
     func: () => {
-      document.getElementById("rapidrec-camera-bubble")?.remove();
+      document.getElementById("klack-camera-bubble")?.remove();
       /* NOTE: `@emotion/react` library used by `@mui` as a style library sets the value in
        *       `globalThis` to define double import. This is ok in case of normal use of `@mui`
        *       in web UI.
@@ -161,7 +161,7 @@ export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
        *       which is displayed to the user in the `Errors` tab for extension.
        *       For this purpose, such a hack was invented
        *
-       *       More info: https://github.com/imblowfish/rapidrec-chrome-extension/issues/118
+       *       More info: https://github.com/imblowfish/klack/issues/118
        */
       const re = new RegExp(/__EMOTION_REACT_\d+__/);
       const emotionKey = Object.keys(globalThis).find((key) => re.test(key));
