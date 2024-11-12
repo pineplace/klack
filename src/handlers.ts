@@ -34,7 +34,7 @@ export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   const currentTab = await storage.get.currentTabId();
   await chrome.scripting.executeScript({
     target: { tabId: currentTab },
-    files: ["recordingStartCountdown.bundle.mjs"],
+    files: ["recording_start_countdown.bundle.mjs"],
   });
 
   console.log("handleStartRecording(), 3 seconds countdown has been started");
@@ -139,7 +139,7 @@ export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
   const currentTabId = await storage.get.currentTabId();
   await chrome.scripting.executeScript({
     target: { tabId: currentTabId },
-    files: ["./cameraBubble.bundle.mjs"],
+    files: ["./camera_bubble.bundle.mjs"],
   });
   await storage.set.cameraBubbleTabId(currentTabId);
   await storage.set.cameraBubbleVisible(true);
@@ -224,7 +224,7 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
 
     await chrome.scripting.executeScript({
       target: { tabId: cameraBubbleTabId },
-      files: ["./cameraBubble.bundle.mjs"],
+      files: ["./camera_bubble.bundle.mjs"],
     });
 
     await storage.set.cameraBubbleTabId(cameraBubbleTabId);

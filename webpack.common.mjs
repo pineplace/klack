@@ -8,13 +8,13 @@ export default {
   entry: {
     background: "./src/background.ts",
     popup: "./src/popup.tsx",
-    cameraBubble: "./src/scripts/camera_bubble.ts",
-    cameraBubbleStream: "./src/scripts/camera_bubble_stream.ts",
-    screenSharing: "./src/scripts/screen_sharing.ts",
-    recordingStartCountdown: "./src/scripts/recording_start_countdown.ts",
+    camera_bubble: "./src/scripts/camera_bubble.ts",
+    camera_bubble_stream: "./src/scripts/camera_bubble_stream.ts",
+    screen_sharing: "./src/scripts/screen_sharing.ts",
+    recording_start_countdown: "./src/scripts/recording_start_countdown.ts",
   },
   output: {
-    path: path.join(__dirname, "./ext"),
+    path: path.join(__dirname, "./public"),
     filename: "[name].bundle.mjs",
     hashFunction: "xxhash64",
   },
@@ -29,36 +29,17 @@ export default {
   },
   plugins: [
     new ESLintPlugin({
-      // extensions: [".js", ".jsx"],
       useEslintrc: true,
     }),
   ],
   module: {
     rules: [
       {
-        test: /\.jsx$/,
-        include: [/src/],
-        use: [
-          {
-            loader: "babel-loader",
-            options: {
-              presets: [
-                [
-                  "@babel/preset-env",
-                  {
-                    targets: "defaults",
-                  },
-                ],
-                "@babel/preset-react",
-              ],
-            },
-          },
-        ],
-      },
-      {
         test: /\.(ts|tsx)?$/,
-        include: [/src/],
-        use: "ts-loader",
+        loader: "esbuild-loader",
+        options: {
+          target: "es2022",
+        },
       },
     ],
   },
