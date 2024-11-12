@@ -272,7 +272,7 @@ test("handleShowCameraBubble", async () => {
   expect(mockedStorage.get.currentTabId).toHaveBeenCalled();
   expect(chrome.scripting.executeScript).toHaveBeenCalledWith({
     target: { tabId: defaultValues.currentTabId },
-    files: ["./cameraBubble.bundle.mjs"],
+    files: ["./camera_bubble.bundle.mjs"],
   });
   expect(mockedStorage.set.cameraBubbleTabId).toHaveBeenCalledWith(
     defaultValues.currentTabId,

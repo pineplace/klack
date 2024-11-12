@@ -3,7 +3,7 @@
 coverage/
 
 node_modules/
-ext/
+public/
 
 jest.config.js
 webpack.common.cjs
