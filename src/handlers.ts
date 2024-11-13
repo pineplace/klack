@@ -26,7 +26,7 @@ async function setStorageDefaultValues() {
   await storage.set.recordingDuration(0);
 }
 
-await setStorageDefaultValues();
+setStorageDefaultValues().catch((err) => console.error(err));
 
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
