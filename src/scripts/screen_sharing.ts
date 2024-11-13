@@ -218,34 +218,38 @@ class RecorderV2 {
   }
 }
 
-try {
-  let microphoneVolumeHandler: VolumeLevelHandler | null = null;
-  const streams: MediaStream[] = [];
+async function main() {
+  try {
+    let microphoneVolumeHandler: VolumeLevelHandler | null = null;
+    const streams: MediaStream[] = [];
 
-  if (await storage.get.microphoneAllowed()) {
-    const microphoneStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        deviceId: await storage.get.microphoneDeviceId(),
-      },
-    });
-    streams.push(microphoneStream);
-    microphoneVolumeHandler = new VolumeLevelHandler(microphoneStream);
+    if (await storage.get.microphoneAllowed()) {
+      const microphoneStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          deviceId: await storage.get.microphoneDeviceId(),
+        },
+      });
+      streams.push(microphoneStream);
+      microphoneVolumeHandler = new VolumeLevelHandler(microphoneStream);
+    }
+
+    streams.push(
+      await navigator.mediaDevices.getDisplayMedia({
+        audio: true,
+        video: {
+          deviceId: await storage.get.cameraDeviceId(),
+        },
+      }),
+    );
+
+    const recorder = new RecorderV2(streams);
+    recorder.start();
+    await microphoneVolumeHandler?.start();
+
+    await sender.send(builder.openUserActiveWindow());
+  } catch (err) {
+    await sender.send(builder.cancelRecording((err as Error).message));
   }
-
-  streams.push(
-    await navigator.mediaDevices.getDisplayMedia({
-      audio: true,
-      video: {
-        deviceId: await storage.get.cameraDeviceId(),
-      },
-    }),
-  );
-
-  const recorder = new RecorderV2(streams);
-  recorder.start();
-  await microphoneVolumeHandler?.start();
-
-  await sender.send(builder.openUserActiveWindow());
-} catch (err) {
-  await sender.send(builder.cancelRecording((err as Error).message));
 }
+
+main().catch((err) => console.error(err));

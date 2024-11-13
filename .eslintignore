@@ -6,6 +6,3 @@ node_modules/
 public/
 
 jest.config.js
-webpack.common.cjs
-webpack.dev.cjs
-webpack.prod.cjs
