@@ -8,6 +8,7 @@
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --maxWorkers=50% --watch --silent",
     "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --maxWorkers=50% --coverage --silent",
     "build": "tsc --noEmit & node ./esbuild.mjs --build",
+    "build:release": "tsc --noEmit & node ./esbuild.mjs --build --release",
     "dev": "tsc --noEmit --watch & node ./esbuild.mjs --watch",
     "clean": "rm -rf ./public/*.mjs* ./coverage .jest-test-results.json",
     "lint": "eslint --ext .mjs --ext .ts --ext .tsx .",
