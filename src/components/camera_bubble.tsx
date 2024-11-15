@@ -21,7 +21,8 @@ const SizeSelector = () => {
   const [selectedValue, setSelectedValue] = useState("200x200");
 
   useEffect(() => {
-    storage.ui.cameraBubble.size.get()
+    storage.ui.cameraBubble.size
+      .get()
       .then((size) => {
         setSelectedValue(`${size.width}x${size.height}`);
       })

@@ -1,4 +1,3 @@
-import { database } from "../database";
 import { Message, Method, builder, sender } from "../messaging";
 import type { TabStopMediaRecorderArgs } from "../messaging";
 import { storage } from "../storage";
@@ -199,14 +198,7 @@ class RecorderV2 {
     this.#mediaChunks.push(data);
   }
 
-  async start() {
-    const key = await database.recordings.add({
-      uuid: crypto.randomUUID(),
-      state: "started",
-      chunks: [],
-      startedAtISO: new Date().toISOString(),
-    });
-    console.log(`Added recording with key ${key}`);
+  start() {
     this.#mediaRecorder.start();
   }
 
@@ -252,7 +244,7 @@ async function main() {
     );
 
     const recorder = new RecorderV2(streams);
-    await recorder.start();
+    recorder.start();
     await microphoneVolumeHandler?.start();
 
     await sender.send(builder.openUserActiveWindow());
