@@ -2,7 +2,7 @@
 export default {
   testEnvironment: "node",
   transform: {
-    "^.+\\.(t|j)sx?$": ["@swc/jest"],
+    "^.+\\.(t|j)sx?$": ["esbuild-jest"],
   },
   extensionsToTreatAsEsm: [".ts", ".tsx"],
 };
