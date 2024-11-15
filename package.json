@@ -34,7 +34,6 @@
     "@jest/globals": "^29.7.0",
     "@mui/icons-material": "^5.15.14",
     "@mui/material": "^5.15.14",
-    "@swc/core": "^1.9.2",
     "@testing-library/react": "^14.2.2",
     "@types/chrome": "^0.0.263",
     "@types/jest": "^29.5.12",
