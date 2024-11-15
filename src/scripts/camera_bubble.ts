@@ -26,7 +26,7 @@ async function injectCameraBubble() {
       globalThis[emotionKey] = false;
     }
 
-    const cameraBubblePosition = await storage.get.cameraBubblePosition();
+    const cameraBubblePosition = await storage.ui.cameraBubble.position.get();
 
     const div = document.createElement("div");
     div.id = "klack-camera-bubble";

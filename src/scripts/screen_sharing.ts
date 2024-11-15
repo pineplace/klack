@@ -1,3 +1,4 @@
+import { database } from "../database";
 import { Message, Method, builder, sender } from "../messaging";
 import type { TabStopMediaRecorderArgs } from "../messaging";
 import { storage } from "../storage";
@@ -6,7 +7,6 @@ class VolumeLevelHandler {
   #audioContext: AudioContext;
   #mediaSourceNode: MediaStreamAudioSourceNode;
   #analyserNode: AnalyserNode;
-  // #volumeLevelInterval: number;
 
   constructor(microphoneDeviceStream: MediaStream) {
     console.log("VolumeLevelHandler::constructor  ()");
@@ -33,8 +33,8 @@ class VolumeLevelHandler {
         sum += value;
       }
       const averageMicrophoneVolumeLevel = sum / dataArray.length;
-      storage.set
-        .microphoneVolumeLevel(Math.floor(averageMicrophoneVolumeLevel))
+      storage.devices.mic.volume
+        .set(Math.floor(averageMicrophoneVolumeLevel))
         .catch((err) => {
           console.error(err);
         });
@@ -48,6 +48,7 @@ class VolumeLevelHandler {
 }
 
 class RecorderV2 {
+  #recordingUUID: string;
   #recordingDurationInterval: number;
   #recordingDurationSeconds: number;
   #outputType: string;
@@ -61,6 +62,7 @@ class RecorderV2 {
   #downloadOnStop = true;
 
   constructor(streams: MediaStream[], outputType = "video/webm") {
+    this.#recordingUUID = "";
     this.#recordingDurationInterval = 0;
     this.#recordingDurationSeconds = 0;
     this.#outputType = outputType;
@@ -156,7 +158,7 @@ class RecorderV2 {
   }
 
   #onStart() {
-    storage.set.recordingDuration(0).catch((err) => {
+    storage.recording.duration.set(0).catch((err) => {
       console.error(err);
     });
 
@@ -164,8 +166,8 @@ class RecorderV2 {
       if (this.#mediaRecorder.state !== "recording") {
         return;
       }
-      storage.set
-        .recordingDuration(++this.#recordingDurationSeconds)
+      storage.recording.duration
+        .set(++this.#recordingDurationSeconds)
         .catch((err) => {
           console.error(err);
         });
@@ -197,7 +199,14 @@ class RecorderV2 {
     this.#mediaChunks.push(data);
   }
 
-  start() {
+  async start() {
+    const key = await database.recordings.add({
+      uuid: crypto.randomUUID(),
+      state: "started",
+      chunks: [],
+      startedAtISO: new Date().toISOString(),
+    });
+    console.log(`Added recording with key ${key}`);
     this.#mediaRecorder.start();
   }
 
@@ -223,10 +232,10 @@ async function main() {
     let microphoneVolumeHandler: VolumeLevelHandler | null = null;
     const streams: MediaStream[] = [];
 
-    if (await storage.get.microphoneAllowed()) {
+    if (await storage.devices.mic.enabled.get()) {
       const microphoneStream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          deviceId: await storage.get.microphoneDeviceId(),
+          deviceId: await storage.devices.mic.id.get(),
         },
       });
       streams.push(microphoneStream);
@@ -237,13 +246,13 @@ async function main() {
       await navigator.mediaDevices.getDisplayMedia({
         audio: true,
         video: {
-          deviceId: await storage.get.cameraDeviceId(),
+          deviceId: await storage.devices.video.id.get(),
         },
       }),
     );
 
     const recorder = new RecorderV2(streams);
-    recorder.start();
+    await recorder.start();
     await microphoneVolumeHandler?.start();
 
     await sender.send(builder.openUserActiveWindow());

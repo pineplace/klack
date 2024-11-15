@@ -21,8 +21,7 @@ const SizeSelector = () => {
   const [selectedValue, setSelectedValue] = useState("200x200");
 
   useEffect(() => {
-    storage.get
-      .cameraBubbleSize()
+    storage.ui.cameraBubble.size.get()
       .then((size) => {
         setSelectedValue(`${size.width}x${size.height}`);
       })
@@ -36,8 +35,8 @@ const SizeSelector = () => {
       .split("x")
       .map((value) => Number(value));
     if (selectedValue !== event.target.value) {
-      storage.set
-        .cameraBubbleSize({ width, height })
+      storage.ui.cameraBubble.size
+        .set({ width, height })
         .catch((err) => console.error(err));
     }
     setSelectedValue(event.target.value);
@@ -95,7 +94,7 @@ const CameraBubbleFrame = () => {
 
   useEffect(() => {
     const checkSizeUpdate = async () => {
-      const newSize = await storage.get.cameraBubbleSize();
+      const newSize = await storage.ui.cameraBubble.size.get();
 
       if (newSize.width === size.width && newSize.height === size.height) {
         return;
@@ -141,8 +140,8 @@ const RecordingControl = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.get
-        .recordingInProgress()
+      storage.recording.inProgress
+        .get()
         .then((value: boolean) => {
           setInProgress(value);
         })
@@ -163,8 +162,8 @@ const RecordingControl = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.get
-        .recordingOnPause()
+      storage.recording.onPause
+        .get()
         .then((value: boolean) => {
           setOnPause(value);
         })
@@ -237,7 +236,7 @@ const RecordingDuration = () => {
   const [recordingDuration, setRecordingDuration] = useState("00:00");
 
   const updateRecordingDuration = useCallback(async () => {
-    const recordingDurationInSeconds = await storage.get.recordingDuration();
+    const recordingDurationInSeconds = await storage.recording.duration.get();
 
     const seconds = recordingDurationInSeconds % 60;
     const minutes = Math.floor(recordingDurationInSeconds / 60);
@@ -252,8 +251,8 @@ const RecordingDuration = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.get
-        .recordingInProgress()
+      storage.recording.inProgress
+        .get()
         .then((res) => setIsVisible(res))
         .catch((err) => console.error(err));
     }, 500);
@@ -295,18 +294,17 @@ const CameraBubble = (props: CameraBubbleProps) => {
   const refStack = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    storage.get
-      .cameraBubblePosition()
+    storage.ui.cameraBubble.position
+      .get()
       .then(setCurrentPos)
       .catch((err) => console.error(err));
   }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.get
-        .microphoneVolumeLevel()
+      storage.devices.mic.volume
+        .get()
         .then((microphoneLevel) => {
-          console.log("Set microphone level", microphoneLevel);
           setMicrophoneLevel(microphoneLevel);
         })
         .catch((err) => console.error(err));
@@ -326,8 +324,8 @@ const CameraBubble = (props: CameraBubbleProps) => {
 
         const boundingRect = refStack.current.getBoundingClientRect();
 
-        storage.set
-          .cameraBubblePosition({
+        storage.ui.cameraBubble.position
+          .set({
             x: boundingRect.x,
             y: boundingRect.y,
           })

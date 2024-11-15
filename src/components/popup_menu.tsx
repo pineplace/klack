@@ -17,8 +17,8 @@ const ShowHideCameraBubble = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.get
-        .cameraBubbleVisible()
+      storage.ui.cameraBubble.enabled
+        .get()
         .then(setIsVisible)
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
@@ -55,8 +55,8 @@ const TurnOnTurnOffMic = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.get
-        .microphoneAllowed()
+      storage.devices.mic.enabled
+        .get()
         .then(setMicAllowed)
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
@@ -105,12 +105,12 @@ const MicrophoneSelector = () => {
   };
 
   const getDefaultMicroId = async () => {
-    let microDeviceId = await storage.get.microphoneDeviceId();
+    let microDeviceId = await storage.devices.mic.id.get();
     if (microDeviceId) {
       return microDeviceId;
     }
     microDeviceId = (await getMicrophoneDevices()).at(0)?.deviceId ?? "";
-    await storage.set.microphoneDeviceId(microDeviceId);
+    await storage.devices.mic.id.set(microDeviceId);
     return microDeviceId;
   };
 
@@ -132,7 +132,7 @@ const MicrophoneSelector = () => {
 
   const handleChange = (event: SelectChangeEvent) => {
     const deviceId = event.target.value;
-    storage.set.microphoneDeviceId(deviceId).catch((err) => {
+    storage.devices.mic.id.set(deviceId).catch((err) => {
       console.error(err);
     });
     setActiveMicroDeviceId(deviceId);
@@ -178,12 +178,12 @@ const CameraSelector = () => {
   };
 
   const getDefaultCameraId = async () => {
-    let cameraDeviceId = await storage.get.cameraDeviceId();
+    let cameraDeviceId = await storage.devices.video.id.get();
     if (cameraDeviceId) {
       return cameraDeviceId;
     }
     cameraDeviceId = (await getCameraDevices()).at(0)?.deviceId ?? "";
-    await storage.set.cameraDeviceId(cameraDeviceId);
+    await storage.devices.video.id.set(cameraDeviceId);
     return cameraDeviceId;
   };
 
@@ -205,7 +205,7 @@ const CameraSelector = () => {
 
   const handleChange = (event: SelectChangeEvent) => {
     const deviceId = event.target.value;
-    storage.set.cameraDeviceId(deviceId).catch((err) => {
+    storage.devices.video.id.set(deviceId).catch((err) => {
       console.error(err);
     });
     setActiveCameraDeviceId(deviceId);
@@ -242,8 +242,8 @@ const RecordingControl = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.get
-        .recordingInProgress()
+      storage.recording.inProgress
+        .get()
         .then(setInProgress)
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
@@ -262,8 +262,8 @@ const RecordingControl = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.get
-        .recordingOnPause()
+      storage.recording.onPause
+        .get()
         .then(setOnPause)
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
