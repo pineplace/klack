@@ -66,6 +66,9 @@ export const storage = {
   getBytesInUse: () => {
     return chrome.storage.local.getBytesInUse();
   },
+  getEntireStorage: () => {
+    return chrome.storage.local.get();
+  },
 };
 
 export type Storage = typeof storage;
