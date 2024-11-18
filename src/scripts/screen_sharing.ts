@@ -2,6 +2,33 @@ import { Message, Method, builder, sender } from "../messaging";
 import type { TabStopMediaRecorderArgs } from "../messaging";
 import { storage } from "../storage";
 
+async function blobToBase64(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const fileReader = new FileReader();
+
+    fileReader.addEventListener("error", () => {
+      reject(fileReader.error);
+    });
+    fileReader.addEventListener("loadend", () => {
+      const base64 = fileReader.result as string;
+      resolve(base64.split(",").at(-1) as string);
+    });
+
+    fileReader.readAsDataURL(blob);
+  });
+}
+
+function base64ToBlob(base64: string, type: string) {
+  const decoded = self.atob(base64);
+  const data = new Uint8Array(decoded.length);
+  for (let i = 0; i < decoded.length; i++) {
+    data[i] = decoded.charCodeAt(i);
+  }
+  return new Blob([data], {
+    type,
+  });
+}
+
 class VolumeLevelHandler {
   #audioContext: AudioContext;
   #mediaSourceNode: MediaStreamAudioSourceNode;
@@ -60,7 +87,10 @@ class RecorderV2 {
 
   #downloadOnStop = true;
 
-  constructor(streams: MediaStream[], outputType = "video/webm") {
+  constructor(
+    streams: MediaStream[],
+    outputType = "video/webm;codecs=vp8,opus",
+  ) {
     this.#recordingUUID = "";
     this.#recordingDurationInterval = 0;
     this.#recordingDurationSeconds = 0;
@@ -125,7 +155,13 @@ class RecorderV2 {
     });
 
     this.#mediaRecorder.addEventListener("start", () => {
-      this.#onStart();
+      this.#onStart()
+        .then(() => {
+          console.log("#onStart finished");
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     });
 
     this.#mediaRecorder.addEventListener("stop", () => {
@@ -133,7 +169,7 @@ class RecorderV2 {
     });
 
     this.#mediaRecorder.addEventListener("dataavailable", (event) => {
-      this.#onData(event.data);
+      this.#onData(event.data).catch((err) => console.error(err));
     });
   }
 
@@ -156,7 +192,11 @@ class RecorderV2 {
     }
   }
 
-  #onStart() {
+  async #onStart() {
+    await chrome.storage.local.set({
+      recordedChunks: [],
+    });
+
     storage.recording.duration.set(0).catch((err) => {
       console.error(err);
     });
@@ -174,32 +214,72 @@ class RecorderV2 {
   }
 
   #onStop() {
-    if (!this.#downloadOnStop) {
-      sender
-        .send(builder.cancelRecording("User decided to delete recording"))
-        .catch((err) => console.error(err));
-      return;
-    }
-    const downloadUrl = URL.createObjectURL(
-      new Blob(this.#mediaChunks, {
-        type: this.#outputType,
-      }),
-    );
-
-    sender
-      .send(builder.downloadRecording(downloadUrl))
-      .then(() => {
-        URL.revokeObjectURL(downloadUrl);
-      })
-      .catch((err) => console.error(err));
+    console.log("#onStop");
   }
 
-  #onData(data: Blob) {
-    this.#mediaChunks.push(data);
+  async #onData(data: Blob) {
+    {
+      const { recordedChunks } = (await chrome.storage.local.get(
+        "recordedChunks",
+      )) as { recordedChunks: string[] };
+      if (!recordedChunks) {
+        console.error("recordedChunks is not set");
+        return;
+      }
+
+      const base64 = await blobToBase64(data);
+      recordedChunks.push(base64);
+      await chrome.storage.local.set({
+        recordedChunks: recordedChunks,
+      });
+      console.log(
+        `Saved chunk of base64 data with length ${base64.length} to the storage`,
+      );
+    }
+
+    console.log(`state: ${this.#mediaRecorder.state}`);
+
+    if (this.#mediaRecorder.state !== "inactive") {
+      return;
+    }
+
+    {
+      if (!this.#downloadOnStop) {
+        sender
+          .send(builder.cancelRecording("User decided to delete recording"))
+          .catch((err) => console.error(err));
+        return;
+      }
+
+      const { recordedChunks } = (await chrome.storage.local.get(
+        "recordedChunks",
+      )) as { recordedChunks: string[] };
+      if (!recordedChunks) {
+        console.error("recordedChunks is not set");
+        return;
+      }
+
+      const blobs = recordedChunks.map((base64Chunk) =>
+        base64ToBlob(base64Chunk, this.#outputType),
+      );
+
+      const downloadUrl = URL.createObjectURL(
+        new Blob(blobs, {
+          type: data.type,
+        }),
+      );
+
+      sender
+        .send(builder.downloadRecording(downloadUrl))
+        .then(() => {
+          URL.revokeObjectURL(downloadUrl);
+        })
+        .catch((err) => console.error(err));
+    }
   }
 
   start() {
-    this.#mediaRecorder.start();
+    this.#mediaRecorder.start(10 * 1000);
   }
 
   pause() {
