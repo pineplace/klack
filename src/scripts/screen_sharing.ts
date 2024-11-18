@@ -1,33 +1,8 @@
+import { database } from "../database";
 import { Message, Method, builder, sender } from "../messaging";
 import type { TabStopMediaRecorderArgs } from "../messaging";
 import { storage } from "../storage";
-
-async function blobToBase64(blob: Blob) {
-  return new Promise<string>((resolve, reject) => {
-    const fileReader = new FileReader();
-
-    fileReader.addEventListener("error", () => {
-      reject(fileReader.error);
-    });
-    fileReader.addEventListener("loadend", () => {
-      const base64 = fileReader.result as string;
-      resolve(base64.split(",").at(-1) as string);
-    });
-
-    fileReader.readAsDataURL(blob);
-  });
-}
-
-function base64ToBlob(base64: string, type: string) {
-  const decoded = self.atob(base64);
-  const data = new Uint8Array(decoded.length);
-  for (let i = 0; i < decoded.length; i++) {
-    data[i] = decoded.charCodeAt(i);
-  }
-  return new Blob([data], {
-    type,
-  });
-}
+import { base64ToBlob, blobToBase64 } from "../utils";
 
 class VolumeLevelHandler {
   #audioContext: AudioContext;
@@ -193,9 +168,8 @@ class RecorderV2 {
   }
 
   async #onStart() {
-    await chrome.storage.local.set({
-      recordedChunks: [],
-    });
+    this.#recordingUUID = crypto.randomUUID();
+    await database.recordings.add(this.#recordingUUID);
 
     storage.recording.duration.set(0).catch((err) => {
       console.error(err);
@@ -219,21 +193,11 @@ class RecorderV2 {
 
   async #onData(data: Blob) {
     {
-      const { recordedChunks } = (await chrome.storage.local.get(
-        "recordedChunks",
-      )) as { recordedChunks: string[] };
-      if (!recordedChunks) {
-        console.error("recordedChunks is not set");
-        return;
-      }
-
-      const base64 = await blobToBase64(data);
-      recordedChunks.push(base64);
-      await chrome.storage.local.set({
-        recordedChunks: recordedChunks,
-      });
+      const recording = await database.recordings.get(this.#recordingUUID);
+      const encodedChunk = await blobToBase64(data);
+      await recording.chunks.add(encodedChunk);
       console.log(
-        `Saved chunk of base64 data with length ${base64.length} to the storage`,
+        `Chunk has been added to the recording with uuid=${this.#recordingUUID}`,
       );
     }
 
@@ -251,15 +215,9 @@ class RecorderV2 {
         return;
       }
 
-      const { recordedChunks } = (await chrome.storage.local.get(
-        "recordedChunks",
-      )) as { recordedChunks: string[] };
-      if (!recordedChunks) {
-        console.error("recordedChunks is not set");
-        return;
-      }
-
-      const blobs = recordedChunks.map((base64Chunk) =>
+      const recording = await database.recordings.get(this.#recordingUUID);
+      const chunks = await recording.chunks.get();
+      const blobs = chunks.map((base64Chunk) =>
         base64ToBlob(base64Chunk, this.#outputType),
       );
 
