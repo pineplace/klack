@@ -1,4 +1,5 @@
 import {
+  onInstalled,
   onMessage,
   onTabChange,
   onTabClosing,
@@ -18,6 +19,12 @@ chrome.runtime.onMessage.addListener(
     return true;
   },
 );
+
+chrome.runtime.onInstalled.addListener((details) => {
+  onInstalled(details).catch((err) => {
+    throw err;
+  });
+});
 
 chrome.tabs.onActivated.addListener((activeTabInfo) => {
   onTabChange(activeTabInfo).catch((err) => {

@@ -15,7 +15,8 @@
     "tabs",
     "downloads",
     "activeTab",
-    "storage"
+    "storage",
+    "unlimitedStorage"
   ],
   "host_permissions": [
     "https://*/*"

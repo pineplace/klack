@@ -10,28 +10,10 @@ import {
 import { storage } from "./storage";
 import { debounce } from "./utils";
 
-async function setStorageDefaultValues() {
-  await storage.set.currentTabId(0);
-  await storage.set.cameraBubbleTabId(0);
-  await storage.set.recordingTabId(0);
-  await storage.set.currentWindowId(0);
-  await storage.set.recordingWindowId(0);
-  await storage.set.recordingInProgress(false);
-  await storage.set.recordingOnPause(false);
-  await storage.set.cameraBubbleVisible(false);
-  await storage.set.microphoneAllowed(true);
-  await storage.set.microphoneVolumeLevel(0);
-  await storage.set.cameraBubbleSize({ width: 200, height: 200 });
-  await storage.set.cameraBubblePosition({ x: 0, y: 0 });
-  await storage.set.recordingDuration(0);
-}
-
-setStorageDefaultValues().catch((err) => console.error(err));
-
 export async function handleStartRecording(_args: MethodArgs): Promise<void> {
   console.log(`handleStartRecording()`);
 
-  const currentTab = await storage.get.currentTabId();
+  const currentTab = await storage.current.tabId.get();
   await chrome.scripting.executeScript({
     target: { tabId: currentTab },
     files: ["recording_start_countdown.bundle.mjs"],
@@ -52,9 +34,9 @@ export async function handleStartRecording(_args: MethodArgs): Promise<void> {
       height: 710,
     });
 
-    await storage.set.recordingTabId(tab.id as number);
-    await storage.set.recordingWindowId(window.id as number);
-    await storage.set.recordingInProgress(true);
+    await storage.recording.tabId.set(tab.id as number);
+    await storage.recording.windowId.set(window.id as number);
+    await storage.recording.inProgress.set(true);
 
     console.log("handleStartRecording(), recording has been started");
   };
@@ -71,29 +53,29 @@ export async function handleStopRecording(_args: MethodArgs): Promise<void> {
 
   await sender.send(
     builder.tabStopMediaRecorder(true),
-    await storage.get.recordingTabId(),
+    await storage.recording.tabId.get(),
   );
 }
 
 export async function handlePauseRecording(_args: MethodArgs): Promise<void> {
   console.log("handlePauseRecording()");
 
-  await storage.set.recordingOnPause(true);
+  await storage.recording.onPause.set(true);
 
   await sender.send(
     builder.tabPauseMediaRecorder(),
-    await storage.get.recordingTabId(),
+    await storage.recording.tabId.get(),
   );
 }
 
 export async function handleResumeRecording(_args: MethodArgs): Promise<void> {
   console.log("handleResumeRecording");
 
-  await storage.set.recordingOnPause(false);
+  await storage.recording.onPause.set(false);
 
   await sender.send(
     builder.tabResumeMediaRecorder(),
-    await storage.get.recordingTabId(),
+    await storage.recording.tabId.get(),
   );
 }
 
@@ -102,7 +84,7 @@ export async function handleDeleteRecording(_args: MethodArgs): Promise<void> {
 
   await sender.send(
     builder.tabStopMediaRecorder(false),
-    await storage.get.recordingTabId(),
+    await storage.recording.tabId.get(),
   );
 }
 
@@ -111,10 +93,10 @@ export async function handleCancelRecording(args: MethodArgs): Promise<void> {
 
   console.log(`handleCancelRecording, reason: ${args.reason}`);
 
-  await chrome.tabs.remove(await storage.get.recordingTabId());
-  await storage.set.recordingTabId(0);
-  await storage.set.recordingInProgress(false);
-  await storage.set.recordingOnPause(false);
+  await chrome.tabs.remove(await storage.recording.tabId.get());
+  await storage.recording.tabId.set(0);
+  await storage.recording.inProgress.set(false);
+  await storage.recording.onPause.set(false);
 }
 
 export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
@@ -126,30 +108,30 @@ export async function handleDownloadRecording(args: MethodArgs): Promise<void> {
     url: args.downloadUrl,
   });
 
-  await chrome.tabs.remove(await storage.get.recordingTabId());
+  await chrome.tabs.remove(await storage.recording.tabId.get());
 
-  await storage.set.recordingTabId(0);
-  await storage.set.recordingInProgress(false);
-  await storage.set.recordingOnPause(false);
+  await storage.recording.tabId.set(0);
+  await storage.recording.inProgress.set(false);
+  await storage.recording.onPause.set(false);
 }
 
 export async function handleShowCameraBubble(_args: MethodArgs): Promise<void> {
   console.log("handleShowCameraBubble");
 
-  const currentTabId = await storage.get.currentTabId();
+  const currentTabId = await storage.current.tabId.get();
   await chrome.scripting.executeScript({
     target: { tabId: currentTabId },
     files: ["./camera_bubble.bundle.mjs"],
   });
-  await storage.set.cameraBubbleTabId(currentTabId);
-  await storage.set.cameraBubbleVisible(true);
+  await storage.ui.cameraBubble.tabId.set(currentTabId);
+  await storage.ui.cameraBubble.enabled.set(true);
 }
 
 export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
   console.log("handleHideCameraBubble");
 
   await chrome.scripting.executeScript({
-    target: { tabId: await storage.get.cameraBubbleTabId() },
+    target: { tabId: await storage.ui.cameraBubble.tabId.get() },
     func: () => {
       document.getElementById("klack-camera-bubble")?.remove();
       /* NOTE: `@emotion/react` library used by `@mui` as a style library sets the value in
@@ -172,14 +154,14 @@ export async function handleHideCameraBubble(_args: MethodArgs): Promise<void> {
       globalThis[emotionKey] = false;
     },
   });
-  await storage.set.cameraBubbleTabId(0);
-  await storage.set.cameraBubbleVisible(false);
+  await storage.ui.cameraBubble.tabId.set(0);
+  await storage.ui.cameraBubble.enabled.set(false);
 }
 
 export async function handleAllowMicrophone(_args: MethodArgs): Promise<void> {
   console.log("handleAllowMicrophone");
 
-  await storage.set.microphoneAllowed(true);
+  await storage.devices.mic.enabled.set(true);
 }
 
 export async function handleDisallowMicrophone(
@@ -187,7 +169,7 @@ export async function handleDisallowMicrophone(
 ): Promise<void> {
   console.log("handleDisallowMicrophone");
 
-  await storage.set.microphoneAllowed(false);
+  await storage.devices.mic.enabled.set(false);
 }
 
 export async function handleTabChange(args: MethodArgs): Promise<void> {
@@ -202,14 +184,14 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
    *       That's why we ignoring new tab here if it's equals to
    *       `recordingTabId`
    */
-  if ((await storage.get.recordingTabId()) === args.newTabId) {
+  if ((await storage.recording.tabId.get()) === args.newTabId) {
     console.warn("Ignore tab change, because recording tab equals new tab");
     return;
   }
 
-  await storage.set.currentTabId(args.newTabId);
+  await storage.current.tabId.set(args.newTabId);
 
-  const cameraBubbleTabId = await storage.get.cameraBubbleTabId();
+  const cameraBubbleTabId = await storage.ui.cameraBubble.tabId.get();
   if (!cameraBubbleTabId) {
     return;
   }
@@ -227,7 +209,7 @@ export async function handleTabChange(args: MethodArgs): Promise<void> {
       files: ["./camera_bubble.bundle.mjs"],
     });
 
-    await storage.set.cameraBubbleTabId(cameraBubbleTabId);
+    await storage.ui.cameraBubble.tabId.set(cameraBubbleTabId);
   }
 }
 
@@ -239,14 +221,14 @@ export async function handleTabClosing(args: MethodArgs): Promise<void> {
    *       tab, but at the time the close tab callback is called,
    *       that tab is already closed and doesn't exist
    */
-  await storage.set.cameraBubbleVisible(false);
-  await storage.set.recordingTabId(0);
+  await storage.ui.cameraBubble.enabled.set(false);
+  await storage.recording.tabId.set(0);
 }
 
 export async function handleTabUpdated(_args: MethodArgs): Promise<void> {
   console.log("handleTabUpdated()");
 
-  if (await storage.get.cameraBubbleVisible()) {
+  if (await storage.ui.cameraBubble.enabled.get()) {
     debounce(() => {
       handleShowCameraBubble({}).catch((err) => console.error(err));
     }, 2 * 1000);
@@ -265,7 +247,7 @@ export async function handleWindowChange(args: MethodArgs): Promise<void> {
     return;
   }
 
-  if (args.newWindowId == (await storage.get.currentWindowId())) {
+  if (args.newWindowId == (await storage.current.windowId.get())) {
     console.warn(
       "Ignore window change because newWindowId is a currentWindowId",
     );
@@ -273,7 +255,7 @@ export async function handleWindowChange(args: MethodArgs): Promise<void> {
   }
 
   // NOTE: Same reason as in `handleTabChange`
-  if ((await storage.get.recordingWindowId()) === args.newWindowId) {
+  if ((await storage.recording.windowId.get()) === args.newWindowId) {
     console.warn(
       "Ignore window change because newWindowId is a recordingWindowId",
     );
@@ -285,7 +267,7 @@ export async function handleWindowChange(args: MethodArgs): Promise<void> {
     windowId: args.newWindowId,
   });
   await handleTabChange({ newTabId: tabs[0].id as number });
-  await storage.set.currentWindowId(args.newWindowId);
+  await storage.current.windowId.set(args.newWindowId);
 }
 
 export async function handleOpenUserActiveWindow(
@@ -293,14 +275,14 @@ export async function handleOpenUserActiveWindow(
 ): Promise<void> {
   console.log("handleOpenUserActiveWindow()");
 
-  const currentWindowId = await storage.get.currentWindowId();
+  const currentWindowId = await storage.current.windowId.get();
   if (currentWindowId <= 0) {
     console.warn(
       "No data on the last window opened, most likely because the extension was recently reloaded",
     );
     return;
   }
-  await chrome.windows.update(await storage.get.currentWindowId(), {
+  await chrome.windows.update(await storage.current.windowId.get(), {
     focused: true,
   });
 }

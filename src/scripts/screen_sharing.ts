@@ -1,12 +1,13 @@
+import { database } from "../database";
 import { Message, Method, builder, sender } from "../messaging";
 import type { TabStopMediaRecorderArgs } from "../messaging";
 import { storage } from "../storage";
+import { base64ToBlob, blobToBase64 } from "../utils";
 
 class VolumeLevelHandler {
   #audioContext: AudioContext;
   #mediaSourceNode: MediaStreamAudioSourceNode;
   #analyserNode: AnalyserNode;
-  // #volumeLevelInterval: number;
 
   constructor(microphoneDeviceStream: MediaStream) {
     console.log("VolumeLevelHandler::constructor  ()");
@@ -33,8 +34,8 @@ class VolumeLevelHandler {
         sum += value;
       }
       const averageMicrophoneVolumeLevel = sum / dataArray.length;
-      storage.set
-        .microphoneVolumeLevel(Math.floor(averageMicrophoneVolumeLevel))
+      storage.devices.mic.volume
+        .set(Math.floor(averageMicrophoneVolumeLevel))
         .catch((err) => {
           console.error(err);
         });
@@ -48,6 +49,7 @@ class VolumeLevelHandler {
 }
 
 class RecorderV2 {
+  #recordingUUID: string;
   #recordingDurationInterval: number;
   #recordingDurationSeconds: number;
   #outputType: string;
@@ -60,7 +62,11 @@ class RecorderV2 {
 
   #downloadOnStop = true;
 
-  constructor(streams: MediaStream[], outputType = "video/webm") {
+  constructor(
+    streams: MediaStream[],
+    outputType = "video/webm;codecs=vp8,opus",
+  ) {
+    this.#recordingUUID = "";
     this.#recordingDurationInterval = 0;
     this.#recordingDurationSeconds = 0;
     this.#outputType = outputType;
@@ -124,7 +130,13 @@ class RecorderV2 {
     });
 
     this.#mediaRecorder.addEventListener("start", () => {
-      this.#onStart();
+      this.#onStart()
+        .then(() => {
+          console.log("#onStart finished");
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     });
 
     this.#mediaRecorder.addEventListener("stop", () => {
@@ -132,7 +144,7 @@ class RecorderV2 {
     });
 
     this.#mediaRecorder.addEventListener("dataavailable", (event) => {
-      this.#onData(event.data);
+      this.#onData(event.data).catch((err) => console.error(err));
     });
   }
 
@@ -155,8 +167,11 @@ class RecorderV2 {
     }
   }
 
-  #onStart() {
-    storage.set.recordingDuration(0).catch((err) => {
+  async #onStart() {
+    this.#recordingUUID = crypto.randomUUID();
+    await database.recordings.add(this.#recordingUUID);
+
+    storage.recording.duration.set(0).catch((err) => {
       console.error(err);
     });
 
@@ -164,8 +179,8 @@ class RecorderV2 {
       if (this.#mediaRecorder.state !== "recording") {
         return;
       }
-      storage.set
-        .recordingDuration(++this.#recordingDurationSeconds)
+      storage.recording.duration
+        .set(++this.#recordingDurationSeconds)
         .catch((err) => {
           console.error(err);
         });
@@ -173,32 +188,56 @@ class RecorderV2 {
   }
 
   #onStop() {
-    if (!this.#downloadOnStop) {
-      sender
-        .send(builder.cancelRecording("User decided to delete recording"))
-        .catch((err) => console.error(err));
-      return;
-    }
-    const downloadUrl = URL.createObjectURL(
-      new Blob(this.#mediaChunks, {
-        type: this.#outputType,
-      }),
-    );
-
-    sender
-      .send(builder.downloadRecording(downloadUrl))
-      .then(() => {
-        URL.revokeObjectURL(downloadUrl);
-      })
-      .catch((err) => console.error(err));
+    console.log("#onStop");
   }
 
-  #onData(data: Blob) {
-    this.#mediaChunks.push(data);
+  async #onData(data: Blob) {
+    {
+      const recording = await database.recordings.get(this.#recordingUUID);
+      const encodedChunk = await blobToBase64(data);
+      await recording.chunks.add(encodedChunk);
+      console.log(
+        `Chunk has been added to the recording with uuid=${this.#recordingUUID}`,
+      );
+    }
+
+    console.log(`state: ${this.#mediaRecorder.state}`);
+
+    if (this.#mediaRecorder.state !== "inactive") {
+      return;
+    }
+
+    {
+      if (!this.#downloadOnStop) {
+        sender
+          .send(builder.cancelRecording("User decided to delete recording"))
+          .catch((err) => console.error(err));
+        return;
+      }
+
+      const recording = await database.recordings.get(this.#recordingUUID);
+      const chunks = await recording.chunks.get();
+      const blobs = chunks.map((base64Chunk) =>
+        base64ToBlob(base64Chunk, this.#outputType),
+      );
+
+      const downloadUrl = URL.createObjectURL(
+        new Blob(blobs, {
+          type: data.type,
+        }),
+      );
+
+      sender
+        .send(builder.downloadRecording(downloadUrl))
+        .then(() => {
+          URL.revokeObjectURL(downloadUrl);
+        })
+        .catch((err) => console.error(err));
+    }
   }
 
   start() {
-    this.#mediaRecorder.start();
+    this.#mediaRecorder.start(10 * 1000);
   }
 
   pause() {
@@ -223,10 +262,10 @@ async function main() {
     let microphoneVolumeHandler: VolumeLevelHandler | null = null;
     const streams: MediaStream[] = [];
 
-    if (await storage.get.microphoneAllowed()) {
+    if (await storage.devices.mic.enabled.get()) {
       const microphoneStream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          deviceId: await storage.get.microphoneDeviceId(),
+          deviceId: await storage.devices.mic.id.get(),
         },
       });
       streams.push(microphoneStream);
@@ -237,7 +276,7 @@ async function main() {
       await navigator.mediaDevices.getDisplayMedia({
         audio: true,
         video: {
-          deviceId: await storage.get.cameraDeviceId(),
+          deviceId: await storage.devices.video.id.get(),
         },
       }),
     );

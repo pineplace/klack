@@ -9,7 +9,7 @@ const useCameraBubbleSize = () => {
 
   useEffect(() => {
     const checkSizeUpdate = async () => {
-      const newSize = await storage.get.cameraBubbleSize();
+      const newSize = await storage.ui.cameraBubble.size.get();
 
       if (newSize.width === size.width && newSize.height === size.height) {
         setTimeout(() => {

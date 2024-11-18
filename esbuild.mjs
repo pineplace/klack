@@ -22,6 +22,11 @@ const contextOptions = {
   sourcemap: true,
 };
 
+if (process.argv.includes("--release")) {
+  contextOptions.pure = ["console.log"];
+  contextOptions.minify = true;
+}
+
 if (process.argv.includes("--build")) {
   await esbuild.build(contextOptions);
 } else if (process.argv.includes("--watch")) {
