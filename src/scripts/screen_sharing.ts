@@ -1,3 +1,4 @@
+import { config } from "../config";
 import { database } from "../database";
 import { Message, Method, builder, sender } from "../messaging";
 import type { TabStopMediaRecorderArgs } from "../messaging";
@@ -168,8 +169,10 @@ class RecorderV2 {
   }
 
   async #onStart() {
-    this.#recordingUUID = crypto.randomUUID();
-    await database.recordings.add(this.#recordingUUID);
+    if (config.features.beta.recordingChunksSerialization) {
+      this.#recordingUUID = crypto.randomUUID();
+      await database.recordings.add(this.#recordingUUID);
+    }
 
     storage.recording.duration.set(0).catch((err) => {
       console.error(err);
@@ -192,13 +195,15 @@ class RecorderV2 {
   }
 
   async #onData(data: Blob) {
-    {
+    if (config.features.beta.recordingChunksSerialization) {
       const recording = await database.recordings.get(this.#recordingUUID);
       const encodedChunk = await blobToBase64(data);
       await recording.chunks.add(encodedChunk);
       console.log(
         `Chunk has been added to the recording with uuid=${this.#recordingUUID}`,
       );
+    } else {
+      this.#mediaChunks.push(data);
     }
 
     console.log(`state: ${this.#mediaRecorder.state}`);
@@ -215,11 +220,17 @@ class RecorderV2 {
         return;
       }
 
-      const recording = await database.recordings.get(this.#recordingUUID);
-      const chunks = await recording.chunks.get();
-      const blobs = chunks.map((base64Chunk) =>
-        base64ToBlob(base64Chunk, this.#outputType),
-      );
+      let blobs: BlobPart[] = [];
+
+      if (config.features.beta.recordingChunksSerialization) {
+        const recording = await database.recordings.get(this.#recordingUUID);
+        const chunks = await recording.chunks.get();
+        blobs = chunks.map((base64Chunk) =>
+          base64ToBlob(base64Chunk, this.#outputType),
+        );
+      } else {
+        blobs = this.#mediaChunks;
+      }
 
       const downloadUrl = URL.createObjectURL(
         new Blob(blobs, {
@@ -237,7 +248,9 @@ class RecorderV2 {
   }
 
   start() {
-    this.#mediaRecorder.start(10 * 1000);
+    this.#mediaRecorder.start(
+      config.features.beta.recordingChunksSerialization ? 10 * 1000 : undefined,
+    );
   }
 
   pause() {

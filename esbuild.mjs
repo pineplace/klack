@@ -1,5 +1,11 @@
 import process from "process";
 import * as esbuild from "esbuild";
+import * as dotenv from "dotenv";
+
+dotenv.config({
+  path: [".env"],
+  override: true,
+});
 
 /** @type {import("esbuild").BuildOptions} */
 const contextOptions = {
@@ -20,6 +26,12 @@ const contextOptions = {
   format: "iife",
   bundle: true,
   sourcemap: true,
+  define: {
+    "process.env.APP_TITLE": JSON.stringify(process.env.npm_package_name),
+    "process.env.APP_VERSION": JSON.stringify(process.env.npm_package_version),
+    "process.env.FEATURES_BETA_RECORDING_CHUNKS_SERIALIZATION":
+      process.env.FEATURES_BETA_RECORDING_CHUNKS_SERIALIZATION,
+  },
 };
 
 if (process.argv.includes("--release")) {
