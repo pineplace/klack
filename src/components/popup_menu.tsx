@@ -55,7 +55,7 @@ const ShowHideCameraBubble = () => {
 };
 
 const TurnOnTurnOffMic = () => {
-  const [micAllowed, setMicAllowed] = useState(false);
+  const [micEnabled, setMicAllowed] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -80,12 +80,18 @@ const TurnOnTurnOffMic = () => {
   return (
     <Button
       onClick={() => {
-        sender
-          .send(micAllowed ? builder.mic.disable() : builder.mic.enable())
-          .catch((err) => console.error(err));
+        if (micEnabled) {
+          storage.devices.mic.enabled
+            .set(false)
+            .catch((err) => console.error(err));
+        } else {
+          storage.devices.mic.enabled
+            .set(true)
+            .catch((err) => console.error(err));
+        }
       }}
     >
-      {micAllowed ? "Disallow Mic" : "Allow Mic"}
+      {micEnabled ? "Disallow Mic" : "Allow Mic"}
     </Button>
   );
 };

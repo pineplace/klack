@@ -53,18 +53,6 @@ export const builder = {
       } satisfies Message;
     },
   },
-  mic: {
-    disable: () => {
-      return {
-        type: MessageType.MicDisable,
-      } satisfies Message;
-    },
-    enable: () => {
-      return {
-        type: MessageType.MicEnable,
-      } satisfies Message;
-    },
-  },
   recording: {
     cancel: (reason: string) => {
       return {

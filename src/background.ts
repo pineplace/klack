@@ -2,10 +2,6 @@ import "./config";
 import { Message, MessageType } from "./messaging";
 import { storage, StorageChange, StorageKey } from "./storage";
 import {
-  // onMessageCameraBubbleHide,
-  // onMessageCameraBubbleShow,
-  onMessageMicDisable,
-  onMessageMicEnable,
   onMessageRecordingCancel,
   onMessageRecordingDelete,
   onMessageRecordingDownload,
@@ -23,10 +19,6 @@ import {
 
 chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
   const messageHandlers = new Map([
-    // [MessageType.CameraBubbleHide, onMessageCameraBubbleHide],
-    // [MessageType.CameraBubbleShow, onMessageCameraBubbleShow],
-    [MessageType.MicDisable, onMessageMicDisable],
-    [MessageType.MicEnable, onMessageMicEnable],
     [MessageType.RecordingCancel, onMessageRecordingCancel],
     [MessageType.RecordingDelete, onMessageRecordingDelete],
     [MessageType.RecordingDownload, onMessageRecordingDownload],

@@ -108,14 +108,6 @@ export async function onBrowserEventWindowChange(windowId: number) {
   await storage.current.windowId.set(windowId);
 }
 
-export async function onMessageMicDisable(_options?: MessageOptions) {
-  await storage.devices.mic.enabled.set(false);
-}
-
-export async function onMessageMicEnable(_options?: MessageOptions) {
-  await storage.devices.mic.enabled.set(true);
-}
-
 export async function onMessageRecordingCancel(_options?: MessageOptions) {
   await chrome.tabs.remove(await storage.recording.tabId.get());
   await storage.recording.tabId.set(0);
