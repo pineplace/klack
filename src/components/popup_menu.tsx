@@ -10,7 +10,6 @@ import {
   Stack,
 } from "@mui/material";
 import { RecordingState, storage } from "../storage";
-import { builder, sender } from "../messaging";
 
 const ShowHideCameraBubble = () => {
   const [isVisible, setIsVisible] = useState(false);

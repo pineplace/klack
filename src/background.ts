@@ -67,7 +67,7 @@ chrome.storage.onChanged.addListener((changes, _areaName) => {
   })(changes).catch((err) => {
     console.error(err);
   });
-})
+});
 
 chrome.runtime.onInstalled.addListener((details) => {
   (async (_details: chrome.runtime.InstalledDetails) => {
