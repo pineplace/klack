@@ -14,8 +14,8 @@ import {
   Close,
   PauseCircleFilledRounded,
 } from "@mui/icons-material";
-import { builder, sender } from "../messaging";
 import { storage } from "../storage";
+import { builder, sender } from "../messaging";
 
 const SizeSelector = () => {
   const [selectedValue, setSelectedValue] = useState("200x200");
@@ -65,7 +65,7 @@ const CloseCameraBubble = () => {
     <IconButton
       onClick={() => {
         sender
-          .send(builder.hideCameraBubble())
+          .send(builder.cameraBubble.hide())
           .catch((err) => console.error(err));
       }}
     >
@@ -189,13 +189,13 @@ const RecordingControl = () => {
         onClick={() => {
           if (!inProgress) {
             sender
-              .send(builder.startRecording())
+              .send(builder.recording.start())
               .catch((err) => console.error(err));
             return;
           }
           sender
             .send(
-              onPause ? builder.resumeRecording() : builder.pauseRecording(),
+              onPause ? builder.recording.resume() : builder.recording.pause(),
             )
             .catch((err) => console.error(err));
         }}
@@ -210,7 +210,7 @@ const RecordingControl = () => {
         <IconButton
           onClick={() => {
             sender
-              .send(builder.stopRecording())
+              .send(builder.recording.stop())
               .catch((err) => console.error(err));
           }}
         >
@@ -221,7 +221,7 @@ const RecordingControl = () => {
         <IconButton
           onClick={() => {
             sender
-              .send(builder.deleteRecording())
+              .send(builder.recording.delete())
               .catch((err) => console.error(err));
           }}
         >

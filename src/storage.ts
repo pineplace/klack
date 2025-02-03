@@ -1,18 +1,24 @@
 function generateSetGet<ValueType>(valueName: string) {
   return {
     set: (value: ValueType) => {
-      console.log(`[storage.ts] Set '${valueName}'=${JSON.stringify(value)}`);
       return chrome.storage.local.set({
         [valueName]: value,
       });
     },
     get: async () => {
       const { [valueName]: value } = await chrome.storage.local.get(valueName);
-      console.log(`[storage.ts] Get '${valueName}'=${JSON.stringify(value)}`);
       return value as ValueType;
     },
   };
 }
+
+chrome.storage.onChanged.addListener((changes) => {
+  for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
+    console.log(
+      `[storage.ts] '${key}' '${JSON.stringify(oldValue)}'-->'${JSON.stringify(newValue)}'`,
+    );
+  }
+});
 
 export const storage = {
   version: 1,

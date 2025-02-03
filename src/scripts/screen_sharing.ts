@@ -1,7 +1,12 @@
 import { config } from "../config";
 import { database } from "../database";
-import { Message, Method, builder, sender } from "../messaging";
-import type { TabStopMediaRecorderArgs } from "../messaging";
+import {
+  builder,
+  MediaRecorderStopOptions,
+  Message,
+  MessageType,
+  sender,
+} from "../messaging";
 import { storage } from "../storage";
 import { base64ToBlob, blobToBase64 } from "../utils";
 
@@ -97,28 +102,28 @@ class RecorderV2 {
     chrome.runtime.onMessage.addListener((message: Message) => {
       const methods = new Map([
         [
-          Method.TabStopMediaRecorder,
+          MessageType.MediaRecorderStop,
           () => {
-            const args = message.args as TabStopMediaRecorderArgs;
+            const args = message.options as MediaRecorderStopOptions;
             this.#downloadOnStop = args.downloadRecording;
             this.stop();
           },
         ],
         [
-          Method.TabPauseMediaRecorder,
+          MessageType.MediaRecorderPause,
           () => {
             this.pause();
           },
         ],
         [
-          Method.TabResumeMediaRecorder,
+          MessageType.MediaRecorderResume,
           () => {
             this.resume();
           },
         ],
       ]);
 
-      const method = methods.get(message.method);
+      const method = methods.get(message.type);
 
       if (!method) {
         return;
@@ -215,7 +220,7 @@ class RecorderV2 {
     {
       if (!this.#downloadOnStop) {
         sender
-          .send(builder.cancelRecording("User decided to delete recording"))
+          .send(builder.recording.cancel("User decided to delete recording"))
           .catch((err) => console.error(err));
         return;
       }
@@ -239,7 +244,7 @@ class RecorderV2 {
       );
 
       sender
-        .send(builder.downloadRecording(downloadUrl))
+        .send(builder.recording.download(downloadUrl))
         .then(() => {
           URL.revokeObjectURL(downloadUrl);
         })
@@ -298,9 +303,9 @@ async function main() {
     recorder.start();
     await microphoneVolumeHandler?.start();
 
-    await sender.send(builder.openUserActiveWindow());
+    await sender.send(builder.userActiveWindow.open());
   } catch (err) {
-    await sender.send(builder.cancelRecording((err as Error).message));
+    await sender.send(builder.recording.cancel((err as Error).message));
   }
 }
 

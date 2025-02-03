@@ -9,8 +9,8 @@ import {
   SelectChangeEvent,
   Stack,
 } from "@mui/material";
-import { builder, sender } from "../messaging";
 import { storage } from "../storage";
+import { builder, sender } from "../messaging";
 
 const ShowHideCameraBubble = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -40,7 +40,9 @@ const ShowHideCameraBubble = () => {
       onClick={() => {
         sender
           .send(
-            isVisible ? builder.hideCameraBubble() : builder.showCameraBubble(),
+            isVisible
+              ? builder.cameraBubble.hide()
+              : builder.cameraBubble.show(),
           )
           .catch((err) => console.error(err));
       }}
@@ -77,11 +79,7 @@ const TurnOnTurnOffMic = () => {
     <Button
       onClick={() => {
         sender
-          .send(
-            micAllowed
-              ? builder.disallowMicrophone()
-              : builder.allowMicrophone(),
-          )
+          .send(micAllowed ? builder.mic.disable() : builder.mic.enable())
           .catch((err) => console.error(err));
       }}
     >
@@ -286,7 +284,7 @@ const RecordingControl = () => {
         onClick={() => {
           sender
             .send(
-              inProgress ? builder.stopRecording() : builder.startRecording(),
+              inProgress ? builder.recording.stop() : builder.recording.start(),
             )
             .catch((err) => console.error(err));
         }}
@@ -298,7 +296,9 @@ const RecordingControl = () => {
           onClick={() => {
             sender
               .send(
-                onPause ? builder.resumeRecording() : builder.pauseRecording(),
+                onPause
+                  ? builder.recording.resume()
+                  : builder.recording.pause(),
               )
               .catch((err) => console.error(err));
           }}
@@ -310,7 +310,7 @@ const RecordingControl = () => {
         <Button
           onClick={() => {
             sender
-              .send(builder.deleteRecording())
+              .send(builder.recording.delete())
               .catch((err) => console.error(err));
           }}
         >
