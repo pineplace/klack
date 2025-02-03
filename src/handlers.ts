@@ -193,21 +193,6 @@ export async function onMessageRecordingStop(_options: MessageOptions) {
   );
 }
 
-export async function onMessageUserActiveWindowOpen(
-  _options: MessageOptions,
-): Promise<void> {
-  const currentWindowId = await storage.current.windowId.get();
-  if (currentWindowId <= 0) {
-    console.warn(
-      "No data on the last window opened, most likely because the extension was recently reloaded",
-    );
-    return;
-  }
-  await chrome.windows.update(await storage.current.windowId.get(), {
-    focused: true,
-  });
-}
-
 export async function onStorageChangeUiCameraBubbleEnabled(
   change: StorageChange<unknown>,
 ) {

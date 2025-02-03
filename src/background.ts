@@ -13,7 +13,6 @@ import {
   onBrowserEventTabClosing,
   onBrowserEventTabUpdated,
   onBrowserEventWindowChange,
-  onMessageUserActiveWindowOpen,
   onStorageChangeUiCameraBubbleEnabled,
 } from "./handlers";
 
@@ -26,7 +25,6 @@ chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
     [MessageType.RecordingResume, onMessageRecordingResume],
     [MessageType.RecordingStart, onMessageRecordingStart],
     [MessageType.RecordingStop, onMessageRecordingStop],
-    [MessageType.OpenUserActiveWindow, onMessageUserActiveWindowOpen],
   ]);
 
   (async (message: Message) => {
