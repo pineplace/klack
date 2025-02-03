@@ -1,51 +1,52 @@
 import "./config";
 import { Message, MessageType } from "./messaging";
-import { storage } from "./storage";
+import { storage, StorageChange, StorageKey } from "./storage";
 import {
-  onCameraBubbleHide,
-  onCameraBubbleShow,
-  onMicDisable,
-  onMicEnable,
-  onRecordingCancel,
-  onRecordingDelete,
-  onRecordingDownload,
-  onRecordingPause,
-  onRecordingResume,
-  onRecordingStart,
-  onRecordingStop,
-  onTabChange,
-  onTabClosing,
-  onTabUpdated,
-  onWindowChange,
+  // onMessageCameraBubbleHide,
+  // onMessageCameraBubbleShow,
+  onMessageMicDisable,
+  onMessageMicEnable,
+  onMessageRecordingCancel,
+  onMessageRecordingDelete,
+  onMessageRecordingDownload,
+  onMessageRecordingPause,
+  onMessageRecordingResume,
+  onMessageRecordingStart,
+  onMessageRecordingStop,
+  onBrowserEventTabChange,
+  onBrowserEventTabClosing,
+  onBrowserEventTabUpdated,
+  onBrowserEventWindowChange,
+  onMessageUserActiveWindowOpen,
+  onStorageChangeUiCameraBubbleEnabled,
 } from "./handlers";
 
 chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
+  const messageHandlers = new Map([
+    // [MessageType.CameraBubbleHide, onMessageCameraBubbleHide],
+    // [MessageType.CameraBubbleShow, onMessageCameraBubbleShow],
+    [MessageType.MicDisable, onMessageMicDisable],
+    [MessageType.MicEnable, onMessageMicEnable],
+    [MessageType.RecordingCancel, onMessageRecordingCancel],
+    [MessageType.RecordingDelete, onMessageRecordingDelete],
+    [MessageType.RecordingDownload, onMessageRecordingDownload],
+    [MessageType.RecordingPause, onMessageRecordingPause],
+    [MessageType.RecordingResume, onMessageRecordingResume],
+    [MessageType.RecordingStart, onMessageRecordingStart],
+    [MessageType.RecordingStop, onMessageRecordingStop],
+    [MessageType.OpenUserActiveWindow, onMessageUserActiveWindowOpen],
+  ]);
+
   (async (message: Message) => {
-    console.log(`[background.ts] Message received ${JSON.stringify(message)})`);
-
-    const messageHandlers = new Map([
-      [MessageType.CameraBubbleHide, onCameraBubbleHide],
-      [MessageType.CameraBubbleShow, onCameraBubbleShow],
-      [MessageType.MicDisable, onMicDisable],
-      [MessageType.MicEnable, onMicEnable],
-      [MessageType.RecordingCancel, onRecordingCancel],
-      [MessageType.RecordingDelete, onRecordingDelete],
-      [MessageType.RecordingDownload, onRecordingDownload],
-      [MessageType.RecordingPause, onRecordingPause],
-      [MessageType.RecordingResume, onRecordingResume],
-      [MessageType.RecordingStart, onRecordingStart],
-      [MessageType.RecordingStop, onRecordingStop],
-    ]);
-
+    const { type, options } = message;
+    const handler = messageHandlers.get(type);
+    if (!handler) {
+      return;
+    }
+    console.log(
+      `[background.ts] Handle message with type ${type} and options ${JSON.stringify(options)}`,
+    );
     try {
-      const { type, options } = message;
-      const handler = messageHandlers.get(type);
-      if (!handler) {
-        throw new Error(`Unsupported message type ${type}`);
-      }
-      console.log(
-        `[background.ts] Handle message with type ${type} and options ${JSON.stringify(options)}`,
-      );
       await handler(options ?? {});
     } catch (err) {
       console.error(
@@ -58,6 +59,35 @@ chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
   // NOTE: We need to return `true`, because we using `sendResponse` asynchronously
   return true;
 });
+
+chrome.storage.onChanged.addListener((changes, _areaName) => {
+  const storageKeyHandlers = new Map([
+    [StorageKey.UiCameraBubbleEnabled, onStorageChangeUiCameraBubbleEnabled],
+  ]);
+
+  (async (changes: {
+    [key: string]: { newValue?: unknown; oldValue?: unknown };
+  }) => {
+    for (const [key, change] of Object.entries(changes)) {
+      const handler = storageKeyHandlers.get(key as StorageKey);
+      if (!handler) {
+        return;
+      }
+      console.log(
+        `[background.ts] Handle storage change '${key}' '${JSON.stringify(change.oldValue)}'--> '${JSON.stringify(change.newValue)}'`,
+      );
+      try {
+        await handler(change as StorageChange<unknown>);
+      } catch (err) {
+        console.error(
+          `[background.ts] Error on storage change handling: ${(err as Error).toString()}`,
+        );
+      }
+    }
+  })(changes).catch((err) => {
+    console.error(err);
+  });
+})
 
 chrome.runtime.onInstalled.addListener((details) => {
   (async (_details: chrome.runtime.InstalledDetails) => {
@@ -91,25 +121,25 @@ chrome.runtime.onInstalled.addListener((details) => {
 });
 
 chrome.tabs.onActivated.addListener((activeTabInfo) => {
-  onTabChange(activeTabInfo).catch((err) => {
+  onBrowserEventTabChange(activeTabInfo).catch((err) => {
     throw err;
   });
 });
 
 chrome.tabs.onRemoved.addListener((closedTabId, removeInfo) => {
-  onTabClosing(closedTabId, removeInfo).catch((err) => {
+  onBrowserEventTabClosing(closedTabId, removeInfo).catch((err) => {
     throw err;
   });
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  onTabUpdated(tabId, changeInfo, tab).catch((err) => {
+  onBrowserEventTabUpdated(tabId, changeInfo, tab).catch((err) => {
     throw err;
   });
 });
 
 chrome.windows.onFocusChanged.addListener((windowId) => {
-  onWindowChange(windowId).catch((err) => {
+  onBrowserEventWindowChange(windowId).catch((err) => {
     throw err;
   });
 });

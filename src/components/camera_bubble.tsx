@@ -64,8 +64,8 @@ const CloseCameraBubble = () => {
   return (
     <IconButton
       onClick={() => {
-        sender
-          .send(builder.cameraBubble.hide())
+        storage.ui.cameraBubble.enabled
+          .set(false)
           .catch((err) => console.error(err));
       }}
     >

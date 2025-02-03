@@ -38,13 +38,15 @@ const ShowHideCameraBubble = () => {
   return (
     <Button
       onClick={() => {
-        sender
-          .send(
-            isVisible
-              ? builder.cameraBubble.hide()
-              : builder.cameraBubble.show(),
-          )
-          .catch((err) => console.error(err));
+        if (isVisible) {
+          storage.ui.cameraBubble.enabled
+            .set(false)
+            .catch((err) => console.error(err));
+        } else {
+          storage.ui.cameraBubble.enabled
+            .set(true)
+            .catch((err) => console.error(err));
+        }
       }}
     >
       {isVisible ? "Hide bubble" : "Show bubble"}

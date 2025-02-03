@@ -1,70 +1,115 @@
-function generateSetGet<ValueType>(valueName: string) {
+export enum StorageKey {
+  CurrentTabId = "current.tabId",
+  CurrentWindowId = "current.windowId",
+  DevicesMicEnabled = "devices.mic.enabled",
+  DevicesMicId = "devices.mic.id",
+  DevicesMicName = "devices.mic.name",
+  DevicesMicVolume = "devices.mic.volume",
+  DevicesVideoEnabled = "devices.video.enabled",
+  DevicesVideoId = "devices.video.id",
+  DevicesVideoName = "devices.video.name",
+  RecordingDuration = "recording.duration",
+  RecordingInProgress = "recording.inProgress",
+  RecordingOnPause = "recording.onPause",
+  RecordingTabId = "recording.tabId",
+  RecordingUuid = "recording.uuid",
+  RecordingWindowId = "recording.windowId",
+  UiCameraBubbleEnabled = "ui.cameraBubble.enabled",
+  UiCameraBubblePosition = "ui.cameraBubble.position",
+  UiCameraBubbleSize = "ui.cameraBubble.size",
+  UiCameraBubbleTabId = "ui.cameraBubble.tabId",
+  UiCameraBubbleWindowId = "ui.cameraBubble.windowId",
+}
+
+export type CurrentTabId = number;
+export type CurrentWindowId = number;
+export type DevicesMicEnabled = boolean;
+export type DevicesMicId = string;
+export type DevicesMicName = string;
+export type DevicesMicVolume = number;
+export type DevicesVideoEnabled = boolean;
+export type DevicesVideoId = string;
+export type DevicesVideoName = string;
+export type RecordingDuration = number;
+export type RecordingInProgress = boolean;
+export type RecordingOnPause = boolean;
+export type RecordingTabId = number;
+export type RecordingUuid = string;
+export type RecordingWindowId = number;
+export type UiCameraBubbleEnabled = boolean;
+export type UiCameraBubblePosition = { x: number; y: number };
+export type UiCameraBubbleSize = { width: number; height: number };
+export type UiCameraBubbleTabId = number;
+export type UiCameraBubbleWindowId = number;
+
+export interface StorageChange<T> {
+  oldValue: T;
+  newValue: T;
+}
+
+function generateSetGet<ValueType>(storageKey: StorageKey) {
   return {
+    key: storageKey,
     set: (value: ValueType) => {
       return chrome.storage.local.set({
-        [valueName]: value,
+        [storageKey]: value,
       });
     },
     get: async () => {
-      const { [valueName]: value } = await chrome.storage.local.get(valueName);
+      const { [storageKey]: value } =
+        await chrome.storage.local.get(storageKey);
       return value as ValueType;
     },
   };
 }
 
-chrome.storage.onChanged.addListener((changes) => {
-  for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
-    console.log(
-      `[storage.ts] '${key}' '${JSON.stringify(oldValue)}'-->'${JSON.stringify(newValue)}'`,
-    );
-  }
-});
-
 export const storage = {
   version: 1,
   current: {
-    windowId: generateSetGet<number>("current.windowId"),
-    tabId: generateSetGet<number>("current.tabId"),
+    tabId: generateSetGet<CurrentTabId>(StorageKey.CurrentTabId),
+    windowId: generateSetGet<CurrentWindowId>(StorageKey.CurrentWindowId),
   },
   devices: {
-    video: {
-      enabled: generateSetGet<boolean>("devices.video.enabled"),
-      id: generateSetGet<string>("devices.video.id"),
-      name: generateSetGet<string>("devices.video.name"),
-    },
     mic: {
-      enabled: generateSetGet<boolean>("devices.mic.enabled"),
-      id: generateSetGet<string>("devices.mic.id"),
-      name: generateSetGet<string>("devices.mic.name"),
-      volume: generateSetGet<number>("devices.mic.volume"),
+      enabled: generateSetGet<DevicesMicEnabled>(StorageKey.DevicesMicEnabled),
+      id: generateSetGet<DevicesMicId>(StorageKey.DevicesMicId),
+      name: generateSetGet<DevicesMicName>(StorageKey.DevicesMicName),
+      volume: generateSetGet<DevicesMicVolume>(StorageKey.DevicesMicVolume),
     },
-  },
-  ui: {
-    cameraBubble: {
-      enabled: generateSetGet<boolean>("ui.cameraBubble.enabled"),
-      windowId: generateSetGet<number>("ui.cameraBubble.windowId"),
-      tabId: generateSetGet<number>("ui.cameraBubble.tabId"),
-      position: generateSetGet<{ x: number; y: number }>(
-        "ui.cameraBubble.position",
+    video: {
+      enabled: generateSetGet<DevicesVideoEnabled>(
+        StorageKey.DevicesVideoEnabled,
       ),
-      size: generateSetGet<{ width: number; height: number }>(
-        "ui.cameraBubble.size",
-      ),
+      id: generateSetGet<DevicesVideoId>(StorageKey.DevicesVideoId),
+      name: generateSetGet<DevicesVideoName>(StorageKey.DevicesVideoName),
     },
   },
   recording: {
-    windowId: generateSetGet<number>("recording.windowId"),
-    tabId: generateSetGet<number>("recording.tabId"),
-    /**
-     * @deprecated Recording state should be moved to the database soon
-     */
-    inProgress: generateSetGet<boolean>("recording.inProgress"),
-    /**
-     * @deprecated Recording state should be moved to the database soon
-     */
-    onPause: generateSetGet<boolean>("recording.onPause"),
-    uuid: generateSetGet<string>("recording.uuid"),
-    duration: generateSetGet<number>("recording.duration"),
+    duration: generateSetGet<RecordingDuration>(StorageKey.RecordingDuration),
+    inProgress: generateSetGet<RecordingInProgress>(
+      StorageKey.RecordingInProgress,
+    ),
+    onPause: generateSetGet<RecordingOnPause>(StorageKey.RecordingOnPause),
+    tabId: generateSetGet<RecordingTabId>(StorageKey.RecordingTabId),
+    uuid: generateSetGet<RecordingUuid>(StorageKey.RecordingUuid),
+    windowId: generateSetGet<RecordingWindowId>(StorageKey.RecordingWindowId),
+  },
+  ui: {
+    cameraBubble: {
+      enabled: generateSetGet<UiCameraBubbleEnabled>(
+        StorageKey.UiCameraBubbleEnabled,
+      ),
+      position: generateSetGet<UiCameraBubblePosition>(
+        StorageKey.UiCameraBubblePosition,
+      ),
+      size: generateSetGet<UiCameraBubbleSize>(StorageKey.UiCameraBubbleSize),
+      tabId: generateSetGet<UiCameraBubbleTabId>(
+        StorageKey.UiCameraBubbleTabId,
+      ),
+      windowId: generateSetGet<UiCameraBubbleWindowId>(
+        StorageKey.UiCameraBubbleWindowId,
+      ),
+    },
   },
   clear: () => {
     return chrome.storage.local.clear();
@@ -78,3 +123,11 @@ export const storage = {
 };
 
 export type Storage = typeof storage;
+
+chrome.storage.onChanged.addListener((changes) => {
+  for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
+    console.log(
+      `[storage.ts] '${key}' '${JSON.stringify(oldValue)}'-->'${JSON.stringify(newValue)}'`,
+    );
+  }
+});

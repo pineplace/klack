@@ -1,6 +1,4 @@
 export enum MessageType {
-  CameraBubbleHide,
-  CameraBubbleShow,
   MediaRecorderPause,
   MediaRecorderResume,
   MediaRecorderStop,
@@ -13,6 +11,7 @@ export enum MessageType {
   RecordingResume,
   RecordingStart,
   RecordingStop,
+  OpenUserActiveWindow,
   UserActiveWindowOpen,
 }
 
@@ -34,18 +33,6 @@ export interface Message {
 }
 
 export const builder = {
-  cameraBubble: {
-    hide: () => {
-      return {
-        type: MessageType.CameraBubbleHide,
-      } satisfies Message;
-    },
-    show: () => {
-      return {
-        type: MessageType.CameraBubbleShow,
-      } satisfies Message;
-    },
-  },
   mediaRecorder: {
     pause: () => {
       return {
