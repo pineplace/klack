@@ -1,7 +1,13 @@
+import { config } from "../config";
 import { database } from "../database";
-import { Message, Method, builder, sender } from "../messaging";
-import type { TabStopMediaRecorderArgs } from "../messaging";
-import { storage } from "../storage";
+import {
+  builder,
+  MediaRecorderStopOptions,
+  Message,
+  MessageType,
+  sender,
+} from "../messaging";
+import { RecordingState, storage } from "../storage";
 import { base64ToBlob, blobToBase64 } from "../utils";
 
 class VolumeLevelHandler {
@@ -96,28 +102,28 @@ class RecorderV2 {
     chrome.runtime.onMessage.addListener((message: Message) => {
       const methods = new Map([
         [
-          Method.TabStopMediaRecorder,
+          MessageType.MediaRecorderStop,
           () => {
-            const args = message.args as TabStopMediaRecorderArgs;
+            const args = message.options as MediaRecorderStopOptions;
             this.#downloadOnStop = args.downloadRecording;
             this.stop();
           },
         ],
         [
-          Method.TabPauseMediaRecorder,
+          MessageType.MediaRecorderPause,
           () => {
             this.pause();
           },
         ],
         [
-          Method.TabResumeMediaRecorder,
+          MessageType.MediaRecorderResume,
           () => {
             this.resume();
           },
         ],
       ]);
 
-      const method = methods.get(message.method);
+      const method = methods.get(message.type);
 
       if (!method) {
         return;
@@ -168,8 +174,10 @@ class RecorderV2 {
   }
 
   async #onStart() {
-    this.#recordingUUID = crypto.randomUUID();
-    await database.recordings.add(this.#recordingUUID);
+    if (config.features.beta.recordingChunksSerialization) {
+      this.#recordingUUID = crypto.randomUUID();
+      await database.recordings.add(this.#recordingUUID);
+    }
 
     storage.recording.duration.set(0).catch((err) => {
       console.error(err);
@@ -192,13 +200,15 @@ class RecorderV2 {
   }
 
   async #onData(data: Blob) {
-    {
+    if (config.features.beta.recordingChunksSerialization) {
       const recording = await database.recordings.get(this.#recordingUUID);
       const encodedChunk = await blobToBase64(data);
       await recording.chunks.add(encodedChunk);
       console.log(
         `Chunk has been added to the recording with uuid=${this.#recordingUUID}`,
       );
+    } else {
+      this.#mediaChunks.push(data);
     }
 
     console.log(`state: ${this.#mediaRecorder.state}`);
@@ -209,17 +219,23 @@ class RecorderV2 {
 
     {
       if (!this.#downloadOnStop) {
-        sender
-          .send(builder.cancelRecording("User decided to delete recording"))
+        storage.recording.state
+          .set(RecordingState.Canceled)
           .catch((err) => console.error(err));
         return;
       }
 
-      const recording = await database.recordings.get(this.#recordingUUID);
-      const chunks = await recording.chunks.get();
-      const blobs = chunks.map((base64Chunk) =>
-        base64ToBlob(base64Chunk, this.#outputType),
-      );
+      let blobs: BlobPart[] = [];
+
+      if (config.features.beta.recordingChunksSerialization) {
+        const recording = await database.recordings.get(this.#recordingUUID);
+        const chunks = await recording.chunks.get();
+        blobs = chunks.map((base64Chunk) =>
+          base64ToBlob(base64Chunk, this.#outputType),
+        );
+      } else {
+        blobs = this.#mediaChunks;
+      }
 
       const downloadUrl = URL.createObjectURL(
         new Blob(blobs, {
@@ -228,7 +244,7 @@ class RecorderV2 {
       );
 
       sender
-        .send(builder.downloadRecording(downloadUrl))
+        .send(builder.recording.download(downloadUrl))
         .then(() => {
           URL.revokeObjectURL(downloadUrl);
         })
@@ -237,7 +253,9 @@ class RecorderV2 {
   }
 
   start() {
-    this.#mediaRecorder.start(10 * 1000);
+    this.#mediaRecorder.start(
+      config.features.beta.recordingChunksSerialization ? 10 * 1000 : undefined,
+    );
   }
 
   pause() {
@@ -284,10 +302,8 @@ async function main() {
     const recorder = new RecorderV2(streams);
     recorder.start();
     await microphoneVolumeHandler?.start();
-
-    await sender.send(builder.openUserActiveWindow());
   } catch (err) {
-    await sender.send(builder.cancelRecording((err as Error).message));
+    await storage.recording.state.set(RecordingState.Canceled);
   }
 }
 

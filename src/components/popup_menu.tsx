@@ -9,8 +9,7 @@ import {
   SelectChangeEvent,
   Stack,
 } from "@mui/material";
-import { builder, sender } from "../messaging";
-import { storage } from "../storage";
+import { RecordingState, storage } from "../storage";
 
 const ShowHideCameraBubble = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -38,11 +37,15 @@ const ShowHideCameraBubble = () => {
   return (
     <Button
       onClick={() => {
-        sender
-          .send(
-            isVisible ? builder.hideCameraBubble() : builder.showCameraBubble(),
-          )
-          .catch((err) => console.error(err));
+        if (isVisible) {
+          storage.ui.cameraBubble.enabled
+            .set(false)
+            .catch((err) => console.error(err));
+        } else {
+          storage.ui.cameraBubble.enabled
+            .set(true)
+            .catch((err) => console.error(err));
+        }
       }}
     >
       {isVisible ? "Hide bubble" : "Show bubble"}
@@ -51,7 +54,7 @@ const ShowHideCameraBubble = () => {
 };
 
 const TurnOnTurnOffMic = () => {
-  const [micAllowed, setMicAllowed] = useState(false);
+  const [micEnabled, setMicAllowed] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -76,16 +79,18 @@ const TurnOnTurnOffMic = () => {
   return (
     <Button
       onClick={() => {
-        sender
-          .send(
-            micAllowed
-              ? builder.disallowMicrophone()
-              : builder.allowMicrophone(),
-          )
-          .catch((err) => console.error(err));
+        if (micEnabled) {
+          storage.devices.mic.enabled
+            .set(false)
+            .catch((err) => console.error(err));
+        } else {
+          storage.devices.mic.enabled
+            .set(true)
+            .catch((err) => console.error(err));
+        }
       }}
     >
-      {micAllowed ? "Disallow Mic" : "Allow Mic"}
+      {micEnabled ? "Disallow Mic" : "Allow Mic"}
     </Button>
   );
 };
@@ -242,9 +247,11 @@ const RecordingControl = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.recording.inProgress
+      storage.recording.state
         .get()
-        .then(setInProgress)
+        .then((value) => {
+          setInProgress(value === RecordingState.Started);
+        })
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
             console.error(err);
@@ -262,9 +269,11 @@ const RecordingControl = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.recording.onPause
+      storage.recording.state
         .get()
-        .then(setOnPause)
+        .then((value) => {
+          setOnPause(value === RecordingState.Paused);
+        })
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
             console.error(err);
@@ -284,11 +293,15 @@ const RecordingControl = () => {
     <ButtonGroup>
       <Button
         onClick={() => {
-          sender
-            .send(
-              inProgress ? builder.stopRecording() : builder.startRecording(),
-            )
-            .catch((err) => console.error(err));
+          if (inProgress) {
+            storage.recording.state
+              .set(RecordingState.Stopped)
+              .catch((err) => console.error(err));
+          } else {
+            storage.recording.state
+              .set(RecordingState.Started)
+              .catch((err) => console.error(err));
+          }
         }}
       >
         {inProgress ? "Stop" : "Start"}
@@ -296,10 +309,8 @@ const RecordingControl = () => {
       {inProgress && (
         <Button
           onClick={() => {
-            sender
-              .send(
-                onPause ? builder.resumeRecording() : builder.pauseRecording(),
-              )
+            storage.recording.state
+              .set(onPause ? RecordingState.Started : RecordingState.Paused)
               .catch((err) => console.error(err));
           }}
         >
@@ -309,8 +320,8 @@ const RecordingControl = () => {
       {inProgress && (
         <Button
           onClick={() => {
-            sender
-              .send(builder.deleteRecording())
+            storage.recording.state
+              .set(RecordingState.Deleted)
               .catch((err) => console.error(err));
           }}
         >

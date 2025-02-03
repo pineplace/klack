@@ -14,8 +14,7 @@ import {
   Close,
   PauseCircleFilledRounded,
 } from "@mui/icons-material";
-import { builder, sender } from "../messaging";
-import { storage } from "../storage";
+import { RecordingState, storage } from "../storage";
 
 const SizeSelector = () => {
   const [selectedValue, setSelectedValue] = useState("200x200");
@@ -64,8 +63,8 @@ const CloseCameraBubble = () => {
   return (
     <IconButton
       onClick={() => {
-        sender
-          .send(builder.hideCameraBubble())
+        storage.ui.cameraBubble.enabled
+          .set(false)
           .catch((err) => console.error(err));
       }}
     >
@@ -141,10 +140,10 @@ const RecordingControl = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.recording.inProgress
+      storage.recording.state
         .get()
-        .then((value: boolean) => {
-          setInProgress(value);
+        .then((value) => {
+          setInProgress(value === RecordingState.Started);
         })
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
@@ -163,10 +162,10 @@ const RecordingControl = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.recording.onPause
+      storage.recording.state
         .get()
-        .then((value: boolean) => {
-          setOnPause(value);
+        .then((value) => {
+          setOnPause(value === RecordingState.Paused);
         })
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
@@ -188,15 +187,13 @@ const RecordingControl = () => {
       <IconButton
         onClick={() => {
           if (!inProgress) {
-            sender
-              .send(builder.startRecording())
+            storage.recording.state
+              .set(RecordingState.Started)
               .catch((err) => console.error(err));
             return;
           }
-          sender
-            .send(
-              onPause ? builder.resumeRecording() : builder.pauseRecording(),
-            )
+          storage.recording.state
+            .set(onPause ? RecordingState.Started : RecordingState.Paused)
             .catch((err) => console.error(err));
         }}
       >
@@ -209,8 +206,8 @@ const RecordingControl = () => {
       {inProgress && (
         <IconButton
           onClick={() => {
-            sender
-              .send(builder.stopRecording())
+            storage.recording.state
+              .set(RecordingState.Stopped)
               .catch((err) => console.error(err));
           }}
         >
@@ -220,8 +217,8 @@ const RecordingControl = () => {
       {inProgress && (
         <IconButton
           onClick={() => {
-            sender
-              .send(builder.deleteRecording())
+            storage.recording.state
+              .set(RecordingState.Deleted)
               .catch((err) => console.error(err));
           }}
         >
@@ -252,9 +249,9 @@ const RecordingDuration = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.recording.inProgress
+      storage.recording.state
         .get()
-        .then((res) => setIsVisible(res))
+        .then((res) => setIsVisible(res === RecordingState.Started))
         .catch((err) => console.error(err));
     }, 500);
 
