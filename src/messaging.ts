@@ -1,28 +1,16 @@
 export enum MessageType {
-  MediaRecorderPause,
-  MediaRecorderResume,
-  MediaRecorderStop,
-  MicDisable,
-  MicEnable,
-  RecordingCancel,
-  RecordingDelete,
-  RecordingDownload,
-  RecordingPause,
-  RecordingResume,
-  RecordingStart,
-  RecordingStop,
-  OpenUserActiveWindow,
-  UserActiveWindowOpen,
+  MediaRecorderPause = "MediaRecorderPause",
+  MediaRecorderResume = "MediaRecorderResume",
+  MediaRecorderStop = "MediaRecorderStop",
+  RecordingDownload = "RecordingDownload",
 }
 
 export type MediaRecorderStopOptions = { downloadRecording: boolean };
-export type RecordingCancelOptions = { reason: string };
 export type RecordingDownloadOptions = { downloadUrl: string };
 export type TabStopMediaRecorderOptions = { downloadRecording: boolean };
 
 export type MessageOptions =
   | MediaRecorderStopOptions
-  | RecordingCancelOptions
   | RecordingDownloadOptions
   | TabStopMediaRecorderOptions
   | Record<string, never>;
@@ -54,19 +42,6 @@ export const builder = {
     },
   },
   recording: {
-    cancel: (reason: string) => {
-      return {
-        type: MessageType.RecordingCancel,
-        options: {
-          reason,
-        } satisfies RecordingCancelOptions,
-      } satisfies Message;
-    },
-    delete: () => {
-      return {
-        type: MessageType.RecordingDelete,
-      } satisfies Message;
-    },
     download: (downloadUrl: string) => {
       return {
         type: MessageType.RecordingDownload,
@@ -75,34 +50,7 @@ export const builder = {
         } satisfies RecordingDownloadOptions,
       } satisfies Message;
     },
-    pause: () => {
-      return {
-        type: MessageType.RecordingPause,
-      } satisfies Message;
-    },
-    resume: () => {
-      return {
-        type: MessageType.RecordingResume,
-      } satisfies Message;
-    },
-    start: () => {
-      return {
-        type: MessageType.RecordingStart,
-      } satisfies Message;
-    },
-    stop: () => {
-      return {
-        type: MessageType.RecordingStop,
-      } satisfies Message;
-    },
   },
-  userActiveWindow: {
-    open: () => {
-      return {
-        type: MessageType.UserActiveWindowOpen,
-      } satisfies Message;
-    }
-  }
 };
 
 export const sender = {

@@ -9,7 +9,7 @@ import {
   SelectChangeEvent,
   Stack,
 } from "@mui/material";
-import { storage } from "../storage";
+import { RecordingState, storage } from "../storage";
 import { builder, sender } from "../messaging";
 
 const ShowHideCameraBubble = () => {
@@ -248,9 +248,11 @@ const RecordingControl = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.recording.inProgress
+      storage.recording.state
         .get()
-        .then(setInProgress)
+        .then((value) => {
+          setInProgress(value === RecordingState.Started);
+        })
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
             console.error(err);
@@ -268,9 +270,11 @@ const RecordingControl = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      storage.recording.onPause
+      storage.recording.state
         .get()
-        .then(setOnPause)
+        .then((value) => {
+          setOnPause(value === RecordingState.Paused);
+        })
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
             console.error(err);
@@ -290,11 +294,15 @@ const RecordingControl = () => {
     <ButtonGroup>
       <Button
         onClick={() => {
-          sender
-            .send(
-              inProgress ? builder.recording.stop() : builder.recording.start(),
-            )
-            .catch((err) => console.error(err));
+          if (inProgress) {
+            storage.recording.state
+              .set(RecordingState.Stopped)
+              .catch((err) => console.error(err));
+          } else {
+            storage.recording.state
+              .set(RecordingState.Started)
+              .catch((err) => console.error(err));
+          }
         }}
       >
         {inProgress ? "Stop" : "Start"}
@@ -302,12 +310,8 @@ const RecordingControl = () => {
       {inProgress && (
         <Button
           onClick={() => {
-            sender
-              .send(
-                onPause
-                  ? builder.recording.resume()
-                  : builder.recording.pause(),
-              )
+            storage.recording.state
+              .set(onPause ? RecordingState.Started : RecordingState.Paused)
               .catch((err) => console.error(err));
           }}
         >
@@ -317,8 +321,8 @@ const RecordingControl = () => {
       {inProgress && (
         <Button
           onClick={() => {
-            sender
-              .send(builder.recording.delete())
+            storage.recording.state
+              .set(RecordingState.Deleted)
               .catch((err) => console.error(err));
           }}
         >

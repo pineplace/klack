@@ -7,7 +7,7 @@ import {
   MessageType,
   sender,
 } from "../messaging";
-import { storage } from "../storage";
+import { RecordingState, storage } from "../storage";
 import { base64ToBlob, blobToBase64 } from "../utils";
 
 class VolumeLevelHandler {
@@ -219,8 +219,8 @@ class RecorderV2 {
 
     {
       if (!this.#downloadOnStop) {
-        sender
-          .send(builder.recording.cancel("User decided to delete recording"))
+        storage.recording.state
+          .set(RecordingState.Canceled)
           .catch((err) => console.error(err));
         return;
       }
@@ -302,10 +302,8 @@ async function main() {
     const recorder = new RecorderV2(streams);
     recorder.start();
     await microphoneVolumeHandler?.start();
-
-    await sender.send(builder.userActiveWindow.open());
   } catch (err) {
-    await sender.send(builder.recording.cancel((err as Error).message));
+    await storage.recording.state.set(RecordingState.Canceled);
   }
 }
 

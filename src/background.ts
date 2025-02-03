@@ -1,30 +1,19 @@
 import "./config";
 import { Message, MessageType } from "./messaging";
-import { storage, StorageChange, StorageKey } from "./storage";
+import { RecordingState, storage, StorageKey } from "./storage";
 import {
-  onMessageRecordingCancel,
-  onMessageRecordingDelete,
   onMessageRecordingDownload,
-  onMessageRecordingPause,
-  onMessageRecordingResume,
-  onMessageRecordingStart,
-  onMessageRecordingStop,
   onBrowserEventTabChange,
   onBrowserEventTabClosing,
   onBrowserEventTabUpdated,
   onBrowserEventWindowChange,
   onStorageChangeUiCameraBubbleEnabled,
+  onStorageChangeRecordingState,
 } from "./handlers";
 
 chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
   const messageHandlers = new Map([
-    [MessageType.RecordingCancel, onMessageRecordingCancel],
-    [MessageType.RecordingDelete, onMessageRecordingDelete],
     [MessageType.RecordingDownload, onMessageRecordingDownload],
-    [MessageType.RecordingPause, onMessageRecordingPause],
-    [MessageType.RecordingResume, onMessageRecordingResume],
-    [MessageType.RecordingStart, onMessageRecordingStart],
-    [MessageType.RecordingStop, onMessageRecordingStop],
   ]);
 
   (async (message: Message) => {
@@ -53,6 +42,7 @@ chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
 chrome.storage.onChanged.addListener((changes, _areaName) => {
   const storageKeyHandlers = new Map([
     [StorageKey.UiCameraBubbleEnabled, onStorageChangeUiCameraBubbleEnabled],
+    [StorageKey.RecordingState, onStorageChangeRecordingState],
   ]);
 
   (async (changes: {
@@ -67,7 +57,7 @@ chrome.storage.onChanged.addListener((changes, _areaName) => {
         `[background.ts] Handle storage change '${key}' '${JSON.stringify(change.oldValue)}'--> '${JSON.stringify(change.newValue)}'`,
       );
       try {
-        await handler(change as StorageChange<unknown>);
+        await handler(change);
       } catch (err) {
         console.error(
           `[background.ts] Error on storage change handling: ${(err as Error).toString()}`,
@@ -101,8 +91,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 
     await storage.recording.windowId.set(0);
     await storage.recording.tabId.set(0);
-    await storage.recording.inProgress.set(false);
-    await storage.recording.onPause.set(false);
+    await storage.recording.state.set(RecordingState.NotStarted);
     await storage.recording.uuid.set("");
     await storage.recording.duration.set(0);
   })(details).catch((err) => {

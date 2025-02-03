@@ -9,8 +9,7 @@ export enum StorageKey {
   DevicesVideoId = "devices.video.id",
   DevicesVideoName = "devices.video.name",
   RecordingDuration = "recording.duration",
-  RecordingInProgress = "recording.inProgress",
-  RecordingOnPause = "recording.onPause",
+  RecordingState = "recording.state",
   RecordingTabId = "recording.tabId",
   RecordingUuid = "recording.uuid",
   RecordingWindowId = "recording.windowId",
@@ -30,9 +29,15 @@ export type DevicesMicVolume = number;
 export type DevicesVideoEnabled = boolean;
 export type DevicesVideoId = string;
 export type DevicesVideoName = string;
+export enum RecordingState {
+  NotStarted = "NotStarted",
+  Started = "InProgress",
+  Paused = "Paused",
+  Canceled = "Canceled",
+  Stopped = "Stopped",
+  Deleted = "Deleted",
+}
 export type RecordingDuration = number;
-export type RecordingInProgress = boolean;
-export type RecordingOnPause = boolean;
 export type RecordingTabId = number;
 export type RecordingUuid = string;
 export type RecordingWindowId = number;
@@ -41,11 +46,6 @@ export type UiCameraBubblePosition = { x: number; y: number };
 export type UiCameraBubbleSize = { width: number; height: number };
 export type UiCameraBubbleTabId = number;
 export type UiCameraBubbleWindowId = number;
-
-export interface StorageChange<T> {
-  oldValue: T;
-  newValue: T;
-}
 
 function generateSetGet<ValueType>(storageKey: StorageKey) {
   return {
@@ -86,10 +86,7 @@ export const storage = {
   },
   recording: {
     duration: generateSetGet<RecordingDuration>(StorageKey.RecordingDuration),
-    inProgress: generateSetGet<RecordingInProgress>(
-      StorageKey.RecordingInProgress,
-    ),
-    onPause: generateSetGet<RecordingOnPause>(StorageKey.RecordingOnPause),
+    state: generateSetGet<RecordingState>(StorageKey.RecordingState),
     tabId: generateSetGet<RecordingTabId>(StorageKey.RecordingTabId),
     uuid: generateSetGet<RecordingUuid>(StorageKey.RecordingUuid),
     windowId: generateSetGet<RecordingWindowId>(StorageKey.RecordingWindowId),

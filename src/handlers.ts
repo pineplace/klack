@@ -4,7 +4,7 @@ import {
   RecordingDownloadOptions,
   sender,
 } from "./messaging";
-import { storage, StorageChange, UiCameraBubbleEnabled } from "./storage";
+import { RecordingState, storage, UiCameraBubbleEnabled } from "./storage";
 import { debounce } from "./utils";
 
 export async function onBrowserEventTabChange(
@@ -108,20 +108,6 @@ export async function onBrowserEventWindowChange(windowId: number) {
   await storage.current.windowId.set(windowId);
 }
 
-export async function onMessageRecordingCancel(_options?: MessageOptions) {
-  await chrome.tabs.remove(await storage.recording.tabId.get());
-  await storage.recording.tabId.set(0);
-  await storage.recording.inProgress.set(false);
-  await storage.recording.onPause.set(false);
-}
-
-export async function onMessageRecordingDelete(_options?: MessageOptions) {
-  await sender.send(
-    builder.mediaRecorder.stop(false),
-    await storage.recording.tabId.get(),
-  );
-}
-
 export async function onMessageRecordingDownload(options: MessageOptions) {
   options = options as RecordingDownloadOptions;
 
@@ -132,84 +118,27 @@ export async function onMessageRecordingDownload(options: MessageOptions) {
   await chrome.tabs.remove(await storage.recording.tabId.get());
 
   await storage.recording.tabId.set(0);
-  await storage.recording.inProgress.set(false);
-  await storage.recording.onPause.set(false);
-}
-
-export async function onMessageRecordingPause(_options: MessageOptions) {
-  await storage.recording.onPause.set(true);
-
-  await sender.send(
-    builder.mediaRecorder.pause(),
-    await storage.recording.tabId.get(),
-  );
-}
-
-export async function onMessageRecordingResume(_options: MessageOptions) {
-  await storage.recording.onPause.set(false);
-
-  await sender.send(
-    builder.mediaRecorder.resume(),
-    await storage.recording.tabId.get(),
-  );
-}
-
-export async function onMessageRecordingStart(_options: MessageOptions) {
-  const currentTab = await storage.current.tabId.get();
-  await chrome.scripting.executeScript({
-    target: { tabId: currentTab },
-    files: ["recording_start_countdown.bundle.mjs"],
-  });
-
-  const start = async () => {
-    const tab = await chrome.tabs.create({
-      active: false,
-      url: chrome.runtime.getURL("./screen_sharing.html"),
-    });
-
-    const window = await chrome.windows.create({
-      focused: true,
-      tabId: tab.id,
-      width: 650,
-      height: 710,
-    });
-
-    await storage.recording.tabId.set(tab.id as number);
-    await storage.recording.windowId.set(window.id as number);
-    await storage.recording.inProgress.set(true);
-  };
-
-  setTimeout(() => {
-    start().catch((err) => {
-      console.error(err);
-    });
-  }, 3 * 1000);
-}
-
-export async function onMessageRecordingStop(_options: MessageOptions) {
-  await sender.send(
-    builder.mediaRecorder.stop(true),
-    await storage.recording.tabId.get(),
-  );
+  await storage.recording.state.set(RecordingState.NotStarted);
 }
 
 export async function onStorageChangeUiCameraBubbleEnabled(
-  change: StorageChange<unknown>,
+  change: chrome.storage.StorageChange,
 ) {
-  change = change as StorageChange<UiCameraBubbleEnabled>;
+  const oldValue = change.oldValue as UiCameraBubbleEnabled;
+  const newValue = change.newValue as UiCameraBubbleEnabled;
 
-  if (change.oldValue === change.newValue) {
+  if (oldValue === newValue) {
     return;
   }
 
-  if (change.oldValue === false && change.newValue === true) {
+  if (oldValue === false && newValue === true) {
     const currentTabId = await storage.current.tabId.get();
     await chrome.scripting.executeScript({
       target: { tabId: currentTabId },
       files: ["./camera_bubble.bundle.mjs"],
     });
     await storage.ui.cameraBubble.tabId.set(currentTabId);
-  } else if (change.oldValue === true && change.newValue === false) {
+  } else if (oldValue === true && newValue === false) {
     await chrome.scripting.executeScript({
       target: { tabId: await storage.ui.cameraBubble.tabId.get() },
       func: () => {
@@ -235,5 +164,76 @@ export async function onStorageChangeUiCameraBubbleEnabled(
       },
     });
     await storage.ui.cameraBubble.tabId.set(0);
+  }
+}
+
+export async function onStorageChangeRecordingState(
+  change: chrome.storage.StorageChange,
+) {
+  const oldValue = change.oldValue as RecordingState;
+  const newValue = change.newValue as RecordingState;
+
+  switch (newValue) {
+    case RecordingState.Started:
+      if (oldValue === RecordingState.NotStarted) {
+        const currentTab = await storage.current.tabId.get();
+        await chrome.scripting.executeScript({
+          target: { tabId: currentTab },
+          files: ["recording_start_countdown.bundle.mjs"],
+        });
+
+        const start = async () => {
+          const tab = await chrome.tabs.create({
+            active: false,
+            url: chrome.runtime.getURL("./screen_sharing.html"),
+          });
+
+          const window = await chrome.windows.create({
+            focused: true,
+            tabId: tab.id,
+            width: 650,
+            height: 710,
+          });
+
+          await storage.recording.tabId.set(tab.id as number);
+          await storage.recording.windowId.set(window.id as number);
+          await storage.recording.state.set(RecordingState.Started);
+        };
+
+        setTimeout(() => {
+          start().catch((err) => {
+            console.error(err);
+          });
+        }, 3 * 1000);
+      } else if (oldValue === RecordingState.Paused) {
+        await sender.send(
+          builder.mediaRecorder.resume(),
+          await storage.recording.tabId.get(),
+        );
+      }
+      break;
+    case RecordingState.Stopped:
+      await sender.send(
+        builder.mediaRecorder.stop(true),
+        await storage.recording.tabId.get(),
+      );
+      break;
+    case RecordingState.Deleted:
+      await sender.send(
+        builder.mediaRecorder.stop(false),
+        await storage.recording.tabId.get(),
+      );
+      break;
+    case RecordingState.Canceled:
+      await chrome.tabs.remove(await storage.recording.tabId.get());
+      await storage.recording.tabId.set(0);
+      await storage.recording.state.set(RecordingState.NotStarted);
+      break;
+    case RecordingState.Paused:
+      await sender.send(
+        builder.mediaRecorder.pause(),
+        await storage.recording.tabId.get(),
+      );
+      break;
   }
 }
