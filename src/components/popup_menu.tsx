@@ -250,7 +250,9 @@ const RecordingControl = () => {
       storage.recording.state
         .get()
         .then((value) => {
-          setInProgress(value === RecordingState.Started);
+          setInProgress(
+            value === RecordingState.Started || value === RecordingState.Paused,
+          );
         })
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
