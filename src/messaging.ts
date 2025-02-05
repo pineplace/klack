@@ -3,6 +3,12 @@ export enum MessageType {
   MediaRecorderResume = "MediaRecorderResume",
   MediaRecorderStop = "MediaRecorderStop",
   RecordingDownload = "RecordingDownload",
+  // Messages for offscreen
+  RecorderStart = "RecorderStart",
+  RecorderStop = "RecorderStop",
+  RecorderPause = "RecorderPause",
+  RecorderResume = "RecorderResume",
+  RecorderCancel = "RecorderCancel",
 }
 
 export type MediaRecorderStopOptions = { downloadRecording: boolean };
@@ -17,6 +23,7 @@ export type MessageOptions =
 
 export interface Message {
   type: MessageType;
+  target?: "background" | "offscreen";
   options?: MessageOptions;
 }
 
@@ -49,6 +56,23 @@ export const builder = {
           downloadUrl,
         } satisfies RecordingDownloadOptions,
       } satisfies Message;
+    },
+  },
+};
+
+export const senderV2 = {
+  offscreen: {
+    recorderStart: () => {
+      return chrome.runtime.sendMessage({
+        type: MessageType.RecorderStart,
+        target: "offscreen",
+      } satisfies Message);
+    },
+    recorderStop: () => {
+      return chrome.runtime.sendMessage({
+        type: MessageType.RecorderStop,
+        target: "offscreen",
+      } satisfies Message);
     },
   },
 };

@@ -11,7 +11,7 @@ dotenv.config({
 const contextOptions = {
   logLevel: "info",
   entryPoints: [
-    "./src/background.ts",
+    "./src/background/offscreen.ts",
     "./src/popup.tsx",
     "./src/scripts/camera_bubble.ts",
     "./src/scripts/camera_bubble_stream.ts",
