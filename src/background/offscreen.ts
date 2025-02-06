@@ -1,4 +1,9 @@
-import { Message, MessageType, RecorderCreateOptions } from "../messaging";
+import {
+  Message,
+  MessageResponse,
+  MessageType,
+  RecorderCreateOptions,
+} from "../messaging";
 import {
   onMessageRecorderCancel,
   onMessageRecorderCreate,
@@ -10,7 +15,7 @@ import {
 } from "./offscreen_handlers";
 
 chrome.runtime.onMessage.addListener(
-  (message, _sender, sendResponse: (response: Message) => void) => {
+  (message, _sender, sendResponse: (response: MessageResponse) => void) => {
     (async (message: Message) => {
       const { type, target, options } = message;
       if (target !== "offscreen") {
@@ -48,7 +53,7 @@ chrome.runtime.onMessage.addListener(
       .then(() => {
         sendResponse({
           type: MessageType.ResultOk,
-        });
+        } satisfies MessageResponse);
       })
       .catch((err) => {
         console.error(
@@ -56,7 +61,8 @@ chrome.runtime.onMessage.addListener(
         );
         sendResponse({
           type: MessageType.ResultError,
-        });
+          reason: (err as Error).toString(),
+        } satisfies MessageResponse);
       });
     // NOTE: We need to return `true`, because we using `sendResponse` asynchronously
     return true;

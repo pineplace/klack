@@ -23,7 +23,6 @@ export class Recorder {
 
   #onTrackEnded() {
     (async () => {
-      console.log("#onTrackEndedListener");
       await senderV2.background.recordingStop();
     })().catch((err) => {
       console.error(
@@ -35,8 +34,6 @@ export class Recorder {
 
   #onMediaRecorderDataAvailable(event: BlobEvent) {
     (async () => {
-      console.log("#onMediaRecorderDataAvailable");
-
       if (!this.#ctx.mediaRecorder) {
         return;
       }
@@ -61,7 +58,6 @@ export class Recorder {
       });
 
       URL.revokeObjectURL(downloadUrl);
-      console.log("#onMediaRecorderDataAvailable end");
     })().catch((err) => {
       console.error(
         `[recorder.ts] #onMediaRecorderDataAvailable error: ${(err as Error).toString()}`,
@@ -88,10 +84,6 @@ export class Recorder {
       "dataavailable",
       this.#onMediaRecorderDataAvailable.bind(this),
     );
-
-    this.#ctx.mediaRecorder.addEventListener("stop", () => {
-      console.log("mediaRecorder.stop");
-    });
 
     this.#ctx.mediaRecorder.start();
   }
