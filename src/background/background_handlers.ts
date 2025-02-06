@@ -1,6 +1,7 @@
 import { config } from "../config";
 import { MessageType, RecordingSaveOptions, senderV2 } from "../messaging";
 import { RecordingState, storage } from "../storage";
+import { debounce } from "../utils";
 
 export async function onEventExtensionInstalled(
   _details: chrome.runtime.InstalledDetails,
@@ -38,9 +39,30 @@ export async function onEventExtensionInstalled(
 }
 
 export async function onEventTabChanged(
-  _activeTabInfo: chrome.tabs.TabActiveInfo,
+  activeTabInfo: chrome.tabs.TabActiveInfo,
 ) {
-  return new Promise<void>((resolve) => resolve());
+  await storage.current.tabId.set(activeTabInfo.tabId);
+
+  if (!(await storage.ui.cameraBubble.enabled.get())) {
+    return;
+  }
+
+  if ((await storage.ui.cameraBubble.tabId.get()) !== 0) {
+    // NOTE: If tab with camera bubble has been closed then `tabId` should be
+    //       '0' after the `onEventTabClosed` event handler
+    await chrome.scripting.executeScript({
+      target: { tabId: await storage.ui.cameraBubble.tabId.get() },
+      func: () => {
+        document.getElementById("klack-camera-bubble")?.remove();
+      },
+    });
+  }
+
+  await chrome.scripting.executeScript({
+    target: { tabId: activeTabInfo.tabId },
+    files: ["./camera_bubble.bundle.mjs"],
+  });
+  await storage.ui.cameraBubble.tabId.set(activeTabInfo.tabId);
 }
 
 export async function onEventTabReloaded(
@@ -48,11 +70,63 @@ export async function onEventTabReloaded(
   _changeInfo: chrome.tabs.TabChangeInfo,
   _tab: chrome.tabs.Tab,
 ) {
-  return new Promise<void>((resolve) => resolve());
+  if (!(await storage.ui.cameraBubble.enabled.get())) {
+    return;
+  }
+
+  debounce(() => {
+    (async () => {
+      const currentTabId = await storage.current.tabId.get();
+      await chrome.scripting.executeScript({
+        target: { tabId: currentTabId },
+        files: ["./camera_bubble.bundle.mjs"],
+      });
+      await storage.ui.cameraBubble.tabId.set(currentTabId);
+      await storage.ui.cameraBubble.enabled.set(true);
+    })().catch((err) => {
+      console.error(
+        `[background.ts] Cannot redraw camera bubble on page reload: ${(err as Error).toString()}`,
+      );
+    });
+  }, 2 * 1000);
+}
+
+export async function onEventTabClosed(
+  _closedTabId: number,
+  _removeInfo: { isWindowClosing: boolean; windowId: number },
+) {
+  if (!(await storage.ui.cameraBubble.enabled.get())) {
+    return;
+  }
+  await storage.ui.cameraBubble.tabId.set(0);
 }
 
 export async function onEventWindowFocusChanged(_windowId: number) {
-  return new Promise<void>((resolve) => resolve());
+  if (!(await storage.ui.cameraBubble.enabled.get())) {
+    return;
+  }
+  // FIXME: Support multi-window mode
+}
+
+export async function onMessageCameraBubbleShow() {
+  const currentTabId = await storage.current.tabId.get();
+  await chrome.scripting.executeScript({
+    target: { tabId: currentTabId },
+    files: ["./camera_bubble.bundle.mjs"],
+  });
+  await storage.ui.cameraBubble.tabId.set(currentTabId);
+  await storage.ui.cameraBubble.enabled.set(true);
+}
+
+export async function onMessageCameraBubbleHide() {
+  await chrome.scripting.executeScript({
+    target: { tabId: await storage.ui.cameraBubble.tabId.get() },
+    func: () => {
+      document.getElementById("klack-camera-bubble")?.remove();
+    },
+  });
+  await storage.ui.cameraBubble.tabId.set(0);
+  await storage.ui.cameraBubble.enabled.set(false);
 }
 
 export async function onMessageRecordingStart() {

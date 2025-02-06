@@ -31,11 +31,9 @@ export type DevicesVideoId = string;
 export type DevicesVideoName = string;
 export enum RecordingState {
   NotStarted = "NotStarted",
-  Started = "InProgress",
-  Paused = "Paused",
-  Canceled = "Canceled",
+  InProgress = "InProgress",
+  OnPause = "OnPause",
   Stopped = "Stopped",
-  Deleted = "Deleted",
 }
 export type RecordingDuration = number;
 export type RecordingTabId = number;
@@ -49,7 +47,6 @@ export type UiCameraBubbleWindowId = number;
 
 function generateSetGet<ValueType>(storageKey: StorageKey) {
   return {
-    key: storageKey,
     set: (value: ValueType) => {
       return chrome.storage.local.set({
         [storageKey]: value,
@@ -121,10 +118,13 @@ export const storage = {
 
 export type Storage = typeof storage;
 
-chrome.storage.onChanged.addListener((changes) => {
-  for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
-    console.log(
-      `[storage.ts] '${key}' '${JSON.stringify(oldValue)}'-->'${JSON.stringify(newValue)}'`,
-    );
-  }
-});
+// @ts-expect-error `onChanged` listener should be created in the background context only
+if (self.ServiceWorkerGlobalScope) {
+  chrome.storage.onChanged.addListener((changes) => {
+    for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
+      console.log(
+        `[storage.ts] '${key} '${JSON.stringify(oldValue)}'-->'${JSON.stringify(newValue)}'`,
+      );
+    }
+  });
+}

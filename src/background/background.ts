@@ -15,9 +15,13 @@ import {
   onMessageRecordingStop,
   onMessageRecordingCancel,
   onMessageRecordingSave,
+  onMessageCameraBubbleShow,
+  onMessageCameraBubbleHide,
+  onEventTabClosed,
 } from "./background_handlers";
 
 chrome.runtime.onInstalled.addListener((details) => {
+  console.log("[background.ts] Handle 'chrome.runtime.onInstalled'");
   onEventExtensionInstalled(details).catch((err) => {
     console.error(
       `[background.ts] Error in 'chrome.runtime.onInstalled' handler: ${(err as Error).toString()}`,
@@ -26,6 +30,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 });
 
 chrome.tabs.onActivated.addListener((activatedTabInfo) => {
+  console.log("[background.ts] Handle 'chrome.tabs.onActivated'");
   onEventTabChanged(activatedTabInfo).catch((err) => {
     console.error(
       `[background.ts] Error in 'chrome.tabs.onActivated' handler: ${(err as Error).toString()}`,
@@ -33,18 +38,29 @@ chrome.tabs.onActivated.addListener((activatedTabInfo) => {
   });
 });
 
-chrome.windows.onFocusChanged.addListener((windowId) => {
-  onEventWindowFocusChanged(windowId).catch((err) => {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  console.log("[background.ts] Handle 'chrome.tabs.onUpdated'");
+  onEventTabReloaded(tabId, changeInfo, tab).catch((err) => {
     console.error(
-      `[background.ts] Error in 'chrome.windows.onFocusChanged' handler: ${(err as Error).toString()}`,
+      `[background.ts] Error in 'chrome.tabs.onUpdated' handler: ${(err as Error).toString()}`,
     );
   });
 });
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  onEventTabReloaded(tabId, changeInfo, tab).catch((err) => {
+chrome.tabs.onRemoved.addListener((closedTabId, removeInfo) => {
+  console.log("[background.ts] Handle 'chrome.tabs.onRemoved'");
+  onEventTabClosed(closedTabId, removeInfo).catch((err) => {
     console.error(
-      `[background.ts] Error in 'chrome.tabs.onUpdated' handler: ${(err as Error).toString()}`,
+      `[background.ts] Error in 'chrome.tabs.onRemoved' handler: ${(err as Error).toString()}`,
+    );
+  });
+});
+
+chrome.windows.onFocusChanged.addListener((windowId) => {
+  console.log("[background.ts] Handle 'chrome.windows.onFocusChanged'");
+  onEventWindowFocusChanged(windowId).catch((err) => {
+    console.error(
+      `[background.ts] Error in 'chrome.windows.onFocusChanged' handler: ${(err as Error).toString()}`,
     );
   });
 });
@@ -60,6 +76,12 @@ chrome.runtime.onMessage.addListener(
         `[background.ts] Handle message with type '${type}' and options '${JSON.stringify(options)}'`,
       );
       switch (type) {
+        case MessageType.CameraBubbleShow:
+          await onMessageCameraBubbleShow();
+          break;
+        case MessageType.CameraBubbleHide:
+          await onMessageCameraBubbleHide();
+          break;
         case MessageType.RecordingStart:
           await onMessageRecordingStart();
           break;
