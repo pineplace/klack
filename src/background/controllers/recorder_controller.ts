@@ -4,8 +4,11 @@ import {
   MessageType,
   RecorderCreateOptions,
   senderV2,
-} from "../../messaging";
-import { ControlledPromise, createControlledPromise } from "../../utils";
+} from "@/app/messaging";
+import {
+  ControlledPromise,
+  createControlledPromise,
+} from "@/utils/controlled_promise";
 
 class Recorder {
   #ctx: {

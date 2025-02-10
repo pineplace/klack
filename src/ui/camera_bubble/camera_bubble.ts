@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Injection, InjectionElementId } from "./injections";
-import CameraBubble from "../../components/camera_bubble";
-import { storage } from "../../storage";
+import { Injection, InjectionElementId } from "@/app/injections";
+import { storage } from "@/app/storage";
+import CameraBubble from "./CameraBubble";
 
 async function inject() {
   if (document.getElementById(Injection.CameraBubble)) {

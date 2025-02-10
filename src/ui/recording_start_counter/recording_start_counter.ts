@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Injection, InjectionElementId } from "./injections";
-import RecordingStartCountdown from "../../components/recording_start_countdown";
+import { Injection, InjectionElementId } from "@/app/injections";
+import RecordingStartCountdown from "./RecordingStartCounter";
 
 function inject() {
   if (document.getElementById(Injection.RecordingStartCounter)) {

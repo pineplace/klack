@@ -1,8 +1,8 @@
-import { Message, MessageResponse, MessageType } from "../../messaging";
-import { storage } from "../../storage";
-import { debounce } from "../../utils";
-import { Injection, InjectionElementId } from "../injections/injections";
-import { Injector } from "../injections/injector";
+import { Message, MessageResponse, MessageType } from "@/app/messaging";
+import { storage } from "@/app/storage";
+import { Injection, InjectionElementId } from "@/app/injections";
+import { Injector } from "@/background/injector";
+import { debounce } from "@/utils/debounce";
 
 class CameraBubbleController {
   static async show() {

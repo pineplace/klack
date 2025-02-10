@@ -1,5 +1,5 @@
-import { config } from "../../config";
-import { RecordingState, storage } from "../../storage";
+import { config } from "@/app/config";
+import { RecordingState, storage } from "@/app/storage";
 
 chrome.runtime.onInstalled.addListener((_details) => {
   console.log("[storage_controller.ts] Handle 'chrome.runtime.onInstalled'");

@@ -1,4 +1,4 @@
-import type { Injection, InjectionElementId } from "./injections";
+import type { Injection, InjectionElementId } from "@/app/injections";
 
 export class Injector {
   static inject(tabId: number, injection: Injection) {

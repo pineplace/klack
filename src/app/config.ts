@@ -3,5 +3,4 @@ export const config = {
     title: process.env.APP_TITLE,
     version: process.env.APP_VERSION,
   },
-  features: {},
 };

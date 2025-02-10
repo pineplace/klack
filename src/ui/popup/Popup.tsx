@@ -9,8 +9,8 @@ import {
   SelectChangeEvent,
   Stack,
 } from "@mui/material";
-import { RecordingState, storage } from "../storage";
-import { senderV2 } from "../messaging";
+import { RecordingState, storage } from "@/app/storage";
+import { senderV2 } from "@/app/messaging";
 
 const ShowHideCameraBubble = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -342,7 +342,7 @@ const RecordingControl = () => {
   );
 };
 
-const PopupMenu = () => {
+const Popup = () => {
   return (
     <Stack
       direction="column"
@@ -359,4 +359,4 @@ const PopupMenu = () => {
   );
 };
 
-export { PopupMenu as default };
+export { Popup as default };

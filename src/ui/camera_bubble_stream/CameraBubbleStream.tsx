@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { storage } from "../storage";
+import { storage } from "@/app/storage";
 
 const useCameraBubbleSize = () => {
   const [size, setSize] = useState<{ width: number; height: number }>({

@@ -14,8 +14,8 @@ import {
   Close,
   PauseCircleFilledRounded,
 } from "@mui/icons-material";
-import { RecordingState, storage } from "../storage";
-import { senderV2 } from "../messaging";
+import { RecordingState, storage } from "@/app/storage";
+import { senderV2 } from "@/app/messaging";
 
 const SizeSelector = () => {
   const [selectedValue, setSelectedValue] = useState("200x200");
