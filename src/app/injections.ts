@@ -1,6 +1,6 @@
 export enum Injection {
-  CameraBubble = "./camera_bubble_injection.bundle.mjs",
-  RecordingStartCounter = "./recording_start_counter_injection.bundle.mjs",
+  CameraBubble = "./camera_bubble.bundle.mjs",
+  RecordingStartCounter = "./recording_start_counter.bundle.mjs",
 }
 
 export enum InjectionElementId {
