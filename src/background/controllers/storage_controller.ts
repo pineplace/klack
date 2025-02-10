@@ -2,9 +2,7 @@ import { config } from "../../config";
 import { RecordingState, storage } from "../../storage";
 
 chrome.runtime.onInstalled.addListener((_details) => {
-  console.log(
-    "[storage_init_controller.ts] Handle 'chrome.runtime.onInstalled'",
-  );
+  console.log("[storage_controller.ts] Handle 'chrome.runtime.onInstalled'");
   (async () => {
     await storage.current.windowId.set(0);
     await storage.current.tabId.set(0);
@@ -31,14 +29,22 @@ chrome.runtime.onInstalled.addListener((_details) => {
     await storage.recording.duration.set(0);
 
     console.log(
-      `[storage_init_controller.ts] Configuration: ${JSON.stringify(config, undefined, 2)}`,
+      `[storage_controller.ts] Configuration: ${JSON.stringify(config, undefined, 2)}`,
     );
     console.log(
-      `[storage_init_controller.ts] Storage: ${JSON.stringify(await storage.getEntireStorage(), undefined, 2)}`,
+      `[storage_controller.ts] Storage: ${JSON.stringify(await storage.getEntireStorage(), undefined, 2)}`,
     );
   })().catch((err) => {
     console.error(
-      `[storage_init_controller.ts] Error in 'chrome.runtime.onInstalled' handler: ${(err as Error).toString()}`,
+      `[storage_controller.ts] Error in 'chrome.runtime.onInstalled' handler: ${(err as Error).toString()}`,
     );
   });
+});
+
+chrome.storage.onChanged.addListener((changes) => {
+  for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
+    console.log(
+      `[storage_controller.ts] '${key}' '${JSON.stringify(oldValue)}'-->'${JSON.stringify(newValue)}'`,
+    );
+  }
 });
