@@ -1,10 +1,4 @@
-export enum Injection {
-  CameraBubble = "./camera_bubble.bundle.mjs",
-}
-
-export enum InjectionElementId {
-  CameraBubble = "klack-camera-bubble",
-}
+import type { Injection, InjectionElementId } from "./injections";
 
 export class Injector {
   static inject(tabId: number, injection: Injection) {

@@ -1,0 +1,25 @@
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { Injection, InjectionElementId } from "./injections";
+import CameraBubble from "../../components/camera_bubble";
+import { storage } from "../../storage";
+
+async function inject() {
+  if (document.getElementById(Injection.CameraBubble)) {
+    throw new Error("Current script already injected on this page");
+  }
+  const cameraBubbleContainer = document.createElement("div");
+  cameraBubbleContainer.id = InjectionElementId.CameraBubble;
+  document.body.append(cameraBubbleContainer);
+  ReactDOM.createRoot(cameraBubbleContainer).render(
+    React.createElement(CameraBubble, {
+      cameraBubblePosition: await storage.ui.cameraBubble.position.get(),
+    }),
+  );
+}
+
+inject().catch((err) => {
+  console.error(
+    `[camera_bubble_injection.ts] Injection has been failed: ${(err as Error).toString()}`,
+  );
+});

@@ -1,41 +1,27 @@
 import { Message, MessageResponse, MessageType } from "../../messaging";
 import { storage } from "../../storage";
 import { debounce } from "../../utils";
+import { Injection, InjectionElementId } from "../injections/injections";
+import { Injector } from "../injections/injector";
 
 class CameraBubbleController {
-  static cameraBubbleInjectionScriptPath = "./camera_bubble.bundle.mjs";
-  static cameraBubbleElementId = "klack-camera-bubble";
-
   static async show() {
     console.log("[camera_bubble_controller.ts] CameraBubbleController::show()");
     const [currentTab] = await chrome.tabs.query({
       active: true,
       lastFocusedWindow: true,
     });
-
-    await chrome.scripting.executeScript({
-      target: {
-        tabId: currentTab.id as number,
-      },
-      files: [CameraBubbleController.cameraBubbleInjectionScriptPath],
-    });
-
+    await Injector.inject(currentTab.id as number, Injection.CameraBubble);
     await storage.ui.cameraBubble.tabId.set(currentTab.id as number);
     await storage.ui.cameraBubble.enabled.set(true);
   }
 
   static async hide() {
     console.log("[camera_bubble_controller.ts] CameraBubbleController::hide()");
-    await chrome.scripting.executeScript({
-      target: {
-        tabId: await storage.ui.cameraBubble.tabId.get(),
-      },
-      func: (elementId: string) => {
-        document.getElementById(elementId)?.remove();
-      },
-      args: [CameraBubbleController.cameraBubbleElementId],
-    });
-
+    await Injector.deinject(
+      await storage.ui.cameraBubble.tabId.get(),
+      InjectionElementId.CameraBubble,
+    );
     await storage.ui.cameraBubble.tabId.set(0);
     await storage.ui.cameraBubble.enabled.set(false);
   }

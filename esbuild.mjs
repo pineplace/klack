@@ -11,12 +11,12 @@ dotenv.config({
 const contextOptions = {
   logLevel: "info",
   entryPoints: [
+    "./src/popup.tsx",
     "./src/background/background.ts",
     "./src/background/offscreen.ts",
-    "./src/popup.tsx",
-    "./src/scripts/camera_bubble.ts",
+    "./src/background/injections/camera_bubble_injection.ts",
+    "./src/background/injections/recording_start_counter_injection.ts",
     "./src/scripts/camera_bubble_stream.ts",
-    "./src/scripts/recording_start_countdown.ts",
   ],
   outdir: "./public",
   outExtension: {
