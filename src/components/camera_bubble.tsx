@@ -208,7 +208,7 @@ const RecordingControl = () => {
         <IconButton
           onClick={() => {
             storage.recording.state
-              .set(RecordingState.Stopped)
+              .set(RecordingState.NotStarted)
               .catch((err) => console.error(err));
           }}
         >

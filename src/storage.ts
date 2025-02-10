@@ -33,7 +33,6 @@ export enum RecordingState {
   NotStarted = "NotStarted",
   InProgress = "InProgress",
   OnPause = "OnPause",
-  Stopped = "Stopped",
 }
 export type RecordingDuration = number;
 export type RecordingTabId = number;
@@ -117,14 +116,3 @@ export const storage = {
 };
 
 export type Storage = typeof storage;
-
-// @ts-expect-error `onChanged` listener should be created in the background context only
-if (self.ServiceWorkerGlobalScope) {
-  chrome.storage.onChanged.addListener((changes) => {
-    for (const [key, { oldValue, newValue }] of Object.entries(changes)) {
-      console.log(
-        `[storage.ts] '${key} '${JSON.stringify(oldValue)}'-->'${JSON.stringify(newValue)}'`,
-      );
-    }
-  });
-}
