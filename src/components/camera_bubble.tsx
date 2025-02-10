@@ -15,6 +15,7 @@ import {
   PauseCircleFilledRounded,
 } from "@mui/icons-material";
 import { RecordingState, storage } from "../storage";
+import { senderV2 } from "../messaging";
 
 const SizeSelector = () => {
   const [selectedValue, setSelectedValue] = useState("200x200");
@@ -143,7 +144,7 @@ const RecordingControl = () => {
       storage.recording.state
         .get()
         .then((value) => {
-          setInProgress(value === RecordingState.Started);
+          setInProgress(value === RecordingState.InProgress);
         })
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
@@ -165,7 +166,7 @@ const RecordingControl = () => {
       storage.recording.state
         .get()
         .then((value) => {
-          setOnPause(value === RecordingState.Paused);
+          setOnPause(value === RecordingState.OnPause);
         })
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
@@ -188,12 +189,12 @@ const RecordingControl = () => {
         onClick={() => {
           if (!inProgress) {
             storage.recording.state
-              .set(RecordingState.Started)
+              .set(RecordingState.InProgress)
               .catch((err) => console.error(err));
             return;
           }
           storage.recording.state
-            .set(onPause ? RecordingState.Started : RecordingState.Paused)
+            .set(onPause ? RecordingState.InProgress : RecordingState.OnPause)
             .catch((err) => console.error(err));
         }}
       >
@@ -217,8 +218,8 @@ const RecordingControl = () => {
       {inProgress && (
         <IconButton
           onClick={() => {
-            storage.recording.state
-              .set(RecordingState.Deleted)
+            senderV2.background
+              .recordingCancel()
               .catch((err) => console.error(err));
           }}
         >
@@ -251,7 +252,7 @@ const RecordingDuration = () => {
     const interval = setInterval(() => {
       storage.recording.state
         .get()
-        .then((res) => setIsVisible(res === RecordingState.Started))
+        .then((res) => setIsVisible(res === RecordingState.InProgress))
         .catch((err) => console.error(err));
     }, 500);
 

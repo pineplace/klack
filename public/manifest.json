@@ -7,7 +7,7 @@
     "default_popup": "./popup.html"
   },
   "background": {
-    "service_worker": "./background.bundle.mjs",
+    "service_worker": "./service_worker.bundle.mjs",
     "type": "module"
   },
   "permissions": [

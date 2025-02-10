@@ -1,4 +1,4 @@
-import { RecorderCreateOptions } from "../messaging";
+import { RecorderCreateOptions } from "../../messaging";
 import { Recorder } from "./recorder";
 
 const offscreenContext: {

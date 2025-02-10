@@ -3,7 +3,7 @@ import {
   MessageResponse,
   MessageType,
   RecorderCreateOptions,
-} from "../messaging";
+} from "../../messaging";
 import {
   onMessageRecorderCancel,
   onMessageRecorderCreate,
@@ -12,7 +12,7 @@ import {
   onMessageRecorderResume,
   onMessageRecorderStart,
   onMessageRecorderStop,
-} from "./offscreen_handlers";
+} from "./handlers";
 
 chrome.runtime.onMessage.addListener(
   (message, _sender, sendResponse: (response: MessageResponse) => void) => {

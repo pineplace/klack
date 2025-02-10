@@ -1,7 +1,7 @@
-import { config } from "../config";
-import { MessageType, RecordingSaveOptions, senderV2 } from "../messaging";
-import { RecordingState, storage } from "../storage";
-import { debounce } from "../utils";
+import { config } from "../../config";
+import { MessageType, RecordingSaveOptions, senderV2 } from "../../messaging";
+import { RecordingState, storage } from "../../storage";
+import { debounce } from "../../utils";
 
 export async function onEventExtensionInstalled(
   _details: chrome.runtime.InstalledDetails,
@@ -101,11 +101,26 @@ export async function onEventTabClosed(
   await storage.ui.cameraBubble.tabId.set(0);
 }
 
-export async function onEventWindowFocusChanged(_windowId: number) {
+export async function onEventWindowFocusChanged(windowId: number) {
+  if (windowId === (await storage.current.windowId.get()) || windowId === -1) {
+    return;
+  }
+
+  await storage.current.windowId.set(windowId);
+
   if (!(await storage.ui.cameraBubble.enabled.get())) {
     return;
   }
-  // FIXME: Support multi-window mode
+
+  const tabs = await chrome.tabs.query({
+    active: true,
+    windowId,
+  });
+
+  return onEventTabChanged({
+    tabId: tabs[0].id as number,
+    windowId,
+  });
 }
 
 export async function onMessageCameraBubbleShow() {

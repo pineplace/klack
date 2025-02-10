@@ -3,7 +3,7 @@ import {
   MessageResponse,
   MessageType,
   RecordingSaveOptions,
-} from "../messaging";
+} from "../../messaging";
 import {
   onEventWindowFocusChanged,
   onEventExtensionInstalled,
@@ -18,7 +18,7 @@ import {
   onMessageCameraBubbleShow,
   onMessageCameraBubbleHide,
   onEventTabClosed,
-} from "./background_handlers";
+} from "./handlers";
 
 chrome.runtime.onInstalled.addListener((details) => {
   console.log("[background.ts] Handle 'chrome.runtime.onInstalled'");

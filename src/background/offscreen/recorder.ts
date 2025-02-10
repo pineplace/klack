@@ -1,4 +1,4 @@
-import { senderV2 } from "../messaging";
+import { senderV2 } from "../../messaging";
 
 export class Recorder {
   #ctx: {

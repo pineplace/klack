@@ -10,6 +10,7 @@ import {
   Stack,
 } from "@mui/material";
 import { RecordingState, storage } from "../storage";
+import { senderV2 } from "../messaging";
 
 const ShowHideCameraBubble = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -38,12 +39,12 @@ const ShowHideCameraBubble = () => {
     <Button
       onClick={() => {
         if (isVisible) {
-          storage.ui.cameraBubble.enabled
-            .set(false)
+          senderV2.background
+            .cameraBubbleHide()
             .catch((err) => console.error(err));
         } else {
-          storage.ui.cameraBubble.enabled
-            .set(true)
+          senderV2.background
+            .cameraBubbleShow()
             .catch((err) => console.error(err));
         }
       }}
@@ -251,7 +252,8 @@ const RecordingControl = () => {
         .get()
         .then((value) => {
           setInProgress(
-            value === RecordingState.Started || value === RecordingState.Paused,
+            value === RecordingState.InProgress ||
+              value === RecordingState.OnPause,
           );
         })
         .catch((err) => {
@@ -274,7 +276,7 @@ const RecordingControl = () => {
       storage.recording.state
         .get()
         .then((value) => {
-          setOnPause(value === RecordingState.Paused);
+          setOnPause(value === RecordingState.OnPause);
         })
         .catch((err) => {
           if ((err as Error).message != "Extension context invalidated.") {
@@ -296,12 +298,12 @@ const RecordingControl = () => {
       <Button
         onClick={() => {
           if (inProgress) {
-            storage.recording.state
-              .set(RecordingState.Stopped)
+            senderV2.background
+              .recordingStop()
               .catch((err) => console.error(err));
           } else {
-            storage.recording.state
-              .set(RecordingState.Started)
+            senderV2.background
+              .recordingStart()
               .catch((err) => console.error(err));
           }
         }}
@@ -311,9 +313,15 @@ const RecordingControl = () => {
       {inProgress && (
         <Button
           onClick={() => {
-            storage.recording.state
-              .set(onPause ? RecordingState.Started : RecordingState.Paused)
-              .catch((err) => console.error(err));
+            if (onPause) {
+              senderV2.background
+                .recordingResume()
+                .catch((err) => console.error(err));
+            } else {
+              senderV2.background
+                .recordingPause()
+                .catch((err) => console.error(err));
+            }
           }}
         >
           {onPause ? "Resume" : "Pause"}
@@ -322,8 +330,8 @@ const RecordingControl = () => {
       {inProgress && (
         <Button
           onClick={() => {
-            storage.recording.state
-              .set(RecordingState.Deleted)
+            senderV2.background
+              .recordingCancel()
               .catch((err) => console.error(err));
           }}
         >
