@@ -8,312 +8,145 @@ import {
   Select,
   SelectChangeEvent,
   Stack,
+  Typography,
 } from "@mui/material";
-import { RecordingState, storage } from "@/app/storage";
+import { RecordingState, StorageKey } from "@/app/storage";
 import { senderV2 } from "@/app/messaging";
+import useStorageValue from "@/ui/hooks/useStorageValue";
 
-const ShowHideCameraBubble = () => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      storage.ui.cameraBubble.enabled
-        .get()
-        .then(setIsVisible)
-        .catch((err) => {
-          if ((err as Error).message != "Extension context invalidated.") {
-            console.error(err);
-            return;
-          }
-          clearInterval(interval);
-          console.log("Looks like extension was disabled, interval removed");
-        });
-    }, 500);
-
-    return () => {
-      clearInterval(interval);
-    };
-  });
+const CameraBubbleControls = () => {
+  const [cameraBubbleEnabled] = useStorageValue(
+    StorageKey.UiCameraBubbleEnabled,
+  );
 
   return (
     <Button
       onClick={() => {
-        if (isVisible) {
-          senderV2.background
-            .cameraBubbleHide()
-            .catch((err) => console.error(err));
+        if (cameraBubbleEnabled) {
+          senderV2.background.cameraBubbleHide().catch((err) => {
+            console.error(
+              `Cannot hide camera bubble: ${(err as Error).toString()}`,
+            );
+          });
         } else {
-          senderV2.background
-            .cameraBubbleShow()
-            .catch((err) => console.error(err));
+          senderV2.background.cameraBubbleShow().catch((err) => {
+            console.error(
+              `Cannot show camera bubble: ${(err as Error).toString()}`,
+            );
+          });
         }
       }}
     >
-      {isVisible ? "Hide bubble" : "Show bubble"}
+      {cameraBubbleEnabled ? "Hide bubble" : "Show bubble"}
     </Button>
   );
 };
 
-const TurnOnTurnOffMic = () => {
-  const [micEnabled, setMicAllowed] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      storage.devices.mic.enabled
-        .get()
-        .then(setMicAllowed)
-        .catch((err) => {
-          if ((err as Error).message != "Extension context invalidated.") {
-            console.error(err);
-            return;
-          }
-          clearInterval(interval);
-          console.log("Looks like extension was disabled, interval removed");
-        });
-    }, 500);
-
-    return () => {
-      clearInterval(interval);
-    };
-  });
+const MicControls = () => {
+  const [micEnabled, setMicEnabled] = useStorageValue(
+    StorageKey.DevicesMicEnabled,
+  );
 
   return (
     <Button
       onClick={() => {
         if (micEnabled) {
-          storage.devices.mic.enabled
-            .set(false)
-            .catch((err) => console.error(err));
+          setMicEnabled(false);
         } else {
-          storage.devices.mic.enabled
-            .set(true)
-            .catch((err) => console.error(err));
+          setMicEnabled(true);
         }
       }}
     >
-      {micEnabled ? "Disallow Mic" : "Allow Mic"}
+      {micEnabled ? "Disable mic" : "Enable mic"}
     </Button>
   );
 };
 
-const MicrophoneSelector = () => {
-  const [activeMicroDeviceId, setActiveMicroDeviceId] = useState("");
-  const [availableMicroIds, setAvailableMicroIds] = useState<MediaDeviceInfo[]>(
-    [],
+const DeviceSelector = (props: { type: "Camera" | "Mic" }) => {
+  const kindOfDevice = props.type === "Camera" ? "videoinput" : "audioinput";
+
+  const [deviceId, setDeviceId] = useStorageValue(
+    props.type === "Camera"
+      ? StorageKey.DevicesVideoId
+      : StorageKey.DevicesMicId,
   );
-
-  const getMicrophoneDevices = async () => {
-    return (await navigator.mediaDevices.enumerateDevices()).filter(
-      (device) => {
-        return device.kind === "audioinput";
-      },
-    );
-  };
-
-  const getDefaultMicroId = async () => {
-    let microDeviceId = await storage.devices.mic.id.get();
-    if (microDeviceId) {
-      return microDeviceId;
-    }
-    microDeviceId = (await getMicrophoneDevices()).at(0)?.deviceId ?? "";
-    await storage.devices.mic.id.set(microDeviceId);
-    return microDeviceId;
-  };
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
 
   useEffect(() => {
-    getMicrophoneDevices()
-      .then((devices) => {
-        setAvailableMicroIds(devices);
-      })
-      .catch((err) => console.error(err));
-  }, []);
+    (async () => {
+      if (deviceId === undefined) {
+        return;
+      }
 
-  useEffect(() => {
-    getDefaultMicroId()
-      .then((defaultMicroId) => {
-        setActiveMicroDeviceId(defaultMicroId);
-      })
-      .catch((err) => console.error(err));
-  });
+      const devices = (await navigator.mediaDevices.enumerateDevices()).filter(
+        (device) => {
+          return device.kind === kindOfDevice;
+        },
+      );
+      if (!devices.length) {
+        return;
+      }
 
-  const handleChange = (event: SelectChangeEvent) => {
-    const deviceId = event.target.value;
-    storage.devices.mic.id.set(deviceId).catch((err) => {
-      console.error(err);
+      setDeviceId(devices[0].deviceId);
+      setDevices(devices);
+    })().catch((err) => {
+      console.error(
+        `Cannot initialize list of available devices and default device value: ${(err as Error).toString()}`,
+      );
     });
-    setActiveMicroDeviceId(deviceId);
-  };
+  }, [deviceId, setDeviceId, setDevices, kindOfDevice]);
 
-  const deviceItems = availableMicroIds.map((micro) => {
-    return (
-      <MenuItem
-        key={micro.deviceId}
-        value={micro.deviceId}
-      >
-        {micro.label}
-      </MenuItem>
-    );
-  });
+  if (!devices.length) {
+    return <Typography>List of available devices is empty</Typography>;
+  }
 
   return (
     <FormControl sx={{ minWidth: "150px" }}>
-      <InputLabel>Microphone</InputLabel>
+      <InputLabel>{props.type}</InputLabel>
       <Select
-        label="Microphone"
-        onChange={handleChange}
-        value={activeMicroDeviceId}
+        label={props.type}
+        onChange={(event: SelectChangeEvent) => setDeviceId(event.target.value)}
+        value={deviceId ?? ""}
       >
-        {deviceItems}
-      </Select>
-    </FormControl>
-  );
-};
-
-const CameraSelector = () => {
-  const [activeCameraDeviceId, setActiveCameraDeviceId] = useState("");
-  const [availableCameraIds, setAvailableCameraIds] = useState<
-    MediaDeviceInfo[]
-  >([]);
-
-  const getCameraDevices = async () => {
-    return (await navigator.mediaDevices.enumerateDevices()).filter(
-      (device) => {
-        return device.kind === "videoinput";
-      },
-    );
-  };
-
-  const getDefaultCameraId = async () => {
-    let cameraDeviceId = await storage.devices.video.id.get();
-    if (cameraDeviceId) {
-      return cameraDeviceId;
-    }
-    cameraDeviceId = (await getCameraDevices()).at(0)?.deviceId ?? "";
-    await storage.devices.video.id.set(cameraDeviceId);
-    return cameraDeviceId;
-  };
-
-  useEffect(() => {
-    getCameraDevices()
-      .then((device) => {
-        setAvailableCameraIds(device);
-      })
-      .catch((err) => console.error(err));
-  }, []);
-
-  useEffect(() => {
-    getDefaultCameraId()
-      .then((defaultCameraId) => {
-        setActiveCameraDeviceId(defaultCameraId);
-      })
-      .catch((err) => console.error(err));
-  });
-
-  const handleChange = (event: SelectChangeEvent) => {
-    const deviceId = event.target.value;
-    storage.devices.video.id.set(deviceId).catch((err) => {
-      console.error(err);
-    });
-    setActiveCameraDeviceId(deviceId);
-  };
-
-  const deviceItems = availableCameraIds.map((micro) => {
-    return (
-      <MenuItem
-        key={micro.label}
-        value={micro.deviceId}
-      >
-        {micro.label}
-      </MenuItem>
-    );
-  });
-
-  return (
-    <FormControl sx={{ minWidth: "150px" }}>
-      <InputLabel>Camera</InputLabel>
-      <Select
-        label="Microphone"
-        onChange={handleChange}
-        value={activeCameraDeviceId}
-      >
-        {deviceItems}
-      </Select>
-    </FormControl>
-  );
-};
-
-const RecordingControl = () => {
-  const [inProgress, setInProgress] = useState(false);
-  const [onPause, setOnPause] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      storage.recording.state
-        .get()
-        .then((value) => {
-          setInProgress(
-            value === RecordingState.InProgress ||
-              value === RecordingState.OnPause,
+        {devices.map((device) => {
+          return (
+            <MenuItem
+              key={device.label}
+              value={device.deviceId}
+            >
+              {device.label}
+            </MenuItem>
           );
-        })
-        .catch((err) => {
-          if ((err as Error).message != "Extension context invalidated.") {
-            console.error(err);
-            return;
-          }
-          clearInterval(interval);
-          console.log("Looks like extension was disabled, interval removed");
-        });
-    }, 500);
+        })}
+      </Select>
+    </FormControl>
+  );
+};
 
-    return () => {
-      clearInterval(interval);
-    };
-  });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      storage.recording.state
-        .get()
-        .then((value) => {
-          setOnPause(value === RecordingState.OnPause);
-        })
-        .catch((err) => {
-          if ((err as Error).message != "Extension context invalidated.") {
-            console.error(err);
-            return;
-          }
-          clearInterval(interval);
-          console.log("Looks like extension was disabled, interval removed");
-        });
-    }, 500);
-
-    return () => {
-      clearInterval(interval);
-    };
-  });
+const RecordingControls = () => {
+  const [recordingState] = useStorageValue(StorageKey.RecordingState);
 
   return (
     <ButtonGroup>
       <Button
         onClick={() => {
-          if (inProgress) {
+          if (recordingState === RecordingState.NotStarted) {
             senderV2.background
-              .recordingStop()
+              .recordingStart()
               .catch((err) => console.error(err));
           } else {
             senderV2.background
-              .recordingStart()
+              .recordingStop()
               .catch((err) => console.error(err));
           }
         }}
       >
-        {inProgress ? "Stop" : "Start"}
+        {recordingState === RecordingState.NotStarted ? "Start" : "Stop"}
       </Button>
-      {inProgress && (
+      {recordingState !== RecordingState.NotStarted && (
         <Button
           onClick={() => {
-            if (onPause) {
+            if (recordingState === RecordingState.OnPause) {
               senderV2.background
                 .recordingResume()
                 .catch((err) => console.error(err));
@@ -324,10 +157,10 @@ const RecordingControl = () => {
             }
           }}
         >
-          {onPause ? "Resume" : "Pause"}
+          {recordingState === RecordingState.OnPause ? "Resume" : "Pause"}
         </Button>
       )}
-      {inProgress && (
+      {recordingState === RecordingState.InProgress && (
         <Button
           onClick={() => {
             senderV2.background
@@ -350,11 +183,11 @@ const Popup = () => {
       justifyContent="center"
       spacing={1}
     >
-      <ShowHideCameraBubble />
-      <TurnOnTurnOffMic />
-      <MicrophoneSelector />
-      <CameraSelector />
-      <RecordingControl />
+      <CameraBubbleControls />
+      <MicControls />
+      <DeviceSelector type="Mic" />
+      <DeviceSelector type="Camera" />
+      <RecordingControls />
     </Stack>
   );
 };

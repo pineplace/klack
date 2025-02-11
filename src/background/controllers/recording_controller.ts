@@ -92,10 +92,9 @@ class RecordingController {
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
-    const res = await chrome.downloads.download({
+    await chrome.downloads.download({
       url: options.recordingUrl,
     });
-    console.log("Downloaded", res);
   }
 }
 

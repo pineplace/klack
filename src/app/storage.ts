@@ -20,88 +20,91 @@ export enum StorageKey {
   UiCameraBubbleWindowId = "ui.cameraBubble.windowId",
 }
 
-export type CurrentTabId = number;
-export type CurrentWindowId = number;
-export type DevicesMicEnabled = boolean;
-export type DevicesMicId = string;
-export type DevicesMicName = string;
-export type DevicesMicVolume = number;
-export type DevicesVideoEnabled = boolean;
-export type DevicesVideoId = string;
-export type DevicesVideoName = string;
 export enum RecordingState {
   NotStarted = "NotStarted",
   InProgress = "InProgress",
   OnPause = "OnPause",
 }
-export type RecordingDuration = number;
-export type RecordingTabId = number;
-export type RecordingUuid = string;
-export type RecordingWindowId = number;
-export type UiCameraBubbleEnabled = boolean;
-export type UiCameraBubblePosition = { x: number; y: number };
-export type UiCameraBubbleSize = { width: number; height: number };
-export type UiCameraBubbleTabId = number;
-export type UiCameraBubbleWindowId = number;
 
-function generateSetGet<ValueType>(storageKey: StorageKey) {
+type StorageValueTypeMap = {
+  [StorageKey.CurrentTabId]: number;
+  [StorageKey.CurrentWindowId]: number;
+  [StorageKey.DevicesMicEnabled]: boolean;
+  [StorageKey.DevicesMicId]: string;
+  [StorageKey.DevicesMicName]: string;
+  [StorageKey.DevicesMicVolume]: number;
+  [StorageKey.DevicesVideoEnabled]: boolean;
+  [StorageKey.DevicesVideoId]: string;
+  [StorageKey.DevicesVideoName]: string;
+  [StorageKey.RecordingState]: RecordingState;
+  [StorageKey.RecordingDuration]: number;
+  [StorageKey.RecordingTabId]: number;
+  [StorageKey.RecordingUuid]: string;
+  [StorageKey.RecordingWindowId]: number;
+  [StorageKey.UiCameraBubbleEnabled]: boolean;
+  [StorageKey.UiCameraBubblePosition]: { x: number; y: number };
+  [StorageKey.UiCameraBubbleSize]: { width: number; height: number };
+  [StorageKey.UiCameraBubbleTabId]: number;
+  [StorageKey.UiCameraBubbleWindowId]: number;
+};
+
+export type StorageValueType<K extends StorageKey> = StorageValueTypeMap[K];
+
+export function createStorageSetter<Key extends StorageKey>(storageKey: Key) {
+  return (value: StorageValueType<Key>) => {
+    return chrome.storage.local.set({
+      [storageKey]: value,
+    });
+  };
+}
+
+export function createStorageGetter<Key extends StorageKey>(storageKey: Key) {
+  return async () => {
+    const { [storageKey]: value } = await chrome.storage.local.get(storageKey);
+    return value as StorageValueType<Key>;
+  };
+}
+
+function createStorageSetterGetter<Key extends StorageKey>(storageKey: Key) {
   return {
-    set: (value: ValueType) => {
-      return chrome.storage.local.set({
-        [storageKey]: value,
-      });
-    },
-    get: async () => {
-      const { [storageKey]: value } =
-        await chrome.storage.local.get(storageKey);
-      return value as ValueType;
-    },
+    set: createStorageSetter(storageKey),
+    get: createStorageGetter(storageKey),
   };
 }
 
 export const storage = {
   version: 1,
   current: {
-    tabId: generateSetGet<CurrentTabId>(StorageKey.CurrentTabId),
-    windowId: generateSetGet<CurrentWindowId>(StorageKey.CurrentWindowId),
+    tabId: createStorageSetterGetter(StorageKey.CurrentTabId),
+    windowId: createStorageSetterGetter(StorageKey.CurrentWindowId),
   },
   devices: {
     mic: {
-      enabled: generateSetGet<DevicesMicEnabled>(StorageKey.DevicesMicEnabled),
-      id: generateSetGet<DevicesMicId>(StorageKey.DevicesMicId),
-      name: generateSetGet<DevicesMicName>(StorageKey.DevicesMicName),
-      volume: generateSetGet<DevicesMicVolume>(StorageKey.DevicesMicVolume),
+      enabled: createStorageSetterGetter(StorageKey.DevicesMicEnabled),
+      id: createStorageSetterGetter(StorageKey.DevicesMicId),
+      name: createStorageSetterGetter(StorageKey.DevicesMicName),
+      volume: createStorageSetterGetter(StorageKey.DevicesMicVolume),
     },
     video: {
-      enabled: generateSetGet<DevicesVideoEnabled>(
-        StorageKey.DevicesVideoEnabled,
-      ),
-      id: generateSetGet<DevicesVideoId>(StorageKey.DevicesVideoId),
-      name: generateSetGet<DevicesVideoName>(StorageKey.DevicesVideoName),
+      enabled: createStorageSetterGetter(StorageKey.DevicesVideoEnabled),
+      id: createStorageSetterGetter(StorageKey.DevicesVideoId),
+      name: createStorageSetterGetter(StorageKey.DevicesVideoName),
     },
   },
   recording: {
-    duration: generateSetGet<RecordingDuration>(StorageKey.RecordingDuration),
-    state: generateSetGet<RecordingState>(StorageKey.RecordingState),
-    tabId: generateSetGet<RecordingTabId>(StorageKey.RecordingTabId),
-    uuid: generateSetGet<RecordingUuid>(StorageKey.RecordingUuid),
-    windowId: generateSetGet<RecordingWindowId>(StorageKey.RecordingWindowId),
+    duration: createStorageSetterGetter(StorageKey.RecordingDuration),
+    state: createStorageSetterGetter(StorageKey.RecordingState),
+    tabId: createStorageSetterGetter(StorageKey.RecordingTabId),
+    uuid: createStorageSetterGetter(StorageKey.RecordingUuid),
+    windowId: createStorageSetterGetter(StorageKey.RecordingWindowId),
   },
   ui: {
     cameraBubble: {
-      enabled: generateSetGet<UiCameraBubbleEnabled>(
-        StorageKey.UiCameraBubbleEnabled,
-      ),
-      position: generateSetGet<UiCameraBubblePosition>(
-        StorageKey.UiCameraBubblePosition,
-      ),
-      size: generateSetGet<UiCameraBubbleSize>(StorageKey.UiCameraBubbleSize),
-      tabId: generateSetGet<UiCameraBubbleTabId>(
-        StorageKey.UiCameraBubbleTabId,
-      ),
-      windowId: generateSetGet<UiCameraBubbleWindowId>(
-        StorageKey.UiCameraBubbleWindowId,
-      ),
+      enabled: createStorageSetterGetter(StorageKey.UiCameraBubbleEnabled),
+      position: createStorageSetterGetter(StorageKey.UiCameraBubblePosition),
+      size: createStorageSetterGetter(StorageKey.UiCameraBubbleSize),
+      tabId: createStorageSetterGetter(StorageKey.UiCameraBubbleTabId),
+      windowId: createStorageSetterGetter(StorageKey.UiCameraBubbleWindowId),
     },
   },
   clear: () => {
