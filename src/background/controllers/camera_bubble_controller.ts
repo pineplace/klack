@@ -6,7 +6,7 @@ import { debounce } from "@/utils/debounce";
 
 class CameraBubbleController {
   static async show() {
-    console.log("[camera_bubble_controller.ts] CameraBubbleController::show()");
+    console.log("CameraBubbleController.show()");
     const [currentTab] = await chrome.tabs.query({
       active: true,
       lastFocusedWindow: true,
@@ -17,7 +17,7 @@ class CameraBubbleController {
   }
 
   static async hide() {
-    console.log("[camera_bubble_controller.ts] CameraBubbleController::hide()");
+    console.log("CameraBubbleController.hide()");
     await Injector.deinject(
       await storage.ui.cameraBubble.tabId.get(),
       InjectionElementId.CameraBubble,
@@ -28,7 +28,7 @@ class CameraBubbleController {
 }
 
 chrome.tabs.onActivated.addListener((_activeTabInfo) => {
-  console.log("[camera_bubble_controller.ts] Handle 'chrome.tabs.onActivated'");
+  console.log("Handle 'chrome.tabs.onActivated'");
   (async () => {
     if (!(await storage.ui.cameraBubble.enabled.get())) {
       return;
@@ -37,13 +37,13 @@ chrome.tabs.onActivated.addListener((_activeTabInfo) => {
     await CameraBubbleController.show();
   })().catch((err) => {
     console.error(
-      `[camera_bubble_controller.ts] Error in 'chrome.tabs.onActivated' handler: ${(err as Error).toString()}`,
+      `Error in 'chrome.tabs.onActivated' handler: ${(err as Error).toString()}`,
     );
   });
 });
 
 chrome.tabs.onUpdated.addListener((_tabId, _changeInfo, _tab) => {
-  console.log("[camera_bubble_controller.ts] Handle 'chrome.tabs.onUpdated'");
+  console.log("Handle 'chrome.tabs.onUpdated'");
   (async () => {
     if (!(await storage.ui.cameraBubble.enabled.get())) {
       return;
@@ -59,13 +59,13 @@ chrome.tabs.onUpdated.addListener((_tabId, _changeInfo, _tab) => {
     }, 2 * 1000);
   })().catch((err) => {
     console.error(
-      `[camera_bubble_controller.ts] Error in 'chrome.tabs.onUpdated' handler: ${(err as Error).toString()}`,
+      `Error in 'chrome.tabs.onUpdated' handler: ${(err as Error).toString()}`,
     );
   });
 });
 
 chrome.tabs.onRemoved.addListener((_closedTabId, _removeInfo) => {
-  console.log("[camera_bubble_controller.ts] Handle 'chrome.tabs.onRemoved'");
+  console.log("Handle 'chrome.tabs.onRemoved'");
   (async () => {
     if (!(await storage.ui.cameraBubble.enabled.get())) {
       return;
@@ -73,13 +73,13 @@ chrome.tabs.onRemoved.addListener((_closedTabId, _removeInfo) => {
     await CameraBubbleController.show();
   })().catch((err) => {
     console.error(
-      `[camera_bubble_controller.ts] Error in 'chrome.tabs.onRemoved' handler: ${(err as Error).toString()}`,
+      `Error in 'chrome.tabs.onRemoved' handler: ${(err as Error).toString()}`,
     );
   });
 });
 
 chrome.windows.onFocusChanged.addListener((_windowId) => {
-  console.log("[camera_bubble_controller.ts] Handle 'chrome.tabs.onRemoved'");
+  console.log("Handle 'chrome.tabs.onRemoved'");
   (async () => {
     if (!(await storage.ui.cameraBubble.enabled.get())) {
       return;
@@ -88,7 +88,7 @@ chrome.windows.onFocusChanged.addListener((_windowId) => {
     await CameraBubbleController.show();
   })().catch((err) => {
     console.error(
-      `[camera_bubble_controller.ts] Error in 'chrome.windows.onFocusChanged' handler: ${(err as Error).toString()}`,
+      `Error in 'chrome.windows.onFocusChanged' handler: ${(err as Error).toString()}`,
     );
   });
 });
@@ -120,7 +120,7 @@ chrome.runtime.onMessage.addListener(
       })
       .catch((err) => {
         console.error(
-          `[camera_bubble_controller.ts] Error in 'chrome.runtime.onMessage' handler: ${(err as Error).toString()}`,
+          `Error in 'chrome.runtime.onMessage' handler: ${(err as Error).toString()}`,
         );
         sendResponse({
           type: MessageType.ResultError,

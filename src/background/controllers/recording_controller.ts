@@ -9,11 +9,9 @@ import { RecordingState, storage } from "@/app/storage";
 
 class RecordingController {
   static async start() {
-    console.log("[recording_controller.ts] RecordingController::start()");
+    console.log("RecordingController.start()");
     if (await chrome.offscreen.hasDocument()) {
-      console.warn(
-        "[recording_controller.ts] Offscreen document is already created",
-      );
+      console.warn("Offscreen document is already created");
     } else {
       await chrome.offscreen.createDocument({
         url: chrome.runtime.getURL("offscreen.html"),
@@ -29,14 +27,10 @@ class RecordingController {
     });
     if (response.type !== MessageType.ResultOk) {
       if (!response.reason?.includes("NotAllowedError: Permission denied")) {
-        console.error(
-          `[recording_controller.ts] Recording creation failed: ${JSON.stringify(response)}`,
-        );
+        console.error(`Recording creation failed: ${JSON.stringify(response)}`);
         return;
       }
-      console.log(
-        "[recording_controller.ts] Recorder creation has been canceled",
-      );
+      console.log("Recorder creation has been canceled");
       await senderV2.offscreen.recorderDelete();
       await chrome.offscreen.closeDocument();
       return;
@@ -46,7 +40,7 @@ class RecordingController {
   }
 
   static async stop() {
-    console.log("[recording_controller.ts] RecordingController::stop()");
+    console.log("RecordingController.stop()");
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
@@ -57,7 +51,7 @@ class RecordingController {
   }
 
   static async pause() {
-    console.log("[recording_controller.ts] RecordingController::pause()");
+    console.log("RecordingController.pause()");
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
@@ -66,7 +60,7 @@ class RecordingController {
   }
 
   static async resume() {
-    console.log("[recording_controller.ts] RecordingController::resume()");
+    console.log("RecordingController.resume()");
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
@@ -75,7 +69,7 @@ class RecordingController {
   }
 
   static async cancel() {
-    console.log("[recording_controller.ts] RecordingController::cancel()");
+    console.log("RecordingController.cancel()");
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
@@ -86,9 +80,7 @@ class RecordingController {
   }
 
   static async save(options: RecordingSaveOptions) {
-    console.log(
-      `[recording_controller.ts] RecordingController::save(options=${JSON.stringify(options)})`,
-    );
+    console.log(`RecordingController.save(options=${JSON.stringify(options)})`);
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
@@ -137,7 +129,7 @@ chrome.runtime.onMessage.addListener(
       })
       .catch((err) => {
         console.error(
-          `[recording_controller.ts] Error in 'chrome.runtime.onMessage' handler: ${(err as Error).toString()}`,
+          `Error in 'chrome.runtime.onMessage' handler: ${(err as Error).toString()}`,
         );
         sendResponse({
           type: MessageType.ResultError,

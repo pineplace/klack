@@ -21,6 +21,7 @@ class Recorder {
   };
 
   constructor(mimeType: string) {
+    console.log(`Recorder.constructor(mimeType='${mimeType}')`);
     this.#ctx = {
       mimeType,
       mediaStream: new MediaStream(),
@@ -28,9 +29,6 @@ class Recorder {
       isRecordingCanceled: false,
       chunksDownloaded: createControlledPromise<void>(),
     };
-    console.log(
-      `[recorder.ts] Recorder has been created for MIME type '${mimeType}'`,
-    );
   }
 
   #onTrackEnded() {
@@ -38,7 +36,7 @@ class Recorder {
       await senderV2.background.recordingStop();
     })().catch((err) => {
       console.error(
-        `[recorder.ts] #onTrackEndedListener error: ${(err as Error).toString()}`,
+        `Recorder.#onTrackEnded error: ${(err as Error).toString()}`,
       );
       throw err;
     });
@@ -75,7 +73,7 @@ class Recorder {
       this.#ctx.chunksDownloaded.resolve();
     })().catch((err) => {
       console.error(
-        `[recorder.ts] #onMediaRecorderDataAvailable error: ${(err as Error).toString()}`,
+        `Recorder.#onMediaRecorderDataAvailable error: ${(err as Error).toString()}`,
       );
     });
   }
@@ -149,7 +147,7 @@ class RecorderController {
 
   static async create(options: RecorderCreateOptions) {
     console.log(
-      `[recorder_controller.ts] RecorderController::create(options=${JSON.stringify(options)})`,
+      `RecorderController.create(options=${JSON.stringify(options)})`,
     );
     RecorderController.#recorder = new Recorder(
       RecorderController.#config.mimeType,
@@ -162,67 +160,65 @@ class RecorderController {
           },
         }),
       );
-      console.log(
-        "[recorder_controller.ts] Added microphone stream to the recorder",
-      );
+      console.log("Added microphone stream to the recorder");
     }
     RecorderController.#recorder.addStream(
       await navigator.mediaDevices.getDisplayMedia({
         audio: false, // NOTE: The `true` value lets us record audio from tab
       }),
     );
-    console.log("[recorder_controller.ts] Added screen stream to the recorder");
+    console.log("Added screen stream to the recorder");
   }
 
   static start() {
-    console.log("[recorder_controller.ts] RecorderController::start()");
+    console.log("RecorderController.start()");
     if (!RecorderController.#recorder) {
-      console.error("[recorder_controller.ts] Recorder is not created");
+      console.error("Recorder is not created");
       return;
     }
     RecorderController.#recorder.start();
   }
 
   static async stop() {
-    console.log("[recorder_controller.ts] RecorderController::stop()");
+    console.log("RecorderController.stop()");
     if (!RecorderController.#recorder) {
-      console.error("[recorder_controller.ts] Recorder is not created");
+      console.error("Recorder is not created");
       return;
     }
     await RecorderController.#recorder.stop();
   }
 
   static pause() {
-    console.log("[recorder_controller.ts] RecorderController::pause()");
+    console.log("RecorderController.pause()");
     if (!RecorderController.#recorder) {
-      console.error("[recorder_controller.ts] Recorder is not created");
+      console.error("Recorder is not created");
       return;
     }
     RecorderController.#recorder.pause();
   }
 
   static resume() {
-    console.log("[recorder_controller.ts] RecorderController::resume()");
+    console.log("RecorderController.resume()");
     if (!RecorderController.#recorder) {
-      console.error("[recorder_controller.ts] Recorder is not created");
+      console.error("Recorder is not created");
       return;
     }
     RecorderController.#recorder.resume();
   }
 
   static async cancel() {
-    console.log("[recorder_controller.ts] RecorderController::cancel()");
+    console.log("RecorderController.cancel()");
     if (!RecorderController.#recorder) {
-      console.error("[recorder_controller.ts] Recorder is not created");
+      console.error("Recorder is not created");
       return;
     }
     await RecorderController.#recorder.cancel();
   }
 
   static delete() {
-    console.log("[recorder_controller.ts] RecorderController::delete()");
+    console.log("RecorderController.delete()");
     if (!RecorderController.#recorder) {
-      console.error("[recorder_controller.ts] Recorder is not created");
+      console.error("Recorder is not created");
       return;
     }
     RecorderController.#recorder = undefined;
@@ -269,7 +265,7 @@ chrome.runtime.onMessage.addListener(
       })
       .catch((err) => {
         console.error(
-          `[recorder_controller.ts] Error in 'chrome.runtime.onMessage' handler: ${(err as Error).toString()}`,
+          `Error in 'chrome.runtime.onMessage' handler: ${(err as Error).toString()}`,
         );
         sendResponse({
           type: MessageType.ResultError,

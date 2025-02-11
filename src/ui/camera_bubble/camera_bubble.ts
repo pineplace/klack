@@ -19,7 +19,5 @@ async function inject() {
 }
 
 inject().catch((err) => {
-  console.error(
-    `[camera_bubble_injection.ts] Injection has been failed: ${(err as Error).toString()}`,
-  );
+  console.error(`Injection has been failed: ${(err as Error).toString()}`);
 });
