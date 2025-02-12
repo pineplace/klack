@@ -1,12 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import Draggable from "react-draggable";
-import {
-  ButtonGroup,
-  IconButton,
-  Radio,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { ButtonGroup, IconButton, Radio, Stack } from "@mui/material";
 import {
   Delete,
   PlayCircleFilledRounded,
@@ -14,12 +8,7 @@ import {
   Close,
   PauseCircleFilledRounded,
 } from "@mui/icons-material";
-import {
-  RecordingState,
-  storage,
-  StorageKey,
-  StorageValueType,
-} from "@/app/storage";
+import { RecordingState, StorageKey, StorageValueType } from "@/app/storage";
 import { sender } from "@/app/messaging";
 import useStorageValue from "../hooks/useStorageValue";
 
