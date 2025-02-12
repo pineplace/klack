@@ -1,8 +1,16 @@
 {
+  "$schema": "https://json.schemastore.org/chrome-manifest",
   "name": "klack",
-  "description": "Write me",
+  "description": "Record quick videos of your screen and camera",
   "version": "0.8.0",
   "manifest_version": 3,
+  "icons": {
+    "16": "./assets/logo16.png",
+    "32": "./assets/logo32.png",
+    "48": "./assets/logo48.png",
+    "128": "./assets/logo128.png",
+    "256": "./assets/logo256.png"
+  },
   "action": {
     "default_popup": "./popup.html"
   },
