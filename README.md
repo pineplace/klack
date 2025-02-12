@@ -9,7 +9,7 @@
 
 Chrome extension to record quick videos of your screen and camera
 
-> [!WARNING]
+> [!IMPORTANT]
 > The project is in active development, it still has many bugs and problems
 
 ## How to build
