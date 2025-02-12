@@ -1,6 +1,9 @@
 # klack
 
-![klack lookup](./docs/assets/lookup.png)
+<!-- markdownlint-disable MD033 -->
+<p align="center">
+  <img src="./docs/assets/lookup.png" alt="klack lookup">
+</p>
 
 ## About
 
