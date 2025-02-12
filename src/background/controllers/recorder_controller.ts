@@ -6,10 +6,6 @@ import {
   RecorderCreateOptions,
   sender,
 } from "@/app/messaging";
-import {
-  ControlledPromise,
-  createControlledPromise,
-} from "@/utils/controlled_promise";
 
 class Recorder {
   #ctx: {
@@ -17,7 +13,6 @@ class Recorder {
     mediaStream: MediaStream;
     chunks: BlobPart[];
     isRecordingCanceled: boolean;
-    chunksDownloaded: ControlledPromise<void>;
     mediaRecorder?: MediaRecorder;
   };
 
@@ -28,7 +23,6 @@ class Recorder {
       mediaStream: new MediaStream(),
       chunks: [],
       isRecordingCanceled: false,
-      chunksDownloaded: createControlledPromise<void>(),
     };
   }
 
@@ -50,7 +44,6 @@ class Recorder {
       }
 
       if (this.#ctx.isRecordingCanceled) {
-        this.#ctx.chunksDownloaded.resolve();
         return;
       }
 
@@ -70,8 +63,6 @@ class Recorder {
       });
 
       URL.revokeObjectURL(downloadUrl);
-
-      this.#ctx.chunksDownloaded.resolve();
     })().catch((err) => {
       console.error(
         `Recorder.#onMediaRecorderDataAvailable error: ${(err as Error).toString()}`,
@@ -102,7 +93,7 @@ class Recorder {
     this.#ctx.mediaRecorder.start();
   }
 
-  async stop() {
+  stop() {
     if (!this.#ctx.mediaRecorder) {
       return;
     }
@@ -110,8 +101,6 @@ class Recorder {
     for (const track of this.#ctx.mediaStream.getTracks()) {
       track.stop();
     }
-
-    await this.#ctx.chunksDownloaded.promise;
   }
 
   pause() {
@@ -128,12 +117,12 @@ class Recorder {
     this.#ctx.mediaRecorder.resume();
   }
 
-  async cancel() {
+  cancel() {
     if (!this.#ctx.mediaRecorder) {
       return;
     }
     this.#ctx.isRecordingCanceled = true;
-    await this.stop();
+    this.stop();
   }
 }
 
@@ -180,13 +169,13 @@ class RecorderController {
     RecorderController.#recorder.start();
   }
 
-  static async stop() {
+  static stop() {
     console.log("RecorderController.stop()");
     if (!RecorderController.#recorder) {
       console.error("Recorder is not created");
       return;
     }
-    await RecorderController.#recorder.stop();
+    RecorderController.#recorder.stop();
   }
 
   static pause() {
@@ -207,13 +196,13 @@ class RecorderController {
     RecorderController.#recorder.resume();
   }
 
-  static async cancel() {
+  static cancel() {
     console.log("RecorderController.cancel()");
     if (!RecorderController.#recorder) {
       console.error("Recorder is not created");
       return;
     }
-    await RecorderController.#recorder.cancel();
+    RecorderController.#recorder.cancel();
   }
 
   static delete() {
@@ -241,7 +230,7 @@ chrome.runtime.onMessage.addListener(
           RecorderController.start();
           break;
         case MessageType.RecorderStop:
-          await RecorderController.stop();
+          RecorderController.stop();
           break;
         case MessageType.RecorderPause:
           RecorderController.pause();
@@ -250,7 +239,7 @@ chrome.runtime.onMessage.addListener(
           RecorderController.resume();
           break;
         case MessageType.RecorderCancel:
-          await RecorderController.cancel();
+          RecorderController.cancel();
           break;
         case MessageType.RecorderDelete:
           RecorderController.delete();
