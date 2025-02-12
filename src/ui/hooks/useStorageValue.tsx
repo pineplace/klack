@@ -8,11 +8,14 @@ import {
 
 export default function useStorageValue<Key extends StorageKey>(
   storageKey: Key,
+  initialState?: StorageValueType<Key>,
 ): [
   value: StorageValueType<Key> | undefined,
   (newValue: StorageValueType<Key>) => void,
 ] {
-  const [value, setValue] = useState<StorageValueType<Key> | undefined>();
+  const [value, setValue] = useState<StorageValueType<Key> | undefined>(
+    initialState,
+  );
 
   const onStorageChange = useCallback(
     (changes: chrome.storage.StorageChange) => {

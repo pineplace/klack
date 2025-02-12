@@ -8,16 +8,11 @@ export enum StorageKey {
   DevicesVideoEnabled = "devices.video.enabled",
   DevicesVideoId = "devices.video.id",
   DevicesVideoName = "devices.video.name",
-  RecordingDuration = "recording.duration",
   RecordingState = "recording.state",
-  RecordingTabId = "recording.tabId",
-  RecordingUuid = "recording.uuid",
-  RecordingWindowId = "recording.windowId",
   UiCameraBubbleEnabled = "ui.cameraBubble.enabled",
   UiCameraBubblePosition = "ui.cameraBubble.position",
   UiCameraBubbleSize = "ui.cameraBubble.size",
   UiCameraBubbleTabId = "ui.cameraBubble.tabId",
-  UiCameraBubbleWindowId = "ui.cameraBubble.windowId",
 }
 
 export enum RecordingState {
@@ -37,15 +32,10 @@ type StorageValueTypeMap = {
   [StorageKey.DevicesVideoId]: string;
   [StorageKey.DevicesVideoName]: string;
   [StorageKey.RecordingState]: RecordingState;
-  [StorageKey.RecordingDuration]: number;
-  [StorageKey.RecordingTabId]: number;
-  [StorageKey.RecordingUuid]: string;
-  [StorageKey.RecordingWindowId]: number;
   [StorageKey.UiCameraBubbleEnabled]: boolean;
   [StorageKey.UiCameraBubblePosition]: { x: number; y: number };
   [StorageKey.UiCameraBubbleSize]: { width: number; height: number };
   [StorageKey.UiCameraBubbleTabId]: number;
-  [StorageKey.UiCameraBubbleWindowId]: number;
 };
 
 export type StorageValueType<K extends StorageKey> = StorageValueTypeMap[K];
@@ -92,11 +82,7 @@ export const storage = {
     },
   },
   recording: {
-    duration: createStorageSetterGetter(StorageKey.RecordingDuration),
     state: createStorageSetterGetter(StorageKey.RecordingState),
-    tabId: createStorageSetterGetter(StorageKey.RecordingTabId),
-    uuid: createStorageSetterGetter(StorageKey.RecordingUuid),
-    windowId: createStorageSetterGetter(StorageKey.RecordingWindowId),
   },
   ui: {
     cameraBubble: {
@@ -104,7 +90,6 @@ export const storage = {
       position: createStorageSetterGetter(StorageKey.UiCameraBubblePosition),
       size: createStorageSetterGetter(StorageKey.UiCameraBubbleSize),
       tabId: createStorageSetterGetter(StorageKey.UiCameraBubbleTabId),
-      windowId: createStorageSetterGetter(StorageKey.UiCameraBubbleWindowId),
     },
   },
   clear: () => {

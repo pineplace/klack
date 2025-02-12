@@ -13,7 +13,7 @@ async function inject() {
   document.body.append(cameraBubbleContainer);
   ReactDOM.createRoot(cameraBubbleContainer).render(
     React.createElement(CameraBubble, {
-      cameraBubblePosition: await storage.ui.cameraBubble.position.get(),
+      initialPosition: await storage.ui.cameraBubble.position.get(),
     }),
   );
 }
