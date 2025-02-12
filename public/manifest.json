@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/chrome-manifest",
   "name": "klack",
   "description": "Write me",
   "version": "0.8.0",
