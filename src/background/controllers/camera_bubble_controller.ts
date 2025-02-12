@@ -7,7 +7,6 @@ import {
 import { storage } from "@/app/storage";
 import { Injection, InjectionElementId } from "@/app/injections";
 import { Injector } from "@/background/injector";
-import { debounce } from "@/utils/debounce";
 
 class CameraBubbleController {
   static async show() {
@@ -53,15 +52,7 @@ chrome.tabs.onUpdated.addListener((_tabId, _changeInfo, _tab) => {
     if (!(await storage.ui.cameraBubble.enabled.get())) {
       return;
     }
-    debounce(() => {
-      (async () => {
-        await CameraBubbleController.show();
-      })().catch((err) => {
-        throw new Error(
-          `Cannot draw camera bubble after reload: ${(err as Error).toString()}`,
-        );
-      });
-    }, 2 * 1000);
+    await CameraBubbleController.show();
   })().catch((err) => {
     console.error(
       `Error in 'chrome.tabs.onUpdated' handler: ${(err as Error).toString()}`,
