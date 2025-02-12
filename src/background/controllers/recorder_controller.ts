@@ -8,22 +8,18 @@ import {
 } from "@/app/messaging";
 
 class Recorder {
-  #ctx: {
-    mimeType: string;
-    mediaStream: MediaStream;
-    chunks: BlobPart[];
-    isRecordingCanceled: boolean;
-    mediaRecorder?: MediaRecorder;
-  };
+  #mimeType: string;
+  #mediaStream: MediaStream;
+  #chunks: BlobPart[];
+  #isRecordingCanceled: boolean;
+  #mediaRecorder?: MediaRecorder;
 
   constructor(mimeType: string) {
     console.log(`Recorder.constructor(mimeType='${mimeType}')`);
-    this.#ctx = {
-      mimeType,
-      mediaStream: new MediaStream(),
-      chunks: [],
-      isRecordingCanceled: false,
-    };
+    this.#mimeType = mimeType;
+    this.#mediaStream = new MediaStream();
+    this.#chunks = [];
+    this.#isRecordingCanceled = false;
   }
 
   #onTrackEnded() {
@@ -39,21 +35,21 @@ class Recorder {
 
   #onMediaRecorderDataAvailable(event: BlobEvent) {
     (async () => {
-      if (!this.#ctx.mediaRecorder) {
+      if (!this.#mediaRecorder) {
         return;
       }
 
-      if (this.#ctx.isRecordingCanceled) {
+      if (this.#isRecordingCanceled) {
         return;
       }
 
-      this.#ctx.chunks.push(event.data);
-      if (this.#ctx.mediaRecorder.state !== "inactive") {
+      this.#chunks.push(event.data);
+      if (this.#mediaRecorder.state !== "inactive") {
         return;
       }
 
       const downloadUrl = URL.createObjectURL(
-        new Blob(this.#ctx.chunks, {
+        new Blob(this.#chunks, {
           type: event.data.type,
         }),
       );
@@ -72,56 +68,56 @@ class Recorder {
 
   addStream(stream: MediaStream) {
     for (const track of stream.getTracks()) {
-      this.#ctx.mediaStream.addTrack(track);
+      this.#mediaStream.addTrack(track);
     }
   }
 
   start() {
-    this.#ctx.mediaRecorder = new MediaRecorder(this.#ctx.mediaStream, {
-      mimeType: this.#ctx.mimeType,
+    this.#mediaRecorder = new MediaRecorder(this.#mediaStream, {
+      mimeType: this.#mimeType,
     });
 
-    for (const track of this.#ctx.mediaStream.getTracks()) {
+    for (const track of this.#mediaStream.getTracks()) {
       track.addEventListener("ended", this.#onTrackEnded.bind(this));
     }
 
-    this.#ctx.mediaRecorder.addEventListener(
+    this.#mediaRecorder.addEventListener(
       "dataavailable",
       this.#onMediaRecorderDataAvailable.bind(this),
     );
 
-    this.#ctx.mediaRecorder.start();
+    this.#mediaRecorder.start();
   }
 
   stop() {
-    if (!this.#ctx.mediaRecorder) {
+    if (!this.#mediaRecorder) {
       return;
     }
-    this.#ctx.mediaRecorder.stop();
-    for (const track of this.#ctx.mediaStream.getTracks()) {
+    this.#mediaRecorder.stop();
+    for (const track of this.#mediaStream.getTracks()) {
       track.stop();
     }
   }
 
   pause() {
-    if (!this.#ctx.mediaRecorder) {
+    if (!this.#mediaRecorder) {
       return;
     }
-    this.#ctx.mediaRecorder.pause();
+    this.#mediaRecorder.pause();
   }
 
   resume() {
-    if (!this.#ctx.mediaRecorder) {
+    if (!this.#mediaRecorder) {
       return;
     }
-    this.#ctx.mediaRecorder.resume();
+    this.#mediaRecorder.resume();
   }
 
   cancel() {
-    if (!this.#ctx.mediaRecorder) {
+    if (!this.#mediaRecorder) {
       return;
     }
-    this.#ctx.isRecordingCanceled = true;
+    this.#isRecordingCanceled = true;
     this.stop();
   }
 }
