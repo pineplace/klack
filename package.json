@@ -1,7 +1,7 @@
 {
   "name": "klack",
   "description": "Instant screen recording browser extension with floating camera view",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "type": "module",
   "scripts": {
     "test": "jest --maxWorkers=50% --silent",
