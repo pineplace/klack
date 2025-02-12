@@ -1,9 +1,10 @@
 import {
   Message,
   MessageResponse,
+  MessageResponseType,
   MessageType,
   RecorderCreateOptions,
-  senderV2,
+  sender,
 } from "@/app/messaging";
 import {
   ControlledPromise,
@@ -33,7 +34,7 @@ class Recorder {
 
   #onTrackEnded() {
     (async () => {
-      await senderV2.background.recordingStop();
+      await sender.background.recordingStop();
     })().catch((err) => {
       console.error(
         `Recorder.#onTrackEnded error: ${(err as Error).toString()}`,
@@ -64,7 +65,7 @@ class Recorder {
         }),
       );
 
-      await senderV2.background.recordingSave({
+      await sender.background.recordingSave({
         recordingUrl: downloadUrl,
       });
 
@@ -260,7 +261,7 @@ chrome.runtime.onMessage.addListener(
     })(message as Message)
       .then(() => {
         sendResponse({
-          type: MessageType.ResultOk,
+          type: MessageResponseType.ResultOk,
         } satisfies MessageResponse);
       })
       .catch((err) => {
@@ -268,7 +269,7 @@ chrome.runtime.onMessage.addListener(
           `Error in 'chrome.runtime.onMessage' handler: ${(err as Error).toString()}`,
         );
         sendResponse({
-          type: MessageType.ResultError,
+          type: MessageResponseType.ResultError,
           reason: (err as Error).toString(),
         } satisfies MessageResponse);
       });

@@ -20,7 +20,7 @@ import {
   StorageKey,
   StorageValueType,
 } from "@/app/storage";
-import { senderV2 } from "@/app/messaging";
+import { sender } from "@/app/messaging";
 import useStorageValue from "../hooks/useStorageValue";
 
 const CameraBubbleControls = () => {
@@ -58,7 +58,7 @@ const CameraBubbleControls = () => {
       {cameraBubbleEnabled ? (
         <IconButton
           onClick={() => {
-            senderV2.background.cameraBubbleHide().catch((err) => {
+            sender.background.cameraBubbleHide().catch((err) => {
               console.error(
                 `Cannot hide camera bubble: ${(err as Error).toString()}`,
               );
@@ -120,31 +120,31 @@ const RecordingControls = () => {
   const [recordingState] = useStorageValue(StorageKey.RecordingState);
 
   const handleStart = () => {
-    senderV2.background.recordingStart().catch((err) => {
+    sender.background.recordingStart().catch((err) => {
       console.error(`Cannot start recording: ${(err as Error).toString()}`);
     });
   };
 
   const handleStop = () => {
-    senderV2.background.recordingStop().catch((err) => {
+    sender.background.recordingStop().catch((err) => {
       console.error(`Cannot stop recording: ${(err as Error).toString()}`);
     });
   };
 
   const handlePause = () => {
-    senderV2.background.recordingPause().catch((err) => {
+    sender.background.recordingPause().catch((err) => {
       console.error(`Cannot pause recording: ${(err as Error).toString()}`);
     });
   };
 
   const handleResume = () => {
-    senderV2.background.recordingResume().catch((err) => {
+    sender.background.recordingResume().catch((err) => {
       console.error(`Cannot resume recording: ${(err as Error).toString()}`);
     });
   };
 
   const handleCancel = () => {
-    senderV2.background.recordingCancel().catch((err) => {
+    sender.background.recordingCancel().catch((err) => {
       console.error(`Cannot cancel recording: ${(err as Error).toString()}`);
     });
   };

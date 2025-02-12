@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { RecordingState, StorageKey } from "@/app/storage";
-import { senderV2 } from "@/app/messaging";
+import { sender } from "@/app/messaging";
 import useStorageValue from "@/ui/hooks/useStorageValue";
 
 const CameraBubbleControls = () => {
@@ -23,13 +23,13 @@ const CameraBubbleControls = () => {
     <Button
       onClick={() => {
         if (cameraBubbleEnabled) {
-          senderV2.background.cameraBubbleHide().catch((err) => {
+          sender.background.cameraBubbleHide().catch((err) => {
             console.error(
               `Cannot hide camera bubble: ${(err as Error).toString()}`,
             );
           });
         } else {
-          senderV2.background.cameraBubbleShow().catch((err) => {
+          sender.background.cameraBubbleShow().catch((err) => {
             console.error(
               `Cannot show camera bubble: ${(err as Error).toString()}`,
             );
@@ -131,11 +131,11 @@ const RecordingControls = () => {
       <Button
         onClick={() => {
           if (recordingState === RecordingState.NotStarted) {
-            senderV2.background
+            sender.background
               .recordingStart()
               .catch((err) => console.error(err));
           } else {
-            senderV2.background
+            sender.background
               .recordingStop()
               .catch((err) => console.error(err));
           }
@@ -147,11 +147,11 @@ const RecordingControls = () => {
         <Button
           onClick={() => {
             if (recordingState === RecordingState.OnPause) {
-              senderV2.background
+              sender.background
                 .recordingResume()
                 .catch((err) => console.error(err));
             } else {
-              senderV2.background
+              sender.background
                 .recordingPause()
                 .catch((err) => console.error(err));
             }
@@ -163,7 +163,7 @@ const RecordingControls = () => {
       {recordingState === RecordingState.InProgress && (
         <Button
           onClick={() => {
-            senderV2.background
+            sender.background
               .recordingCancel()
               .catch((err) => console.error(err));
           }}

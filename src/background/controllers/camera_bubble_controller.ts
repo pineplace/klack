@@ -1,4 +1,9 @@
-import { Message, MessageResponse, MessageType } from "@/app/messaging";
+import {
+  Message,
+  MessageResponse,
+  MessageResponseType,
+  MessageType,
+} from "@/app/messaging";
 import { storage } from "@/app/storage";
 import { Injection, InjectionElementId } from "@/app/injections";
 import { Injector } from "@/background/injector";
@@ -115,7 +120,7 @@ chrome.runtime.onMessage.addListener(
     })()
       .then(() => {
         sendResponse({
-          type: MessageType.ResultOk,
+          type: MessageResponseType.ResultOk,
         } satisfies MessageResponse);
       })
       .catch((err) => {
@@ -123,7 +128,7 @@ chrome.runtime.onMessage.addListener(
           `Error in 'chrome.runtime.onMessage' handler: ${(err as Error).toString()}`,
         );
         sendResponse({
-          type: MessageType.ResultError,
+          type: MessageResponseType.ResultError,
           reason: (err as Error).toString(),
         } satisfies MessageResponse);
       });

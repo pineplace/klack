@@ -1,9 +1,10 @@
 import {
   Message,
   MessageResponse,
+  MessageResponseType,
   MessageType,
   RecordingSaveOptions,
-  senderV2,
+  sender,
 } from "@/app/messaging";
 import { RecordingState, storage } from "@/app/storage";
 
@@ -19,23 +20,23 @@ class RecordingController {
         justification: "Offscreen launched to start media recorder",
       });
     }
-    const response = await senderV2.offscreen.recorderCreate({
+    const response = await sender.offscreen.recorderCreate({
       mic: {
         enabled: await storage.devices.mic.enabled.get(),
         id: await storage.devices.mic.id.get(),
       },
     });
-    if (response.type !== MessageType.ResultOk) {
+    if (response.type !== MessageResponseType.ResultOk) {
       if (!response.reason?.includes("NotAllowedError: Permission denied")) {
         console.error(`Recording creation failed: ${JSON.stringify(response)}`);
         return;
       }
       console.log("Recorder creation has been canceled");
-      await senderV2.offscreen.recorderDelete();
+      await sender.offscreen.recorderDelete();
       await chrome.offscreen.closeDocument();
       return;
     }
-    await senderV2.offscreen.recorderStart();
+    await sender.offscreen.recorderStart();
     await storage.recording.state.set(RecordingState.InProgress);
   }
 
@@ -44,8 +45,8 @@ class RecordingController {
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
-    await senderV2.offscreen.recorderStop();
-    await senderV2.offscreen.recorderDelete();
+    await sender.offscreen.recorderStop();
+    await sender.offscreen.recorderDelete();
     await chrome.offscreen.closeDocument();
     await storage.recording.state.set(RecordingState.NotStarted);
   }
@@ -55,7 +56,7 @@ class RecordingController {
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
-    await senderV2.offscreen.recorderPause();
+    await sender.offscreen.recorderPause();
     await storage.recording.state.set(RecordingState.OnPause);
   }
 
@@ -64,7 +65,7 @@ class RecordingController {
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
-    await senderV2.offscreen.recorderResume();
+    await sender.offscreen.recorderResume();
     await storage.recording.state.set(RecordingState.InProgress);
   }
 
@@ -73,8 +74,8 @@ class RecordingController {
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
-    await senderV2.offscreen.recorderCancel();
-    await senderV2.offscreen.recorderDelete();
+    await sender.offscreen.recorderCancel();
+    await sender.offscreen.recorderDelete();
     await chrome.offscreen.closeDocument();
     await storage.recording.state.set(RecordingState.NotStarted);
   }
@@ -124,7 +125,7 @@ chrome.runtime.onMessage.addListener(
     })()
       .then(() => {
         sendResponse({
-          type: MessageType.ResultOk,
+          type: MessageResponseType.ResultOk,
         } satisfies MessageResponse);
       })
       .catch((err) => {
@@ -132,7 +133,7 @@ chrome.runtime.onMessage.addListener(
           `Error in 'chrome.runtime.onMessage' handler: ${(err as Error).toString()}`,
         );
         sendResponse({
-          type: MessageType.ResultError,
+          type: MessageResponseType.ResultError,
           reason: (err as Error).toString(),
         } satisfies MessageResponse);
       });
