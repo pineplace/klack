@@ -16,7 +16,8 @@
     "downloads",
     "activeTab",
     "storage",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "offscreen"
   ],
   "host_permissions": [
     "https://*/*"

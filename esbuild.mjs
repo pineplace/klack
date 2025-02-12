@@ -11,12 +11,12 @@ dotenv.config({
 const contextOptions = {
   logLevel: "info",
   entryPoints: [
-    "./src/background.ts",
-    "./src/popup.tsx",
-    "./src/scripts/camera_bubble.ts",
-    "./src/scripts/camera_bubble_stream.ts",
-    "./src/scripts/screen_sharing.ts",
-    "./src/scripts/recording_start_countdown.ts",
+    "./src/background/background.ts",
+    "./src/background/offscreen.ts",
+    "./src/ui/camera_bubble/camera_bubble.ts",
+    "./src/ui/recording_start_counter/recording_start_counter.ts",
+    "./src/ui/popup/popup.ts",
+    "./src/ui/camera_bubble_stream/camera_bubble_stream.ts",
   ],
   outdir: "./public",
   outExtension: {
@@ -29,8 +29,6 @@ const contextOptions = {
   define: {
     "process.env.APP_TITLE": JSON.stringify(process.env.npm_package_name),
     "process.env.APP_VERSION": JSON.stringify(process.env.npm_package_version),
-    "process.env.FEATURES_BETA_RECORDING_CHUNKS_SERIALIZATION":
-      process.env.FEATURES_BETA_RECORDING_CHUNKS_SERIALIZATION,
   },
 };
 
