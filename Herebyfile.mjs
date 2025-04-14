@@ -22,9 +22,10 @@ const buildOptions = {
     "./src/background/background.ts",
     "./src/background/offscreen.ts",
     "./src/ui/camera_bubble/camera_bubble.ts",
-    "./src/ui/recording_start_counter/recording_start_counter.ts",
-    "./src/ui/popup/popup.ts",
     "./src/ui/camera_bubble_stream/camera_bubble_stream.ts",
+    "./src/ui/custom_styles/custom_styles.ts",
+    "./src/ui/popup/popup.ts",
+    "./src/ui/recording_start_counter/recording_start_counter.ts",
   ],
   outdir: "./public",
   outExtension: {
@@ -44,6 +45,7 @@ export const build = task({
   name: "build",
   dependencies: [setupDotenv],
   run: async () => {
+    await $`npx @tailwindcss/cli -i ./src/ui/input.css -o ./public/output.css`;
     await $`tsc --noEmit`;
     await esbuild.build(buildOptions);
   },
@@ -54,7 +56,11 @@ export const buildWatch = task({
   dependencies: [setupDotenv],
   run: async () => {
     const context = await esbuild.context(buildOptions);
-    await Promise.all([$`tsc --noEmit --watch`, context.watch()]);
+    await Promise.all([
+      $`npx @tailwindcss/cli -i ./src/ui/input.css -o ./public/output.css --watch`,
+      $`tsc --noEmit --watch`,
+      context.watch(),
+    ]);
   },
 });
 
@@ -62,6 +68,7 @@ export const buildRelease = task({
   name: "build:release",
   dependencies: [setupDotenv],
   run: async () => {
+    await $`npx @tailwindcss/cli -i ./src/ui/input.css -o ./public/output.css`;
     await $`tsc --noEmit`;
     await esbuild.build({
       ...buildOptions,

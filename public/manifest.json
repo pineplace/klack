@@ -32,7 +32,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["camera_bubble_stream.html"],
+      "resources": ["camera_bubble_stream.html", "output.css"],
       "matches": ["<all_urls>"]
     }
   ]
