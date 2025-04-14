@@ -7,10 +7,10 @@
     "test": "jest --maxWorkers=50% --silent",
     "test:watch": "jest --maxWorkers=50% --watch --silent",
     "test:coverage": "jest --maxWorkers=50% --coverage --silent",
-    "build": "tsc --noEmit && node ./esbuild.mjs --build",
-    "build:release": "tsc --noEmit && node ./esbuild.mjs --build --release",
-    "dev": "tsc --noEmit --watch & node ./esbuild.mjs --watch",
-    "clean": "rm -rf ./public/*.mjs* ./coverage .jest-test-results.json",
+    "build": "hereby build",
+    "build:release": "hereby build:release",
+    "dev": "hereby build:watch",
+    "clean": "hereby clean",
     "lint": "eslint --ext .mjs --ext .ts --ext .tsx .",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check ."
@@ -40,6 +40,7 @@
     "@types/node": "^22.13.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@types/shelljs": "^0.8.15",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
     "dotenv": "^16.4.7",
@@ -50,12 +51,15 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "execa": "^9.5.2",
+    "hereby": "^1.10.0",
     "jest": "^29.6.2",
     "jest-environment-jsdom": "^29.6.2",
     "prettier": "^3.2.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-draggable": "^4.4.6",
+    "shelljs": "^0.9.2",
     "typescript": "^5.4.3"
   }
 }
