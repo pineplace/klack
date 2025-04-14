@@ -51,6 +51,7 @@ export const build = task({
 
 export const buildWatch = task({
   name: "build:watch",
+  dependencies: [setupDotenv],
   run: async () => {
     const context = await esbuild.context(buildOptions);
     await Promise.all([$`tsc --noEmit --watch`, context.watch()]);
@@ -59,6 +60,7 @@ export const buildWatch = task({
 
 export const buildRelease = task({
   name: "build:release",
+  dependencies: [setupDotenv],
   run: async () => {
     await $`tsc --noEmit`;
     await esbuild.build({
