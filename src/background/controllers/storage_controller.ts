@@ -23,6 +23,11 @@ chrome.runtime.onInstalled.addListener((_details) => {
     console.log(
       `Storage: ${JSON.stringify(await storage.getEntireStorage(), undefined, 2)}`,
     );
+
+    await chrome.tabs.create({
+      active: true,
+      url: chrome.runtime.getURL("permissions.html"),
+    });
   })().catch((err) => {
     console.error(
       `Error in 'chrome.runtime.onInstalled' handler: ${(err as Error).toString()}`,
