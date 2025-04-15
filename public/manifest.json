@@ -32,8 +32,13 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["camera_bubble_stream.html", "output.css"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "camera_bubble_stream.html",
+        "klack_tailwind_global.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

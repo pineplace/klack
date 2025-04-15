@@ -7,7 +7,7 @@ function inject() {
 
   const linkElement = document.createElement("link");
   linkElement.id = InjectionElementId.CustomStyles;
-  linkElement.href = chrome.runtime.getURL("./output.css");
+  linkElement.href = chrome.runtime.getURL("./klack_tailwind_global.css");
   linkElement.rel = "stylesheet";
   document.head.append(linkElement);
 }

@@ -21,11 +21,11 @@ const buildOptions = {
   entryPoints: [
     "./src/background/background.ts",
     "./src/background/offscreen.ts",
-    "./src/ui/camera_bubble/camera_bubble.ts",
-    "./src/ui/camera_bubble_stream/camera_bubble_stream.ts",
-    "./src/ui/custom_styles/custom_styles.ts",
-    "./src/ui/popup/popup.ts",
-    "./src/ui/recording_start_counter/recording_start_counter.ts",
+    "./src/ui/injections/camera_bubble_stream/camera_bubble_stream.ts",
+    "./src/ui/injections/custom_styles/custom_styles.ts",
+    "./src/ui/injections/recording_start_countdown/recording_start_countdown.ts",
+    "./src/ui/pages/camera_bubble/camera_bubble.ts",
+    "./src/ui/pages/popup/popup.ts",
   ],
   outdir: "./public",
   outExtension: {
@@ -45,7 +45,7 @@ export const build = task({
   name: "build",
   dependencies: [setupDotenv],
   run: async () => {
-    await $`npx @tailwindcss/cli -i ./src/ui/input.css -o ./public/output.css`;
+    await $`npx @tailwindcss/cli -i ./src/ui/styles/global.css -o ./public/klack_tailwind_global.css`;
     await $`tsc --noEmit`;
     await esbuild.build(buildOptions);
   },
@@ -55,7 +55,7 @@ export const buildRelease = task({
   name: "build:release",
   dependencies: [setupDotenv],
   run: async () => {
-    await $`npx @tailwindcss/cli -i ./src/ui/input.css -o ./public/output.css`;
+    await $`npx @tailwindcss/cli -i ./src/ui/styles/global.css -o ./public/klack_tailwind_global.css`;
     await $`tsc --noEmit`;
     await esbuild.build({
       ...buildOptions,
@@ -72,6 +72,7 @@ export const clean = task({
       "-rf",
       "./public/*mjs",
       "./public/*mjs.map",
+      "./public/*.css",
       "./coverage",
       ".jest-test-results.json",
     );
@@ -84,7 +85,7 @@ export const dev = task({
   run: async () => {
     const context = await esbuild.context(buildOptions);
     await Promise.all([
-      $`npx @tailwindcss/cli -i ./src/ui/input.css -o ./public/output.css --watch`,
+      await $`npx @tailwindcss/cli -i ./src/ui/styles/global.css -o ./public/klack_tailwind_global.css --watch`,
       context.watch(),
     ]);
   },

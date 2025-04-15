@@ -10,7 +10,7 @@ import {
 } from "@mui/icons-material";
 import { RecordingState, StorageKey, StorageValueType } from "@/app/storage";
 import { sender } from "@/app/messaging";
-import useStorageValue from "../hooks/useStorageValue";
+import useStorageValue from "@/ui/hooks/useStorageValue";
 
 const CameraBubbleControls = () => {
   const [cameraBubbleEnabled] = useStorageValue(
