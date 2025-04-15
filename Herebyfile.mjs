@@ -51,19 +51,6 @@ export const build = task({
   },
 });
 
-export const buildWatch = task({
-  name: "build:watch",
-  dependencies: [setupDotenv],
-  run: async () => {
-    const context = await esbuild.context(buildOptions);
-    await Promise.all([
-      $`npx @tailwindcss/cli -i ./src/ui/input.css -o ./public/output.css --watch`,
-      $`tsc --noEmit --watch`,
-      context.watch(),
-    ]);
-  },
-});
-
 export const buildRelease = task({
   name: "build:release",
   dependencies: [setupDotenv],
@@ -88,5 +75,17 @@ export const clean = task({
       "./coverage",
       ".jest-test-results.json",
     );
+  },
+});
+
+export const dev = task({
+  name: "dev",
+  dependencies: [setupDotenv],
+  run: async () => {
+    const context = await esbuild.context(buildOptions);
+    await Promise.all([
+      $`npx @tailwindcss/cli -i ./src/ui/input.css -o ./public/output.css --watch`,
+      context.watch(),
+    ]);
   },
 });

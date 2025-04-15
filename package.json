@@ -9,8 +9,8 @@
     "test:coverage": "jest --maxWorkers=50% --coverage --silent",
     "build": "hereby build",
     "build:release": "hereby build:release",
-    "dev": "hereby build:watch",
     "clean": "hereby clean",
+    "dev": "hereby dev",
     "lint": "eslint --ext .mjs --ext .ts --ext .tsx .",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check ."
