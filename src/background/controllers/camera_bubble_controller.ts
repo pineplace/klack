@@ -15,6 +15,7 @@ class CameraBubbleController {
       active: true,
       lastFocusedWindow: true,
     });
+    await Injector.inject(currentTab.id as number, Injection.CustomStyles);
     await Injector.inject(currentTab.id as number, Injection.CameraBubble);
     await storage.ui.cameraBubble.tabId.set(currentTab.id as number);
     await storage.ui.cameraBubble.enabled.set(true);
@@ -25,6 +26,10 @@ class CameraBubbleController {
     await Injector.deinject(
       await storage.ui.cameraBubble.tabId.get(),
       InjectionElementId.CameraBubble,
+    );
+    await Injector.deinject(
+      await storage.ui.cameraBubble.tabId.get(),
+      InjectionElementId.CustomStyles,
     );
     await storage.ui.cameraBubble.tabId.set(0);
     await storage.ui.cameraBubble.enabled.set(false);

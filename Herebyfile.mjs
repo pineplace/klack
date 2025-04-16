@@ -22,6 +22,7 @@ const buildOptions = {
     "./src/background/background.ts",
     "./src/background/offscreen.ts",
     "./src/ui/injections/camera_bubble_stream/camera_bubble_stream.ts",
+    "./src/ui/injections/custom_styles/custom_styles.ts",
     "./src/ui/injections/recording_start_countdown/recording_start_countdown.ts",
     "./src/ui/pages/camera_bubble/camera_bubble.ts",
     "./src/ui/pages/permissions/permissions.ts",
@@ -45,6 +46,7 @@ export const build = task({
   name: "build",
   dependencies: [setupDotenv],
   run: async () => {
+    await $`npx @tailwindcss/cli -i ./src/ui/styles/global.css -o ./public/klack_tailwind_global.css`;
     await $`tsc --noEmit`;
     await esbuild.build(buildOptions);
   },
@@ -54,6 +56,7 @@ export const buildRelease = task({
   name: "build:release",
   dependencies: [setupDotenv],
   run: async () => {
+    await $`npx @tailwindcss/cli -i ./src/ui/styles/global.css -o ./public/klack_tailwind_global.css`;
     await $`tsc --noEmit`;
     await esbuild.build({
       ...buildOptions,
@@ -70,6 +73,7 @@ export const clean = task({
       "-rf",
       "./public/*mjs",
       "./public/*mjs.map",
+      "./public/*.css",
       "./coverage",
       ".jest-test-results.json",
     );
@@ -81,6 +85,9 @@ export const dev = task({
   dependencies: [setupDotenv],
   run: async () => {
     const context = await esbuild.context(buildOptions);
-    await Promise.all([context.watch()]);
+    await Promise.all([
+      await $`npx @tailwindcss/cli -i ./src/ui/styles/global.css -o ./public/klack_tailwind_global.css --watch`,
+      context.watch(),
+    ]);
   },
 });
