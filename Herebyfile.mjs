@@ -39,6 +39,10 @@ const buildOptions = {
     "process.env.APP_TITLE": JSON.stringify(process.env.npm_package_name),
     "process.env.APP_VERSION": JSON.stringify(process.env.npm_package_version),
   },
+  loader: {
+    ".png": "file",
+    ".svg": "file",
+  },
 };
 
 export const build = task({
@@ -73,6 +77,8 @@ export const clean = task({
       "./public/*mjs",
       "./public/*mjs.map",
       "./public/*.css",
+      "./public/*.png",
+      "./public/*.svg",
       "./coverage",
       ".jest-test-results.json",
     );
