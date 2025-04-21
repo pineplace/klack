@@ -40,6 +40,7 @@ const buildOptions = {
     "process.env.APP_VERSION": JSON.stringify(process.env.npm_package_version),
   },
   loader: {
+    ".jpg": "file",
     ".png": "file",
     ".svg": "file",
   },
@@ -77,6 +78,7 @@ export const clean = task({
       "./public/*mjs",
       "./public/*mjs.map",
       "./public/*.css",
+      "./public/*.jpg",
       "./public/*.png",
       "./public/*.svg",
       "./coverage",

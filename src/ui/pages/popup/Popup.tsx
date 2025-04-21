@@ -14,6 +14,10 @@ import { RecordingState, StorageKey } from "@/app/storage";
 import { sender } from "@/app/messaging";
 import useStorageValue from "@/ui/hooks/useStorageValue";
 
+import { IconAssembly } from "@tabler/icons-react";
+import imageBackground from "/assets/background.svg";
+import imageLookup64 from "/assets/klack_lookup_64.png";
+
 const CameraBubbleControls = () => {
   const [cameraBubbleEnabled] = useStorageValue(
     StorageKey.UiCameraBubbleEnabled,
@@ -189,6 +193,30 @@ const Popup = () => {
       <DeviceSelector type="Camera" />
       <RecordingControls />
     </Stack>
+  );
+};
+
+export const PopupV2 = () => {
+  return (
+    <div
+      className="flex h-[336px] w-[310px] flex-col items-center justify-center"
+      style={{
+        backgroundImage: `url(${imageBackground})`,
+      }}
+    >
+      {/* Header */}
+      <div className="flex h-[106px] w-full flex-row items-center justify-between">
+        <img src={imageLookup64} />
+        <div className="flex h-full w-full flex-row items-start justify-end p-[10px]">
+          <IconAssembly
+            color="white"
+            stroke={2}
+          />
+        </div>
+      </div>
+      {/* Main */}
+      <div className="flex h-full w-full flex-col items-center justify-start"></div>
+    </div>
   );
 };
 
