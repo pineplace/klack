@@ -1,4 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&family=Protest+Guerrilla&display=swap');
+
 @import "tailwindcss";
+
+/* shadcn/ui */
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -120,4 +124,9 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* custom rules */
+@utility font-dosis {
+  font-family: "Dosis", sans-serif;
 }
