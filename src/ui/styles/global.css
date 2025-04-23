@@ -127,6 +127,9 @@
 }
 
 /* custom rules */
-@utility font-dosis {
-  font-family: "Dosis", sans-serif;
+@theme {
+  --color-klack-red-500: #fe6161;
+  --color-klack-red-600: #e95656;
+  --color-klack-red-700: #cc4d4d;
+  --font-dosis: "Dosis", sans-serif;
 }

@@ -20,9 +20,8 @@ import {
   IconMicrophone,
   IconMenu2,
 } from "@tabler/icons-react";
-import imageBackground from "/assets/background.svg";
-import imageLookup64 from "/assets/klack_lookup_64.png";
-import imageButtonPopupRec from "/assets/button_PopupRec.svg";
+import background from "/assets/Background.svg";
+import lookup128 from "/assets/Lookup_128.png";
 
 const CameraBubbleControls = () => {
   const [cameraBubbleEnabled] = useStorageValue(
@@ -207,14 +206,14 @@ export const PopupV2 = () => {
     <div
       className="flex h-full w-full flex-col items-center justify-center"
       style={{
-        backgroundImage: `url(${imageBackground})`,
+        backgroundImage: `url(${background})`,
       }}
     >
-      <div className="flex min-h-[106px] w-full flex-row items-center justify-between">
-        <img src={imageLookup64} />
-        <div className="flex h-full flex-grow flex-row items-start justify-end p-[10px]">
+      <div className="flex min-h-[106px] w-full flex-row items-center justify-between p-[10px]">
+        <img src={lookup128} />
+        <div className="flex h-full flex-grow flex-row items-start justify-end">
           <IconAssembly
-            color="white"
+            className="stroke-white hover:stroke-gray-400 active:stroke-white"
             stroke={2}
           />
         </div>
@@ -222,13 +221,24 @@ export const PopupV2 = () => {
       <div className="flex h-full w-full flex-col items-center justify-start">
         <div className="flex w-full flex-row items-center justify-between p-[10px]">
           <div className="flex flex-row items-center justify-start gap-[5px]">
-            <IconVideo stroke={2} />
-            <IconMicrophone stroke={2} />
+            <IconVideo
+              className="stroke-black hover:stroke-gray-500 active:stroke-black"
+              stroke={2}
+            />
+            <IconMicrophone
+              className="stroke-black hover:stroke-gray-500 active:stroke-black"
+              stroke={2}
+            />
           </div>
-          <IconMenu2 stroke={2} />
+          <IconMenu2
+            className="stroke-black hover:stroke-gray-500 active:stroke-black"
+            stroke={2}
+          />
         </div>
         <div className="flex h-full w-full flex-row items-center justify-center">
-          <img src={imageButtonPopupRec} />
+          <div className="bg-klack-red-500 hover:bg-klack-red-600 active:bg-klack-red-500 flex size-[64px] items-center justify-center rounded-full">
+            <div className="relative size-[52px] rounded-[100%] border-4 border-white"></div>
+          </div>
         </div>
         <div className="font-dosis flex w-full flex-row items-center justify-center p-[10px] text-2xl">
           01:23:45
