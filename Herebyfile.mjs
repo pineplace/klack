@@ -21,10 +21,11 @@ const buildOptions = {
   entryPoints: [
     "./src/background/background.ts",
     "./src/background/offscreen.ts",
-    "./src/ui/camera_bubble/camera_bubble.ts",
-    "./src/ui/recording_start_counter/recording_start_counter.ts",
-    "./src/ui/popup/popup.ts",
-    "./src/ui/camera_bubble_stream/camera_bubble_stream.ts",
+    "./src/ui/injections/camera_bubble_stream/camera_bubble_stream.ts",
+    "./src/ui/injections/recording_start_countdown/recording_start_countdown.ts",
+    "./src/ui/pages/camera_bubble/camera_bubble.ts",
+    "./src/ui/pages/permissions/permissions.ts",
+    "./src/ui/pages/popup/popup.ts",
   ],
   outdir: "./public",
   outExtension: {
@@ -38,23 +39,20 @@ const buildOptions = {
     "process.env.APP_TITLE": JSON.stringify(process.env.npm_package_name),
     "process.env.APP_VERSION": JSON.stringify(process.env.npm_package_version),
   },
+  loader: {
+    ".jpg": "file",
+    ".png": "file",
+    ".svg": "file",
+  },
 };
 
 export const build = task({
   name: "build",
   dependencies: [setupDotenv],
   run: async () => {
+    await $`npx @tailwindcss/cli -i ./src/ui/styles/global.css -o ./public/klack_tailwind_global.css`;
     await $`tsc --noEmit`;
     await esbuild.build(buildOptions);
-  },
-});
-
-export const buildWatch = task({
-  name: "build:watch",
-  dependencies: [setupDotenv],
-  run: async () => {
-    const context = await esbuild.context(buildOptions);
-    await Promise.all([$`tsc --noEmit --watch`, context.watch()]);
   },
 });
 
@@ -62,6 +60,7 @@ export const buildRelease = task({
   name: "build:release",
   dependencies: [setupDotenv],
   run: async () => {
+    await $`npx @tailwindcss/cli -i ./src/ui/styles/global.css -o ./public/klack_tailwind_global.css`;
     await $`tsc --noEmit`;
     await esbuild.build({
       ...buildOptions,
@@ -78,8 +77,24 @@ export const clean = task({
       "-rf",
       "./public/*mjs",
       "./public/*mjs.map",
+      "./public/*.css",
+      "./public/*.jpg",
+      "./public/*.png",
+      "./public/*.svg",
       "./coverage",
       ".jest-test-results.json",
     );
+  },
+});
+
+export const dev = task({
+  name: "dev",
+  dependencies: [setupDotenv],
+  run: async () => {
+    const context = await esbuild.context(buildOptions);
+    await Promise.all([
+      await $`npx @tailwindcss/cli -i ./src/ui/styles/global.css -o ./public/klack_tailwind_global.css --watch`,
+      context.watch(),
+    ]);
   },
 });

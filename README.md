@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable MD033 -->
 <p align="center">
-  <img src="./docs/assets/lookup.png" alt="klack lookup">
+  <img src="./docs/assets/Lookup_512x257.png" alt="klack lookup">
 </p>
 
 ## About
