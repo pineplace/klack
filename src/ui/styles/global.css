@@ -1,10 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&family=Protest+Guerrilla&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&family=Protest+Guerrilla&display=swap");
 
 @import "tailwindcss";
 
 @theme {
-  --color-klack-red-500: #fe6161;
-  --color-klack-red-600: #e95656;
-  --color-klack-red-700: #cc4d4d;
+  --color-klack-charcoal-700: oklch(0.3 0 0);
+  --color-klack-charcoal-800: oklch(0.25 0 0);
+  --color-klack-charcoal-900: oklch(0.2 0 0);
+  --color-klack-red-500: oklch(0.7 0.192 23.51);
+  --color-klack-red-600: oklch(0.65 0.1825 23.69);
+  --color-klack-red-700: oklch(0.59 0.1619 23.45);
   --font-dosis: "Dosis", sans-serif;
 }
