@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/imblowfish/klack"
+    "url": "https://github.com/pineplace/klack"
   },
   "author": {
     "name": "Yury Getman",
@@ -25,15 +25,13 @@
     "url": "https://github.com/imblowfish"
   },
   "bugs": {
-    "url": "https://github.com/imblowfish/klack/issues"
+    "url": "https://github.com/pineplace/klack/issues"
   },
   "license": "ISC",
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@jest/globals": "^29.7.0",
-    "@mui/icons-material": "^5.15.14",
-    "@mui/material": "^5.15.14",
     "@tabler/icons-react": "^3.31.0",
     "@tailwindcss/cli": "^4.1.4",
     "@testing-library/react": "^14.2.2",
