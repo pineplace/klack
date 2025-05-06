@@ -11,7 +11,6 @@ export const CameraBubble = () => {
       y: 100,
     },
   );
-  // TODO: Add resizing
   const [size] = useStorageValue(StorageKey.UiCameraBubbleSize, {
     width: 250,
     height: 250,
