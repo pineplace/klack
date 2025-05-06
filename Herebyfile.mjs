@@ -22,7 +22,6 @@ const buildOptions = {
     "./src/background/background.ts",
     "./src/background/offscreen.ts",
     "./src/ui/injections/camera_bubble_stream/camera_bubble_stream.ts",
-    "./src/ui/injections/recording_start_countdown/recording_start_countdown.ts",
     "./src/ui/pages/camera_bubble/camera_bubble.ts",
     "./src/ui/pages/permissions/permissions.ts",
     "./src/ui/pages/popup/popup.ts",
