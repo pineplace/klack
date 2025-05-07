@@ -11,7 +11,7 @@
     "build:release": "hereby build:release",
     "clean": "hereby clean",
     "dev": "hereby dev",
-    "lint": "eslint --ext .mjs --ext .ts --ext .tsx .",
+    "lint": "eslint",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check ."
   },
@@ -29,6 +29,9 @@
   },
   "license": "ISC",
   "dependencies": {
+    "@eslint/compat": "^1.2.9",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.26.0",
     "@jest/globals": "^29.7.0",
     "@tabler/icons-react": "^3.31.0",
     "@tailwindcss/cli": "^4.1.5",
@@ -50,6 +53,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "execa": "^9.5.2",
+    "globals": "^16.1.0",
     "hereby": "^1.10.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
