@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const CameraBubbleStream = () => {
   const [stream, setStream] = useState<MediaStream | null>(null);

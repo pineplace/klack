@@ -1,4 +1,3 @@
-import React from "react";
 import { RecordingState, StorageKey } from "@/app/storage";
 import { sender } from "@/app/messaging";
 import useStorageValue from "@/ui/hooks/useStorageValue";
