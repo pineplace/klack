@@ -4,7 +4,7 @@ import {
   createStorageSetter,
   StorageKey,
   StorageValueType,
-} from "@/app/storage";
+} from "@/shared/storage";
 
 export default function useStorageValue<Key extends StorageKey>(
   storageKey: Key,

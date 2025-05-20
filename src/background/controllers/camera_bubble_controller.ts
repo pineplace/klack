@@ -3,9 +3,9 @@ import {
   MessageResponse,
   MessageResponseType,
   MessageType,
-} from "@/app/messaging";
-import { storage } from "@/app/storage";
-import { Injection, InjectionElementId } from "@/app/injections";
+} from "@/shared/messaging";
+import { storage } from "@/shared/storage";
+import { Injection, InjectionElementId } from "@/shared/injections";
 import { Injector } from "@/background/injector";
 
 class CameraBubbleController {
