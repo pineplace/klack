@@ -1,4 +1,4 @@
-import { storage } from "@/app/storage";
+import { storage } from "@/shared/storage";
 
 chrome.tabs.onActivated.addListener((activatedTabInfo) => {
   console.log("Handle 'chrome.tabs.onActivated'");

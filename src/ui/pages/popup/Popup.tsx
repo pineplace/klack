@@ -1,5 +1,5 @@
-import { RecordingState, StorageKey } from "@/app/storage";
-import { sender } from "@/app/messaging";
+import { RecordingState, StorageKey } from "@/shared/storage";
+import { sender } from "@/shared/messaging";
 import useStorageValue from "@/ui/hooks/useStorageValue";
 import { PauseButton } from "./components/PauseButton";
 import { PlayButton } from "./components/PlayButton";
