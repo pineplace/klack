@@ -14,8 +14,8 @@ import {
   IconTrash,
   IconUserCircle,
 } from "@tabler/icons-react";
-import background from "/assets/Background.svg";
-import lookup128 from "/assets/Lookup_128.png";
+import background from "/static/Background.svg";
+import lookup128 from "/static/Lookup_128.png";
 
 const Settings = () => {
   const [cameraBubbleEnabled] = useStorageValue(
