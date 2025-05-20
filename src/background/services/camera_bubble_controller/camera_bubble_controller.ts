@@ -6,7 +6,7 @@ import {
 } from "@/shared/messaging";
 import { storage } from "@/shared/storage";
 import { Injection, InjectionElementId } from "@/shared/injections";
-import { Injector } from "@/background/injector";
+import { Injector } from "./injector";
 
 class CameraBubbleController {
   static async show() {
