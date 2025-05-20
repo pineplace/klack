@@ -5,11 +5,11 @@
   "version": "0.10.0",
   "manifest_version": 3,
   "icons": {
-    "16": "./static/logo/Logo_16.png",
-    "32": "./static/logo/Logo_32.png",
-    "48": "./static/logo/Logo_48.png",
-    "128": "./static/logo/Logo_128.png",
-    "256": "./static/logo/Logo_256.png"
+    "16": "./static/Logo_16.png",
+    "32": "./static/Logo_32.png",
+    "48": "./static/Logo_48.png",
+    "128": "./static/Logo_128.png",
+    "256": "./static/Logo_256.png"
   },
   "action": {
     "default_popup": "./popup.html"
