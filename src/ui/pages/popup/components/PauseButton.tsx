@@ -1,12 +1,10 @@
-import React, { forwardRef } from "react";
+import React from "react";
 
-export const PauseButton = forwardRef<
-  HTMLButtonElement,
-  Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "className">
->((props, ref) => {
+export const PauseButton = (
+  props: Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "className">,
+) => {
   return (
     <button
-      ref={ref}
       className="bg-klack-red-500 hover:bg-klack-red-600 active:bg-klack-red-500 flex size-[64px] items-center justify-center rounded-full"
       {...props}
     >
@@ -16,5 +14,5 @@ export const PauseButton = forwardRef<
       </div>
     </button>
   );
-});
+};
 PauseButton.displayName = "PauseButton";

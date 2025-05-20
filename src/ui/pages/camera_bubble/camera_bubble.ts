@@ -13,12 +13,8 @@ async function inject() {
   cameraBubbleContainer.id = InjectionElementId.CameraBubble;
 
   const shadowRoot = cameraBubbleContainer.attachShadow({ mode: "open" });
-  const linkElement = document.createElement("link");
-  linkElement.href = chrome.runtime.getURL("./klack_tailwind_global.css");
-  linkElement.rel = "stylesheet";
-  shadowRoot.append(linkElement);
-
   document.body.append(cameraBubbleContainer);
+
   ReactDOM.createRoot(shadowRoot).render(
     React.createElement(CameraBubble, {
       initialPosition: await storage.ui.cameraBubble.position.get(),

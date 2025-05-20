@@ -1,8 +1,0 @@
-.github/
-.vscode/
-coverage/
-
-node_modules/
-public/
-
-jest.config.js
