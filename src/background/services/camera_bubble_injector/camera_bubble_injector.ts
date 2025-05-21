@@ -8,9 +8,9 @@ import { storage } from "@/shared/storage";
 import { Injection, InjectionElementId } from "@/shared/injections";
 import { Injector } from "./injector";
 
-class CameraBubbleController {
+class CameraBubbleInjector {
   static async show() {
-    console.log("CameraBubbleController.show()");
+    console.log("CameraBubbleInjector.show()");
     const [currentTab] = await chrome.tabs.query({
       active: true,
       lastFocusedWindow: true,
@@ -21,7 +21,7 @@ class CameraBubbleController {
   }
 
   static async hide() {
-    console.log("CameraBubbleController.hide()");
+    console.log("CameraBubbleInjector.hide()");
     await Injector.deinject(
       await storage.ui.cameraBubble.tabId.get(),
       InjectionElementId.CameraBubble,
@@ -37,8 +37,8 @@ chrome.tabs.onActivated.addListener((_activeTabInfo) => {
     if (!(await storage.ui.cameraBubble.enabled.get())) {
       return;
     }
-    await CameraBubbleController.hide();
-    await CameraBubbleController.show();
+    await CameraBubbleInjector.hide();
+    await CameraBubbleInjector.show();
   })().catch((err) => {
     console.error(
       `Error in 'chrome.tabs.onActivated' handler: ${(err as Error).toString()}`,
@@ -52,7 +52,7 @@ chrome.tabs.onUpdated.addListener((_tabId, _changeInfo, _tab) => {
     if (!(await storage.ui.cameraBubble.enabled.get())) {
       return;
     }
-    await CameraBubbleController.show();
+    await CameraBubbleInjector.show();
   })().catch((err) => {
     console.error(
       `Error in 'chrome.tabs.onUpdated' handler: ${(err as Error).toString()}`,
@@ -66,7 +66,7 @@ chrome.tabs.onRemoved.addListener((_closedTabId, _removeInfo) => {
     if (!(await storage.ui.cameraBubble.enabled.get())) {
       return;
     }
-    await CameraBubbleController.show();
+    await CameraBubbleInjector.show();
   })().catch((err) => {
     console.error(
       `Error in 'chrome.tabs.onRemoved' handler: ${(err as Error).toString()}`,
@@ -80,8 +80,8 @@ chrome.windows.onFocusChanged.addListener((_windowId) => {
     if (!(await storage.ui.cameraBubble.enabled.get())) {
       return;
     }
-    await CameraBubbleController.hide();
-    await CameraBubbleController.show();
+    await CameraBubbleInjector.hide();
+    await CameraBubbleInjector.show();
   })().catch((err) => {
     console.error(
       `Error in 'chrome.windows.onFocusChanged' handler: ${(err as Error).toString()}`,
@@ -102,10 +102,10 @@ chrome.runtime.onMessage.addListener(
       }
       switch (type) {
         case MessageType.CameraBubbleShow:
-          await CameraBubbleController.show();
+          await CameraBubbleInjector.show();
           break;
         case MessageType.CameraBubbleHide:
-          await CameraBubbleController.hide();
+          await CameraBubbleInjector.hide();
           break;
       }
     })()
