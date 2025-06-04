@@ -13,6 +13,7 @@ class Recorder {
   #chunks: BlobPart[];
   #isRecordingCanceled: boolean;
   #mediaRecorder?: MediaRecorder;
+  #downloadUrl?: string;
 
   constructor(mimeType: string) {
     console.log(`Recorder.constructor(mimeType='${mimeType}')`);
@@ -24,7 +25,7 @@ class Recorder {
 
   #onTrackEnded() {
     (async () => {
-      await sender.background.recordingStop();
+      await sender.background.recordingComplete();
     })().catch((err) => {
       console.error(
         `Recorder.#onTrackEnded error: ${(err as Error).toString()}`,
@@ -48,17 +49,15 @@ class Recorder {
         return;
       }
 
-      const downloadUrl = URL.createObjectURL(
+      this.#downloadUrl = URL.createObjectURL(
         new Blob(this.#chunks, {
           type: event.data.type,
         }),
       );
 
       await sender.background.recordingSave({
-        recordingUrl: downloadUrl,
+        recordingUrl: this.#downloadUrl,
       });
-
-      URL.revokeObjectURL(downloadUrl);
     })().catch((err) => {
       console.error(
         `Recorder.#onMediaRecorderDataAvailable error: ${(err as Error).toString()}`,
@@ -78,7 +77,7 @@ class Recorder {
     });
 
     for (const track of this.#mediaStream.getTracks()) {
-      track.addEventListener("ended", this.#onTrackEnded.bind(this));
+      track.addEventListener("ended", this.#onTrackEnded);
     }
 
     this.#mediaRecorder.addEventListener(
@@ -95,6 +94,7 @@ class Recorder {
     }
     this.#mediaRecorder.stop();
     for (const track of this.#mediaStream.getTracks()) {
+      track.removeEventListener("ended", this.#onTrackEnded);
       track.stop();
     }
   }
@@ -119,6 +119,14 @@ class Recorder {
     }
     this.#isRecordingCanceled = true;
     this.stop();
+  }
+
+  cleanup() {
+    if (!this.#downloadUrl) {
+      return;
+    }
+    URL.revokeObjectURL(this.#downloadUrl);
+    this.#downloadUrl = "";
   }
 }
 
@@ -207,6 +215,7 @@ class RecorderController {
       console.error("Recorder is not created");
       return;
     }
+    RecorderController.#recorder.cleanup();
     RecorderController.#recorder = undefined;
   }
 }
