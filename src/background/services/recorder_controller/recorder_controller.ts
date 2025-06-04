@@ -77,7 +77,7 @@ class Recorder {
     });
 
     for (const track of this.#mediaStream.getTracks()) {
-      track.addEventListener("ended", this.#onTrackEnded);
+      track.addEventListener("ended", this.#onTrackEnded.bind(this));
     }
 
     this.#mediaRecorder.addEventListener(
@@ -94,7 +94,6 @@ class Recorder {
     }
     this.#mediaRecorder.stop();
     for (const track of this.#mediaStream.getTracks()) {
-      track.removeEventListener("ended", this.#onTrackEnded);
       track.stop();
     }
   }

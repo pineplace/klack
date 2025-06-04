@@ -99,6 +99,7 @@ class RecordingController {
       return;
     }
     await sender.offscreen.recorderDelete();
+    await chrome.offscreen.closeDocument();
     await storage.recording.state.set(RecordingState.NotStarted);
     await storage.recording.downloadId.set(0);
   }
