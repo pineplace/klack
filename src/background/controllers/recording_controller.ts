@@ -5,8 +5,8 @@ import {
   MessageType,
   RecordingSaveOptions,
   sender,
-} from "@/shared/messaging";
-import { RecordingState, storage } from "@/shared/storage";
+} from "@/app/messaging";
+import { RecordingState, storage } from "@/app/storage";
 
 class RecordingController {
   static async start() {

@@ -1,5 +1,5 @@
-import { RecordingState, StorageKey } from "@/shared/storage";
-import { sender } from "@/shared/messaging";
+import { RecordingState, StorageKey } from "@/app/storage";
+import { sender } from "@/app/messaging";
 import useStorageValue from "@/ui/hooks/useStorageValue";
 import { PauseButton } from "./components/PauseButton";
 import { PlayButton } from "./components/PlayButton";
@@ -14,8 +14,8 @@ import {
   IconTrash,
   IconUserCircle,
 } from "@tabler/icons-react";
-import background from "/static/Background.svg";
-import lookup128 from "/static/Lookup_128.png";
+import background from "/assets/Background.svg";
+import lookup128 from "/assets/Lookup_128.png";
 
 const Settings = () => {
   const [cameraBubbleEnabled] = useStorageValue(

@@ -1,1 +1,1 @@
-import "./services/recorder_controller/recorder_controller";
+import "./controllers/recorder_controller";

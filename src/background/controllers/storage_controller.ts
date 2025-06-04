@@ -1,5 +1,5 @@
-import { config } from "@/shared/config";
-import { RecordingState, storage } from "@/shared/storage";
+import { config } from "@/app/config";
+import { RecordingState, storage } from "@/app/storage";
 
 chrome.runtime.onInstalled.addListener((_details) => {
   console.log("Handle 'chrome.runtime.onInstalled'");
@@ -23,6 +23,11 @@ chrome.runtime.onInstalled.addListener((_details) => {
     console.log(
       `Storage: ${JSON.stringify(await storage.getEntireStorage(), undefined, 2)}`,
     );
+
+    await chrome.tabs.create({
+      active: true,
+      url: chrome.runtime.getURL("permissions.html"),
+    });
   })().catch((err) => {
     console.error(
       `Error in 'chrome.runtime.onInstalled' handler: ${(err as Error).toString()}`,
