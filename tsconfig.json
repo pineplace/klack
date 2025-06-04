@@ -29,8 +29,7 @@
     "paths": {
       /* Specify a set of entries that re-map imports to additional lookup locations. */
       "@/*": ["./*"],
-      "/static/*": ["../public/static/*"],
-      "/assets/*": ["./ui/assets/*"]
+      "/static/*": ["../public/static/*"]
     },
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     "typeRoots": [

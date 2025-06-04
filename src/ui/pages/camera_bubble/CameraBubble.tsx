@@ -1,4 +1,4 @@
-import { StorageKey } from "@/app/storage";
+import { StorageKey } from "@/shared/storage";
 import useStorageValue from "@/ui/hooks/useStorageValue";
 import { Draggable } from "./components/Draggable";
 
