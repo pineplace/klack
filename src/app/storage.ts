@@ -9,6 +9,7 @@ export enum StorageKey {
   DevicesVideoId = "devices.video.id",
   DevicesVideoName = "devices.video.name",
   RecordingState = "recording.state",
+  RecordingDownloadId = "recording.download_id",
   UiCameraBubbleEnabled = "ui.cameraBubble.enabled",
   UiCameraBubblePosition = "ui.cameraBubble.position",
   UiCameraBubbleSize = "ui.cameraBubble.size",
@@ -18,6 +19,8 @@ export enum StorageKey {
 export enum RecordingState {
   NotStarted = "NotStarted",
   InProgress = "InProgress",
+  Completed = "Completed",
+  Downloading = "Downloading",
   OnPause = "OnPause",
 }
 
@@ -32,6 +35,7 @@ type StorageValueTypeMap = {
   [StorageKey.DevicesVideoId]: string;
   [StorageKey.DevicesVideoName]: string;
   [StorageKey.RecordingState]: RecordingState;
+  [StorageKey.RecordingDownloadId]: number;
   [StorageKey.UiCameraBubbleEnabled]: boolean;
   [StorageKey.UiCameraBubblePosition]: { x: number; y: number };
   [StorageKey.UiCameraBubbleSize]: { width: number; height: number };
@@ -83,6 +87,7 @@ export const storage = {
   },
   recording: {
     state: createStorageSetterGetter(StorageKey.RecordingState),
+    downloadId: createStorageSetterGetter(StorageKey.RecordingDownloadId),
   },
   ui: {
     cameraBubble: {

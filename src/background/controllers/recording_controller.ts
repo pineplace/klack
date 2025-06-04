@@ -40,15 +40,13 @@ class RecordingController {
     await storage.recording.state.set(RecordingState.InProgress);
   }
 
-  static async stop() {
-    console.log("RecordingController.stop()");
+  static async complete() {
+    console.log("RecordingController.complete()");
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
     await sender.offscreen.recorderStop();
-    await sender.offscreen.recorderDelete();
-    await chrome.offscreen.closeDocument();
-    await storage.recording.state.set(RecordingState.NotStarted);
+    await storage.recording.state.set(RecordingState.Completed);
   }
 
   static async pause() {
@@ -85,9 +83,24 @@ class RecordingController {
     if (!(await chrome.offscreen.hasDocument())) {
       return;
     }
-    await chrome.downloads.download({
+    const downloadId = await chrome.downloads.download({
       url: options.recordingUrl,
     });
+    await storage.recording.downloadId.set(downloadId);
+    await storage.recording.state.set(RecordingState.Downloading);
+    console.log(
+      `RecordingController.save(): Downloading started with id=${downloadId}`,
+    );
+  }
+
+  static async saveComplete() {
+    console.log("RecordingController.saveComplete()");
+    if (!(await chrome.offscreen.hasDocument())) {
+      return;
+    }
+    await sender.offscreen.recorderDelete();
+    await storage.recording.state.set(RecordingState.NotStarted);
+    await storage.recording.downloadId.set(0);
   }
 }
 
@@ -106,8 +119,8 @@ chrome.runtime.onMessage.addListener(
         case MessageType.RecordingStart:
           await RecordingController.start();
           break;
-        case MessageType.RecordingStop:
-          await RecordingController.stop();
+        case MessageType.RecordingComplete:
+          await RecordingController.complete();
           break;
         case MessageType.RecordingPause:
           await RecordingController.pause();
@@ -141,3 +154,29 @@ chrome.runtime.onMessage.addListener(
     return true;
   },
 );
+
+chrome.downloads.onChanged.addListener((downloadDelta) => {
+  (async () => {
+    const downloadId = await storage.recording.downloadId.get();
+    if (!downloadId || downloadDelta.id !== downloadId) {
+      return;
+    }
+    const { state } = downloadDelta;
+    // NOTE: We may receive filename update here without `state` on downloading,
+    //       so we can just ignore such case
+    if (!state) {
+      return;
+    }
+    if (state?.current === "complete") {
+      await RecordingController.saveComplete();
+      return;
+    }
+    console.error(
+      `Problem with recording downloading: ${JSON.stringify(downloadDelta)}`,
+    );
+  })().catch((err) => {
+    console.error(
+      `Error in 'chrome.downloads.onChanged' handler: ${(err as Error).toString()}`,
+    );
+  });
+});

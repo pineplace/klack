@@ -3,7 +3,7 @@ export enum MessageType {
   CameraBubbleShow = "CameraBubbleShow",
   CameraBubbleHide = "CameraBubbleHide",
   RecordingStart = "RecordingStart",
-  RecordingStop = "RecordingStop",
+  RecordingComplete = "RecordingComplete",
   RecordingPause = "RecordingPause",
   RecordingResume = "RecordingResume",
   RecordingCancel = "RecordingCancel",
@@ -65,9 +65,9 @@ export const sender = {
         target: "background",
       });
     },
-    recordingStop: () => {
+    recordingComplete: () => {
       return chrome.runtime.sendMessage<Message, MessageResponse>({
-        type: MessageType.RecordingStop,
+        type: MessageType.RecordingComplete,
         target: "background",
       });
     },

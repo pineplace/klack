@@ -119,13 +119,13 @@ const RecordingControl = () => {
             className="h-[28px] w-[28px] stroke-black transition-colors hover:stroke-[#00d492]"
             stroke={2}
             onClick={() => {
-              sender.background
-                .recordingStop()
-                .catch((err) =>
-                  console.error(
-                    `Can't stop recording: ${(err as Error).toString()}`,
-                  ),
-                );
+              (async () => {
+                await sender.background.recordingComplete();
+              })().catch((err) =>
+                console.error(
+                  `Can't complete and download recording: ${(err as Error).toString()}`,
+                ),
+              );
             }}
           />
           <PlayButton
