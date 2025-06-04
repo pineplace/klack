@@ -5,8 +5,8 @@ import {
   MessageType,
   RecordingSaveOptions,
   sender,
-} from "@/app/messaging";
-import { RecordingState, storage } from "@/app/storage";
+} from "@/shared/messaging";
+import { RecordingState, storage } from "@/shared/storage";
 
 class RecordingController {
   static async start() {
@@ -99,6 +99,7 @@ class RecordingController {
       return;
     }
     await sender.offscreen.recorderDelete();
+    await chrome.offscreen.closeDocument();
     await storage.recording.state.set(RecordingState.NotStarted);
     await storage.recording.downloadId.set(0);
   }
