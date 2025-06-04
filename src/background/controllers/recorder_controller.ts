@@ -5,7 +5,7 @@ import {
   MessageType,
   RecorderCreateOptions,
   sender,
-} from "@/shared/messaging";
+} from "@/app/messaging";
 
 class Recorder {
   #mimeType: string;

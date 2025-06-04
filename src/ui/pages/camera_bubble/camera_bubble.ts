@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Injection, InjectionElementId } from "@/shared/injections";
-import { storage } from "@/shared/storage";
+import { Injection, InjectionElementId } from "@/app/injections";
+import { storage } from "@/app/storage";
 import { CameraBubble } from "./CameraBubble";
 
 async function inject() {
