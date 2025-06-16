@@ -27,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/pineplace/klack/issues"
   },
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@eslint/js": "^9.27.0",
     "@tabler/icons-react": "^3.33.0",
