@@ -1,0 +1,6 @@
+Klack Logo  
+Copyright (c) 2025 Yury Getman
+
+The "Klack Logo" is protected by copyright. Unauthorized use, reproduction, or distribution of the logo is prohibited without prior written permission from the copyright holder, Yury Getman.
+
+For inquiries regarding the use of the "Klack Logo," please open an issue in the GitHub repository or visit the contact links provided in the author's Github profile `https://github.com/imblowfish`.
