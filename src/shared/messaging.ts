@@ -8,6 +8,7 @@ export enum MessageType {
   RecordingResume = "RecordingResume",
   RecordingCancel = "RecordingCancel",
   RecordingSave = "RecordingSave",
+  PermissionsPageClose = "PermissionsPageClose",
   // offscreen
   RecorderCreate = "RecorderCreate",
   RecorderStart = "RecorderStart",
@@ -94,6 +95,12 @@ export const sender = {
         type: MessageType.RecordingSave,
         target: "background",
         options,
+      });
+    },
+    permissionsPageClose: () => {
+      return chrome.runtime.sendMessage<Message, MessageResponse>({
+        type: MessageType.PermissionsPageClose,
+        target: "background",
       });
     },
   },
