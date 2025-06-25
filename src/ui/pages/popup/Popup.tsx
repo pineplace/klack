@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { RecordingState, StorageKey } from "@/shared/storage";
 import { sender } from "@/shared/messaging";
 import useStorageValue from "@/ui/hooks/useStorageValue";
@@ -119,13 +120,13 @@ const RecordingControl = () => {
             className="h-[28px] w-[28px] stroke-black transition-colors hover:stroke-[#00d492]"
             stroke={2}
             onClick={() => {
-              (async () => {
-                await sender.background.recordingComplete();
-              })().catch((err) =>
-                console.error(
-                  `Can't complete and download recording: ${(err as Error).toString()}`,
-                ),
-              );
+              sender.background
+                .recordingComplete()
+                .catch((err) =>
+                  console.error(
+                    `Can't complete and download recording: ${(err as Error).toString()}`,
+                  ),
+                );
             }}
           />
           <PlayButton
@@ -168,6 +169,43 @@ const RecordingDuration = () => {
 };
 
 export const Popup = () => {
+  const [micPermissionsState, setMicPermissionsState] =
+    useState<PermissionState>("prompt");
+  const [videoPermissionsState, setVideoPermissionsState] =
+    useState<PermissionState>("prompt");
+
+  useEffect(() => {
+    (async () => {
+      const permissionsStatus = await navigator.permissions.query({
+        name: "camera",
+      });
+      setVideoPermissionsState(permissionsStatus.state);
+      permissionsStatus.onchange = () => {
+        setVideoPermissionsState(permissionsStatus.state);
+      };
+    })().catch((err) => {
+      console.error(
+        `Can't get permissions status for video: ${(err as Error).toString()}`,
+      );
+    });
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const permissionsStatus = await navigator.permissions.query({
+        name: "microphone",
+      });
+      setMicPermissionsState(permissionsStatus.state);
+      permissionsStatus.onchange = () => {
+        setMicPermissionsState(permissionsStatus.state);
+      };
+    })().catch((err) => {
+      console.error(
+        `Can't get permissions status for video: ${(err as Error).toString()}`,
+      );
+    });
+  }, []);
+
   return (
     <div
       className="flex h-full w-full flex-col items-center justify-center"
@@ -186,9 +224,35 @@ export const Popup = () => {
         </div>
       </header>
       <main className="flex h-full w-full flex-col items-center justify-start">
-        <Settings />
-        <RecordingControl />
-        <RecordingDuration />
+        {micPermissionsState === "granted" &&
+        videoPermissionsState === "granted" ? (
+          <>
+            <Settings />
+            <RecordingControl />
+            <RecordingDuration />
+          </>
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-[20px]">
+            <div className="font-dosis h-[77px] w-[266px] text-center text-xl text-black select-none">
+              <p>
+                Extension requires permissions to access your camera and
+                microphone
+              </p>
+            </div>
+            <button
+              className="bg-klack-red-500 hover:bg-klack-red-600 font-dosis flex h-[50px] w-[140px] cursor-pointer items-center justify-center text-lg font-bold text-white select-none"
+              onClick={() => {
+                sender.background.permissionsTabOpen().catch((err) => {
+                  console.error(
+                    `Can't open permissions tab: ${(err as Error).toString()}`,
+                  );
+                });
+              }}
+            >
+              Grant access
+            </button>
+          </div>
+        )}
       </main>
     </div>
   );

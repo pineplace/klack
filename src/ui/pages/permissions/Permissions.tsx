@@ -7,37 +7,71 @@ import {
   IconCircleX,
 } from "@tabler/icons-react";
 import lookup512 from "/static/Lookup_512.png";
-import { storage } from "@/shared/storage";
 import { sender } from "@/shared/messaging";
 
-enum PermissionState {
-  NotGranted,
-  Granted,
-  NotAllowed,
-}
-
 export const Permissions = () => {
-  const [videoPermissionState, setVideoPermissionState] = useState(
-    PermissionState.NotGranted,
-  );
-  const [micPermissionsState, setMicPermissionsState] = useState(
-    PermissionState.NotGranted,
-  );
+  const [videoPermissionState, setVideoPermissionState] =
+    useState<PermissionState>("prompt");
+  const [micPermissionsState, setMicPermissionsState] =
+    useState<PermissionState>("prompt");
+
+  useEffect(() => {
+    (async () => {
+      const permissionsStatus = await navigator.permissions.query({
+        name: "camera",
+      });
+      setVideoPermissionState(permissionsStatus.state);
+      permissionsStatus.onchange = () => {
+        setVideoPermissionState(permissionsStatus.state);
+      };
+    })().catch((err) => {
+      console.error(
+        `Can't get permissions status for video: ${(err as Error).toString()}`,
+      );
+    });
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const permissionsStatus = await navigator.permissions.query({
+        name: "microphone",
+      });
+      setMicPermissionsState(permissionsStatus.state);
+      permissionsStatus.onchange = () => {
+        setMicPermissionsState(permissionsStatus.state);
+      };
+    })().catch((err) => {
+      console.error(
+        `Can't get permissions status for video: ${(err as Error).toString()}`,
+      );
+    });
+  }, []);
+
+  useEffect(() => {
+    if (
+      videoPermissionState !== "granted" ||
+      micPermissionsState !== "granted"
+    ) {
+      return;
+    }
+    setTimeout(() => {
+      sender.background.permissionsTabClose().catch((err) => {
+        console.error(
+          `Can't send event to background: ${(err as Error).toString()}`,
+        );
+      });
+    }, 3 * 1000);
+  }, [micPermissionsState, videoPermissionState]);
 
   useEffect(() => {
     (async () => {
       await navigator.mediaDevices.getUserMedia({
         video: true,
       });
-      await storage.devices.video.permissionsGranted.set(true);
-      setVideoPermissionState(PermissionState.Granted);
-    })().catch(() => {
-      storage.devices.video.permissionsGranted.set(true).catch((err) => {
-        console.error(
-          `Can't set storage value for video device permissions: ${(err as Error).toString()}`,
-        );
-      });
-      setVideoPermissionState(PermissionState.NotAllowed);
+    })().catch((err) => {
+      console.error(
+        `Error on 'getUserMedia' for video device permissions: ${(err as Error).toString()}`,
+      );
     });
   }, []);
 
@@ -46,44 +80,30 @@ export const Permissions = () => {
       await navigator.mediaDevices.getUserMedia({
         audio: true,
       });
-      setMicPermissionsState(PermissionState.Granted);
-      await storage.devices.mic.permissionsGranted.set(true);
-    })().catch(() => {
-      storage.devices.mic.permissionsGranted.set(true).catch((err) => {
-        console.error(
-          `Can't set storage value for video device permissions: ${(err as Error).toString()}`,
-        );
-      });
-      setMicPermissionsState(PermissionState.NotAllowed);
+    })().catch((err) => {
+      console.error(
+        `Can't on 'getUserMedia' for audio device permissions: ${(err as Error).toString()}`,
+      );
     });
   }, []);
-
-  useEffect(() => {
-    if (
-      videoPermissionState === PermissionState.NotGranted ||
-      micPermissionsState === PermissionState.NotGranted
-    ) {
-      return;
-    }
-
-    setTimeout(() => {
-      sender.background.permissionsPageClose().catch((err) => {
-        console.error(
-          `Can't send event to background: ${(err as Error).toString()}`,
-        );
-      });
-    }, 1 * 1000);
-  }, [micPermissionsState, videoPermissionState]);
 
   return (
     <div className="bg-klack-charcoal-800 flex h-full w-full flex-col items-center justify-center gap-25">
       <img src={lookup512} />
-      <div className="font-dosis w-[665px] text-center text-3xl whitespace-pre-line text-white">
-        <p>
-          Now the browser will ask for your permission to use your camera and
-          microphone.
-        </p>
-        <p>Please do not close this tab, it will close automatically.</p>
+      <div className="font-dosis w-[665px] text-center text-3xl text-white">
+        {videoPermissionState === "denied" ||
+        micPermissionsState === "denied" ? (
+          <p>
+            You denied access to required devices. Please enable them in your
+            browser settings and close this tab.
+          </p>
+        ) : (
+          <p>
+            Now the browser will ask for your permission to use your camera and
+            microphone. Please do not close this tab, it will close
+            automatically.
+          </p>
+        )}
       </div>
       <div className="flex flex-row items-center gap-[150px]">
         <div className="flex flex-row items-center gap-[10px]">
@@ -92,13 +112,13 @@ export const Permissions = () => {
             stroke={2}
             size={64}
           />
-          {videoPermissionState === PermissionState.NotGranted ? (
+          {videoPermissionState === "prompt" ? (
             <IconLoader2
               className="animate-spin stroke-white"
               stroke={2}
               size={32}
             />
-          ) : videoPermissionState === PermissionState.Granted ? (
+          ) : videoPermissionState === "granted" ? (
             <IconCircleCheck
               className="fill-klack-emerald-400 stroke-white"
               stroke={2}
@@ -118,13 +138,13 @@ export const Permissions = () => {
             stroke={2}
             size={64}
           />
-          {micPermissionsState === PermissionState.NotGranted ? (
+          {micPermissionsState === "prompt" ? (
             <IconLoader2
               className="animate-spin stroke-white"
               stroke={2}
               size={32}
             />
-          ) : micPermissionsState === PermissionState.Granted ? (
+          ) : micPermissionsState === "granted" ? (
             <IconCircleCheck
               className="fill-klack-emerald-400 stroke-white"
               stroke={2}

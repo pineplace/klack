@@ -7,7 +7,8 @@ import {
 import { storage } from "@/shared/storage";
 
 class PermissionsGiver {
-  static async createPermissionsTab() {
+  static async openPermissionsTab() {
+    console.log("PermissionsGiver.openPermissionsTab()");
     const tab = await chrome.tabs.create({
       active: true,
       url: chrome.runtime.getURL("permissions.html"),
@@ -16,6 +17,7 @@ class PermissionsGiver {
   }
 
   static async closePermissionsTab() {
+    console.log("PermissionsGiver.closePermissionsTab()");
     await chrome.tabs.remove(await storage.permissions.tabId.get());
     await storage.permissions.tabId.set(0);
   }
@@ -24,7 +26,7 @@ class PermissionsGiver {
 chrome.runtime.onInstalled.addListener((_details) => {
   console.log("Handle 'chrome.runtime.onInstalled'");
   (async () => {
-    await PermissionsGiver.createPermissionsTab();
+    await PermissionsGiver.openPermissionsTab();
   })().catch((err) => {
     console.error(
       `Error in 'chrome.runtime.onInstalled' handler: ${(err as Error).toString()}`,
@@ -44,7 +46,10 @@ chrome.runtime.onMessage.addListener(
         return;
       }
       switch (type) {
-        case MessageType.PermissionsPageClose:
+        case MessageType.PermissionsTabOpen:
+          await PermissionsGiver.openPermissionsTab();
+          break;
+        case MessageType.PermissionsTabClose:
           await PermissionsGiver.closePermissionsTab();
           break;
       }

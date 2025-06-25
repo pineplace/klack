@@ -5,11 +5,9 @@ export enum StorageKey {
   DevicesMicId = "devices.mic.id",
   DevicesMicName = "devices.mic.name",
   DevicesMicVolume = "devices.mic.volume",
-  DevicesMicPermissionGranted = "devices.mic.granted",
   DevicesVideoEnabled = "devices.video.enabled",
   DevicesVideoId = "devices.video.id",
   DevicesVideoName = "devices.video.name",
-  DevicesVideoPermissionGranted = "devices.video.granted",
   PermissionsTabId = "permissions.tabId",
   RecordingState = "recording.state",
   RecordingDownloadId = "recording.download_id",
@@ -34,11 +32,9 @@ type StorageValueTypeMap = {
   [StorageKey.DevicesMicId]: string;
   [StorageKey.DevicesMicName]: string;
   [StorageKey.DevicesMicVolume]: number;
-  [StorageKey.DevicesMicPermissionGranted]: boolean;
   [StorageKey.DevicesVideoEnabled]: boolean;
   [StorageKey.DevicesVideoId]: string;
   [StorageKey.DevicesVideoName]: string;
-  [StorageKey.DevicesVideoPermissionGranted]: boolean;
   [StorageKey.PermissionsTabId]: number;
   [StorageKey.RecordingState]: RecordingState;
   [StorageKey.RecordingDownloadId]: number;
@@ -84,17 +80,11 @@ export const storage = {
       id: createStorageSetterGetter(StorageKey.DevicesMicId),
       name: createStorageSetterGetter(StorageKey.DevicesMicName),
       volume: createStorageSetterGetter(StorageKey.DevicesMicVolume),
-      permissionsGranted: createStorageSetterGetter(
-        StorageKey.DevicesMicPermissionGranted,
-      ),
     },
     video: {
       enabled: createStorageSetterGetter(StorageKey.DevicesVideoEnabled),
       id: createStorageSetterGetter(StorageKey.DevicesVideoId),
       name: createStorageSetterGetter(StorageKey.DevicesVideoName),
-      permissionsGranted: createStorageSetterGetter(
-        StorageKey.DevicesVideoPermissionGranted,
-      ),
     },
   },
   permissions: {
