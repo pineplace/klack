@@ -8,6 +8,7 @@ export enum StorageKey {
   DevicesVideoEnabled = "devices.video.enabled",
   DevicesVideoId = "devices.video.id",
   DevicesVideoName = "devices.video.name",
+  PermissionsTabId = "permissions.tabId",
   RecordingState = "recording.state",
   RecordingDownloadId = "recording.download_id",
   UiCameraBubbleEnabled = "ui.cameraBubble.enabled",
@@ -34,6 +35,7 @@ type StorageValueTypeMap = {
   [StorageKey.DevicesVideoEnabled]: boolean;
   [StorageKey.DevicesVideoId]: string;
   [StorageKey.DevicesVideoName]: string;
+  [StorageKey.PermissionsTabId]: number;
   [StorageKey.RecordingState]: RecordingState;
   [StorageKey.RecordingDownloadId]: number;
   [StorageKey.UiCameraBubbleEnabled]: boolean;
@@ -84,6 +86,9 @@ export const storage = {
       id: createStorageSetterGetter(StorageKey.DevicesVideoId),
       name: createStorageSetterGetter(StorageKey.DevicesVideoName),
     },
+  },
+  permissions: {
+    tabId: createStorageSetterGetter(StorageKey.PermissionsTabId),
   },
   recording: {
     state: createStorageSetterGetter(StorageKey.RecordingState),
