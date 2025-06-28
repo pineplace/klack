@@ -10,7 +10,7 @@
 Chrome extension for recording quick videos of your screen and camera
 
 > [!IMPORTANT]
-> The project is in active development, it still has many bugs and problems
+> The project is under active development and still has a lot of bugs and issues.
 
 ## How to build
 
