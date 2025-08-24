@@ -23,17 +23,6 @@ class PermissionsGiver {
   }
 }
 
-chrome.runtime.onInstalled.addListener((_details) => {
-  console.log("Handle 'chrome.runtime.onInstalled'");
-  (async () => {
-    await PermissionsGiver.openPermissionsTab();
-  })().catch((err) => {
-    console.error(
-      `Error in 'chrome.runtime.onInstalled' handler: ${(err as Error).toString()}`,
-    );
-  });
-});
-
 chrome.runtime.onMessage.addListener(
   (
     message: Message,
