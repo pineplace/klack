@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run --silent",
-    "test:watch": "vitest --watch --silent",
+    "test:watch": "vitest",
     "test:coverage": "vitest run --coverage --silent",
     "build": "hereby build",
     "build:release": "hereby build:release",
