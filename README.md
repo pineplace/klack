@@ -1,5 +1,4 @@
-# klack
-
+<!-- markdownlint-disable MD041 -->
 <!-- markdownlint-disable MD033 -->
 <p align="center">
   <img src="./docs/assets/Lookup_512x257.png" alt="klack lookup">

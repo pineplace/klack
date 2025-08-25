@@ -82,7 +82,6 @@ export const storage = {
       volume: createStorageSetterGetter(StorageKey.DevicesMicVolume),
     },
     video: {
-      enabled: createStorageSetterGetter(StorageKey.DevicesVideoEnabled),
       id: createStorageSetterGetter(StorageKey.DevicesVideoId),
       name: createStorageSetterGetter(StorageKey.DevicesVideoName),
     },

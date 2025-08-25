@@ -10,7 +10,6 @@ chrome.runtime.onInstalled.addListener((_details) => {
     await storage.devices.mic.id.set("");
     await storage.devices.mic.name.set("");
     await storage.devices.mic.volume.set(0);
-    await storage.devices.video.enabled.set(true);
     await storage.devices.video.id.set("");
     await storage.devices.video.name.set("");
     await storage.recording.state.set(RecordingState.NotStarted);
