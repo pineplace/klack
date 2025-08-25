@@ -15,7 +15,6 @@ export default [
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
-        tsconfigRootDir: "./",
         project: "./tsconfig.json",
         ecmaFeatures: {
           jsx: true,
